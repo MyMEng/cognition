@@ -1,0 +1,136 @@
+% MEng project
+% CH1 --- background
+%
+\documentclass[12pt, a4paper, pdflatex, leqno, twoside]{report}
+
+% Define margins
+\usepackage[a4paper,inner=3cm,outer=2cm,top=2.5cm,bottom=2.5cm,pdftex]{geometry}
+% \usepackage[left=2.5cm, right=2.5cm, bottom=2.5cm, top=2.5cm]{geometry}
+
+\usepackage[T1]{fontenc} % polsih
+
+% Harvard citation
+\usepackage[square]{natbib}
+\usepackage{cite} % BiTeX
+
+\usepackage{graphicx}
+\usepackage{url}
+
+% New commands
+\newcommand{\ts}{\textsuperscript}
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+\newenvironment{dedication}
+  {\clearpage               % we want a new page
+   \thispagestyle{empty}    % no header and footer
+   \vspace*{\stretch{1}}    % some space at the top 
+   \itshape                 % the text is in italics
+   % \raggedleft            % flush to the right margin
+   \raggedright             % flush to the right margin
+   \par\setlength{\leftskip}{0.3\textwidth}\noindent\ignorespaces
+  }
+  {\par                     % end the paragraph
+   \vspace{\stretch{3}}     % space at bottom is three times that at the top
+   \clearpage               % finish off the page
+  }
+
+
+\begin{document}
+
+\begin{titlepage}
+  \begin{center}
+\includegraphics[width=0.5\textwidth]{gfx/UOB-logo.png}~\\[2.5cm]
+
+\HRule \\[0.4cm]
+{\huge \bfseries
+  Learning Prolog rules and extracting features from signals\\[0.4cm]
+}
+\HRule \\[1.5cm]
+
+    \begin{minipage}{0.4\textwidth}
+      \begin{flushleft} \large
+\emph{Author:}\\
+Kacper B. \textsc{\textbf{Sokol}}
+      \end{flushleft}
+    \end{minipage}
+    \begin{minipage}{0.4\textwidth}
+      \begin{flushright} \large
+\emph{Supervisor:} \\
+Prof.\ Peter \textsc{\textbf{Flach}}
+      \end{flushright}
+    \end{minipage}
+
+\let\thefootnote\relax\footnote{Level M/7 $|$ COMSM0130---40cp Individual Project}
+
+\vfill % Bottom of the page
+{\large \today}
+  \end{center}
+\end{titlepage}
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+
+% Acknowledgement
+\begin{center}Acknowledgement of Sources\\[2cm]\end{center}
+I acknowledge...
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+
+% Abstract
+\begin{abstract}
+\thispagestyle{empty}
+The abstract is...
+\begin{center}
+Keywords: \textbf{keywords...}
+
+\let\thefootnote\relax\footnote{\noindent This publication including experiment source code is available as \texttt{GitHub} repository at: \url{https://github.com/So-Cool/cognition}.}
+\end{center}
+\end{abstract}
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+
+\begin{dedication}
+This work is dedicated to...
+\end{dedication}
+
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+
+\newpage{
+  \thispagestyle{empty}
+  \cleardoublepage
+  \pagestyle{plain}
+  \tableofcontents
+  \thispagestyle{empty}
+}
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+
+
+\chapter{Background\label{chp:introduction}}
+\setcounter{page}{1}
+
+Text goes here...
+
+\begin{center}
+\noindent \line(1,0){250}
+\end{center}
+
+\bibliography{yhpargoil}{}
+\bibliographystyle{plainnat}
+% \bibliographystyle{plain}
+
+\end{document}

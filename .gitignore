@@ -1,0 +1,16 @@
+# Mac OS X
+.DS_Store
+
+# Notes
+*.txt
+
+# LaTex
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.pdf
+*toc
+
