@@ -4,8 +4,7 @@
 \documentclass[12pt, a4paper, pdflatex, leqno, twoside]{report}
 
 % Define margins
-\usepackage[a4paper,inner=3cm,outer=2cm,top=2.5cm,bottom=2.5cm,pdftex]{geometry}
-% \usepackage[left=2.5cm, right=2.5cm, bottom=2.5cm, top=2.5cm]{geometry}
+\usepackage[a4paper,inner=40mm,outer=20mm,top=20mm,bottom=25mm,pdftex]{geometry}
 
 \usepackage[T1]{fontenc} % polsih
 
@@ -14,7 +13,10 @@
 \usepackage{cite} % BiTeX
 
 \usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
 \usepackage{url}
+\usepackage{listings}
 
 % New commands
 \newcommand{\ts}{\textsuperscript}
@@ -34,7 +36,7 @@
    \clearpage               % finish off the page
   }
 
-
+\usepackage{lipsum}
 \begin{document}
 
 \begin{titlepage}
@@ -60,7 +62,7 @@ Prof.\ Peter \textsc{\textbf{Flach}}
       \end{flushright}
     \end{minipage}
 
-\let\thefootnote\relax\footnote{Level M/7 $|$ COMSM0130---40cp Individual Project}
+\let\thefootnote\relax\footnote{\hspace*{-1.7em}Level M/7 $|$ COMSM0130---40cp Individual Project}
 
 \vfill % Bottom of the page
 {\large \today}
@@ -76,8 +78,9 @@ Prof.\ Peter \textsc{\textbf{Flach}}
 \mbox{}
 
 % Acknowledgement
-\begin{center}Acknowledgement of Sources\\[2cm]\end{center}
-I acknowledge...
+\begin{center}\textbf{Declaration}\\[1em]\end{center}
+This dissertation is submitted to the University of Bristol in accordance with the requirements of the degree of Master of Engineering in the Faculty of Engineering. It has not been submitted for any other degree or diploma of any examining body. Except where specifically acknowledged, it is all the work of the Author.\\[1.5cm]
+Kacper B.\ Sokol, February 2015
 
 \newpage
 \thispagestyle{empty}
@@ -86,21 +89,31 @@ I acknowledge...
 % Abstract
 \begin{abstract}
 \thispagestyle{empty}
-The abstract is...
-\begin{center}
-Keywords: \textbf{keywords...}
+This project describes \texttt{Prolog}'s \emph{Inductive Logic Programming} approach to learn parametrised rules describing \emph{human activities}. To this end, \emph{Activity Recognition Model} is constructed based on data collected from installations such as smart houses and smart cities. Such sites characterise with vast number of sensors monitoring place of interest, therefore, allow for detailed tracking of \emph{atomic actions} that contribute towards more general activities.\\
+Constructed model can be then used to analyse output from smart sites, therefore, describe ongoing human activities. Then, the model is extended to facilitate monitoring of multiple persons simultaneously e.g.\ multiple occupiers of a flat.\\
+Another, application is to discover structure in the data. Identifying dependencies between sensors and constructing new, more informative features is shown. Both approaches aim at improving performance of classification and are compared and contrasted against the currently most popular model in use: conditional random fields.\\
+Furthermore, proposed Activity Recognition Model is extended with basic \emph{Narrative Analytics}. Its goal is to transform generated rules to \emph{natural language}, therefore, produce human readable description of monitored activities.\\
 
-\let\thefootnote\relax\footnote{\noindent This publication including experiment source code is available as \texttt{GitHub} repository at: \url{https://github.com/So-Cool/cognition}.}
+To achieve aforementioned goals, signal issues such as noise, errors, and incompleteness among others are addressed. Furthermore, data transformation is presented: expressing sensors output as knowledge facts. Proposed tool helps to present acquired data in a more transparent way mainly for healthcare applications.\\
+
+To build and test proposed framework both SPHERE Project, and Washington State University CASAS datasets are used.
+
+
+
+\begin{center}
+Keywords: \textbf{Inductive, Logic, Programming, Prolog, Activity, Recognition, Model, SPHERE}
+
+\let\thefootnote\relax\footnote{\noindent This publication including source code is available as \texttt{GIT} repository at: \url{https://github.com/So-Cool/cognition}.}
 \end{center}
 \end{abstract}
 
-\newpage
-\thispagestyle{empty}
-\mbox{}
+% \newpage
+% \thispagestyle{empty}
+% \mbox{}
 
-\begin{dedication}
-This work is dedicated to...
-\end{dedication}
+% \begin{dedication}
+% This work is dedicated to...
+% \end{dedication}
 
 
 \newpage
@@ -120,10 +133,216 @@ This work is dedicated to...
 \mbox{}
 
 
-\chapter{Background\label{chp:introduction}}
+\chapter{Background\label{chp:background}}
 \setcounter{page}{1}
 
-Text goes here...
+\citeauthor{plotkin1972automatic} in early 1970s and \citeauthor{shapiro1983algorithmic} in early 1980s created foundation of \emph{Inductive Logic Programming}(ILP). Both authors introduced techniques and tools to learn \emph{first-order formulas}---parametrised rules that are the core of ILP---from set of facts. Since then, ILP techniques found number of interdisciplinary applications with new tools being created now and then for rules learning purposes.
+
+\section{Objective}
+The main aim of the project is to apply Inductive Logic Programming to spatio-temporal data generated by smart installations like houses and cities to build \emph{Activity Recognition Model}. Such model describes each monitored activity with a set of \emph{first-order logical rules} built with events, where events are based on sensor readings. Example rules learn with \texttt{Prolog} are shown in \emph{Listing~\ref{lst:eg}}.
+
+\vspace{1em}
+\begin{figure}[htb]
+\lstset{
+  captionpos=b,
+  frame=single,
+  language=Prolog,
+  breaklines=true,
+  caption=Example of target rules.,
+  label=lst:eg,
+  float=tb
+}
+\begin{lstlisting}
+activity(Person, cooking) :- location(Person, TimeWindow, kitchen), device(TimeWindow, hob).
+activity(Person, watchingTV) :- location(Person, TimeWindow, livingRoom), device(TimeWindow, tv).
+
+location(Person, TimeWindow, kitchen) :- sensor(1, on, TimeWindow), sensor(5, on, TimeWindow).
+location(Person, TimeWindow, livingRoom) :- sensor(2, on, TimeWindow), sensor(7, on, TimeWindow).
+
+device(TimeWindow, hob) :- sensor(101, on, TimeWindow).
+device(TimeWindow, tv) :- sensor(105, on, TimeWindow).
+\end{lstlisting}
+\end{figure}
+
+\section{Applications}
+Once learnt, such model is useful in number of ways when making sense of data used to learn it.
+
+  \subsection{Activity recognition}
+The main purpose of building Activity Recognition Model is to build a tool capable of identifying actions taken by participant in time-window of interest. Rule based model allow to describe activities with different level of depth. The tool can also exploit the hierarchical structure of data: it can name the action, give building blocks of the action i.e.\ chain of sub-activities contributing to the main action, or state which sensor or sequence of sensors build such actions.
+    
+  \subsection{Distinguish multiple residents}
+Most often monitored places are inhabited or being used by multiple persons. Another important task that can be performed with proposed technique is identifying actions and agents performing them when multiple users simultaneously share observed space.
+  
+  \subsection{Constructing new features}
+Furthermore, such model can be used to build new features: in presented above example both \texttt{location} and \texttt{device} rules can be transformed to become features. Rebuilt dataset may become more ``informative'' than the original one, therefore, it can improve classification carried out with variety of different machine learning models.
+
+  \subsection{Healthcare: SPHERE Project}
+All aforementioned applications of ILP are of great importance in healthcare. Being able to monitor patients who live at home and effectively describe their activities with ILP give better patient care possibilities. Moreover, when used in hospitals or daily care centres recognising multiple patients is desirable.\\
+\emph{SPHERE Project} hosted at the University of Bristol develops sensors, wearable devices, and smart house solutions---hardware and algorithms for healthcare applications. Proposed here ILP tool could extend suit of available analytic technologies and become great foundation for \emph{Narrative Analtics} presented in \emph{Section~\ref{sec:narrative}}.
+
+
+\section{Inductive Logic Programming}
+The concept of Inductive Logic Programming is based on fusion of two well known techniques: \emph{inductive learning} and \emph{logic programming}. The first component facilitates build model from available observation and generate new knowledge form experience. The latter introduces a powerful representation of knowledge as \emph{first-order logical rules}~\citep{muggleton1994inductive,muggleton1995inverse}.\\
+
+First-order logic is more powerful than \emph{propositional logic} which builds sentences (i.e.\ rules) with facts only by using logical connectives. It extends propositional logic by using quantified variables (i.e.\ parameters) that belong to some domain of interest. The major limitation of first-order logic is its restriction to finite variable domains---it cannot describe rules build on infinite sets like real or natural numbers.\\ %  as opposed to
+
+The power of ILP is inherited from first-order logical rules that it is built upon. First of all, it overcomes the use of ``limited representation formalism''---expressing data in form of a propositional logic. As many problems cannot be expressed propositionally, but it is possible in some form of first-order logic previously difficult to solve problems can be tackled.\\
+Moreover, ILP does not have difficulties in incorporating substantial background knowledge to the model in learning process. This feature is not very common among machine learning models, nevertheless, use of domain knowledge is ``essential for intelligent behaviour''~\citep{muggleton1994inductive}.\\
+
+Constructing \emph{first-order clausal theories} i.e.\ hypotheses is based on combining background knowledge with information represented as facts: positive and negative examples. ILP aims at building theory that explains facts under consideration of background knowledge.\\
+To this end, it uses \emph{induction} as a basic mode of inference---generalization of specific observations to theories, rather than deduction---transforming general theories to the more specific clauses.\\
+
+The rules produced with ILP are human readable unlike models produced by majority of machine learning solutions what gives it great advantage over competition. Easy to understand rules mean that the logic models are arguably easy to manipulate. They can be changed by simply adding, deleting, and appending clauses or literals.\\
+
+Such model representation is invaluable in \emph{scientific theory formation} and problems where data cannot be easily represented in attribute-vale language. ILP is widely used in structure-activity prediction for drug design~\citep{king1992drug,michael1992modelling} and protein secondary-structure prediction~\citep{muggleton1992protein}.\\
+It is also popular in computer science: programming assistants tools, algorithmic debugging, program testing and verification, and reverse engineering~\citep{shapiro1983algorithmic,bergadno1993inductive,bratko1993inductive}.\\
+
+To construct Activity Recognition Model two popular ILP \texttt{Prolog} implementations are examined: \texttt{Aleph}\footnote{\url{http://www.cs.ox.ac.uk/activities/machlearn/Aleph/aleph.html}} and \texttt{Progol}\footnote{\url{http://www.doc.ic.ac.uk/~shm/progol.html}}.
+
+
+\section{Further development: Data Narrative.\label{sec:narrative}}
+Proposed here rules learning mechanism can be extended with ``grammar'' capable of generating \emph{Narrative Analysis} of spatio-temporal data: a \emph{succinct natural language description} of a selected time-space window of the data of interest. In healthcare and smart house scenarios, such techniques can be combined with activity recognition models to generate comprehensible descriptions of monitored activities with terminology and level of detail tuned to a particular recipient. In the context of the SPHERE project led by the University of Bristol these techniques would facilitate making sense from acquired data for healthcare applications in a more transparent way than is possible with black-box approaches.\\
+
+\emph{Narrative Analytics} represents the data with succinct natural language description. Such form of data representation does not demand audience to have advanced analytic skills to extract information of interest. Therefore, proposed here tool can be of invaluable help while monitoring or assessing human activities in healthcare applications.\\[1em]
+
+  \subsection{Introduction}
+Most commonly used visualisation techniques nowadays are tables, graphs, and diagrams \citep{vis}. Unfortunately, such charts often need expertise in a field to be correctly interpreted. Moreover, aforementioned methods often trade-off clarity for completeness of shown data hence make it difficult for a broad audience to see the big picture.\\[1em]
+
+The project aims at exploring possibility of describing data with natural language. This form of expressing information contained in the data has been under-appreciated and devoted little attention in recent years \citep{med,pat1,pat2}. Deep learning techniques have been applied to images to generate succinct scene description, nevertheless, it has not been used with raw data \citep{deep}.\\
+An example of data narration can be found in modern smart-phone weather and calendar applications where instead of detailed weather forecast or hour-by-hour calendar events, one sentence description is presented to the user. Furthermore, in recent years \emph{narrative analytics} in combination with visualisation techniques have been proven as effective method of expressing corporate financial data \citep{quill}.\\[1em]
+
+Successful adaptation of \emph{Narrative Analytics} to data provided by smart houses would greatly benefit healthcare applications. Being able to deliver activity description within given time window and with different level of detail would provide invaluable monitoring and diagnostic tool for daily care personnel and medical staff.
+
+
+  \subsection{Challenges}
+Creating a narrative of events is composed of two major components---``grammars'' needed to transform the data: \emph{data analysis} and \emph{narrative generation}.\\
+The first one is deriving high-level knowledge from low-level data (sensor input). I aim to use \emph{Inductive Logic Programming} techniques to learn parametrised rules describing activity recognition model, hence, deduce performed activity \citep{muggleton1994inductive,muggleton1995inverse}. The latter step is ``translating'' extracted information into natural language description, which also can be done using similar approach \citep{narr}.\\[1em]
+
+Very often the data collected from smart houses is corrupted or obscure due to sensor noise, leading to confusing gaps between ``observed'' actions. With help of inductive learning such implicit information---describing intermediate steps between actions---can be inferred to overcome rule creation difficulty and produce logically consistent scenario. This in turn can be translated into natural language using second ``grammar''.\\[1em]
+
+Finally, data derived from smart houses is highly structured. Human activities can be hierarchically organised with complex actions composed of sub-actions, until ``atomic level'' is reached. This creates possibility to apply filters to produce multiple levels of narrative complexity based on target audience. Adjusting level of detail (granularity) of produced description would result in emphasis on different aspects of carried out activities during period of interest, hence, extracting relevant for the audience information.
+
+
+  \subsection{Applications and further work}
+Presented here solution is not restricted to smart-house data. \emph{Narrative Analytics} can be applied to any spatio-temporal information---e.g.\ smart-city feed---resulting in brief situation description contained in the data. Such ``label'' gives possibility to quickly understand status of the system without time-consuming raw-data or charts interpretation. Improved response time would result in appropriate actions taken instantly, whether it is better disease diagnosis, or traffic conditions displayed in timely manner on interactive information signs.\\
+Moreover, as produced description would also be hierarchical it can be formed in a ``tree'' structure with more general narratives being higher in hierarchy. Creating timetable filled with activity ``labels'' would give better insight into personal habits and routines yielding improved understanding of arising issues.\\
+Furthermore, proposed here descriptive mechanisms could be extended to become a query-enabled database. In such model a user could ``ask'' a question in natural language to get narrative answer instead of numerical vector.\\[1em]
+
+Data narration can have multiple other applications. Alternatively, it can be used to produce figure caption based on data used to draw it.
+
+% \bibitem[1]{vis}~D.A.\ Keim, {\em Information visualization and visual data mining.} 2002: Visualization and Computer Graphics, IEEE Transactions on (Volume:8, Issue:1).
+
+% \bibitem[2]{med}~A.\ Bleakley, {\em Stories as data, data as stories: making sense of narrative inquiry in clinical education.} 2005: Medical Education, 39: 534--540.\ doi: 10.1111/j.1365--2929.2005.02126.x.
+
+% \bibitem[3]{pat1}~S.L.\ Bair and R.L.\ Meredith and D.R.\ Tillotson and P.\ Inglis, {\em US 6067523 A: System and method for reporting behavioral health care data.} 1997.
+
+% \bibitem[4]{pat2}~W.F.\ Kaemmerer, {\em US 5817137 A: Compressed patient narrative storage in and full text reconstruction from implantable medical devices.} 1997.
+
+% \bibitem[5]{deep}~A.\ Karpathy and L.\ Fei-Fei, {Deep Visual-Semantic Alignments for Generating Image Descriptions.} 2014: CoRR, abs/1412.2306.
+
+% \bibitem[6]{quill}~narrativescience.com, {\em Quill: Data-Driven Communications at Machine Scale.} 1986: Harvard University Press.
+
+% \bibitem[9]{narr}~C.B.\ Callaway and J.C.\ Lester, {\em Narrative prose generation.} 2002: Artificial Intelligence, Volume 139, Issue 2, Pages 213--252, ISSN 0004-3702.
+
+% \bibitem[10]{casas}~D.\ Cook and A.\ Crandall and B.\ Thomas and N.\ Krishnan, {\em CASAS: A smart home in a box.} 2013: IEEE Computer, 46(6):26-33.
+
+  % \subsection{What is done}
+  %   \subsubsection{XHAIL}
+
+
+
+
+\section{Used datasets}
+The spatio-temporal class of data are of interest. Data-points in such sets are characterised by both location and time of the event. Such data are generated by all smart instillations like houses and cities. In this study smart house data are used but the generalisation of the solution is straight forward.\\ % specification
+
+The datasets used for model building and testing are ones generated at \emph{Washington State University} as part of \emph{CASAS} project~\citep{cook2009assessing}. \emph{WSU Smart Apartment ADL Normal Testbed} and \emph{WSU Smart Apartment ADL Error Testbed} are the two most popular ones hence are used in the project.\\
+
+The datasets are structured as a list of sensor readings---one entry per line in format: \texttt{Date}---\texttt{Time}---\texttt{SensorID}---\texttt{Value}. The fragment of such dataset is presented in \emph{Listing~\ref{lst:data}}.
+
+% \vspace{1em}
+\begin{figure}
+\lstset{
+  captionpos=b,
+  frame=single,
+  language=HTML,
+  breaklines=true,
+  caption=CASAS dataset structure.,
+  label=lst:data,
+  float=tb
+}
+\begin{lstlisting}
+...
+2008-02-26 10:52:58.577436 M17   OFF
+2008-02-26 10:52:59.648222 M18   OFF
+2008-02-26 10:52:59.792264 M17   ON
+...
+2008-02-26 10:53:43.512642 I02   ABSENT
+2008-02-26 10:53:43.978491 I01   ABSENT
+...
+2008-02-26 10:53:52.112690 AD1-B 0.0421491
+2008-02-26 10:53:54.721822 M17   ON
+2008-02-26 10:53:55.107910 AD1-B 0.155979
+...
+\end{lstlisting}
+\end{figure}
+% \vspace{1em}
+
+The datasets were generated with sensors fitted into living space of house and agents performing predefined activities. The following sensors were used:
+\begin{description}
+\item[M\_\_] motion sensors.
+\item[I\_\_] item sensors e.g.\ oatmeal, raisin, brown sugar, bowl, measuring spoon, medicine container, phone book.
+\item[D01] cabinet sensor.
+\item[AD1-A, AD1-B] water sensor.
+\item[AD1-C] burner sensor.
+\item[asterisk] phone usage.
+\end{description}
+
+The sensor layout of the apartment is shown in the \emph{Figure~\ref{fig:house}}.
+
+\begin{figure}[htb]
+  \centering%[width=.45\textwidth]
+  \begin{subfigure}[b]{0.6\textwidth}
+    \includegraphics[height=6.3cm]{gfx/Chinook_3_Bedroom_TH}
+    \caption{\label{fig:house:a}}
+  \end{subfigure}%
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[height=6.3cm]{gfx/Chinook_Cabinet}
+    \caption{\label{fig:house:b}}
+  \end{subfigure}%
+  \caption[The sensor layout of the apartment.]{The sensor layout of the apartment~\citep{cook2009assessing}.\label{fig:house}}
+\end{figure}
+
+Participants performed five \emph{Activity of Daily Living}(ADL) activities:
+\begin{description}
+\item[Make a phone call] Move to the phone in the dining room; find a specific number in the phone book; dial the number; listens to the message; summarize cooking directions on a notepad provided over the phone.
+\item[Wash hands] Move into the kitchen; wash hands in the sink with hand soap; dry hands with a paper towel.
+\item[Cook] Cooks a pot of oatmeal according to the directions given in the phone message: measure water, pour the water into a pot; boil the water; add oats; put the oatmeal into a bowl; add raisins and brown sugar.
+\item[Eat] Take cooked oatmeal; take medicine container; move to the dining room; eat the food.
+\item[Clean] Take all of the dishes to the sink in kitchen; clean them with water and dish soap.
+\end{description}
+
+
+  % \subsection{Hierarchy}
+
+  % \subsection{Issues}
+  % \subsection{Conversion}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% \section{Needed theory - what we already know}
+% \section{Objective - what we are building}
 
 \begin{center}
 \noindent \line(1,0){250}
@@ -134,3 +353,6 @@ Text goes here...
 % \bibliographystyle{plain}
 
 \end{document}
+
+% useful expressions:
+%% aggregate signal
