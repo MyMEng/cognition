@@ -3,6 +3,16 @@
 
 # Notes
 *.txt
+notes.md
+
+# Code
+wire/aleph.yap
+wire/job.yap
+wire/knowledge*
+wire/test.pl
+wire/t[1-5].f*
+wire/t[1-5].n*
+wire/t[1-5].b*
 
 # LaTex
 *.aux
