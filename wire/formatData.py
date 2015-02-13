@@ -81,7 +81,7 @@ def convertDataEntry( line ):
   return (stamp, sensor, uniformSignal, action)
 
 # Construct sensor knowledge
-def sensor_data(sensorID, sensorStatus, timeType, time):
+def sensor_data(sensorID, sensorStatus, timeType, time, trialID):
   rule = "sensor("
   # get sensor ID
   rule += sensorID + ", "
@@ -91,7 +91,9 @@ def sensor_data(sensorID, sensorStatus, timeType, time):
   # get type of time
   rule += timeType + ", "
   # get time
-  rule += time + " "
+  rule += time + ", "
+  # get trialID
+  rule += trialID + " "
   # end rule
   rule += ").\n"
 
@@ -153,6 +155,10 @@ if __name__ == '__main__':
   faf = activity + ".f"
   fan = activity + ".n"
 
+  # get trial number: expected "*p01.t1"
+  trialID = args[1][-6:-3]
+  trialID = trialID.lower()
+
   record = None
   if dataType == '+':
     print "Nothing to do for: ", dataType
@@ -180,20 +186,20 @@ if __name__ == '__main__':
     f.write("\n")
 
     # relative time knowledge
-    rule = sensor_data( e[1].lower(), e[2].lower(), "relative", str(e[0] - init) )
+    rule = sensor_data( e[1].lower(), e[2].lower(), "relative", str(e[0] - init), trialID )
     f.write(rule)
 
     # absolute time knowledge
-    rule = sensor_data( e[1].lower(), e[2].lower(), "absolute", str(e[0]) )
+    rule = sensor_data( e[1].lower(), e[2].lower(), "absolute", str(e[0]), trialID )
     f.write(rule)
 
     # absolute time knowledge
-    rule = sensor_data( e[1].lower(), e[2].lower(), "sequence", str(i) )
+    rule = sensor_data( e[1].lower(), e[2].lower(), "sequence", str(i), trialID )
     f.write(rule)
 
     # windowed time knowledge
     window = get_window( init, e[0] )
-    rule = sensor_data( e[1].lower(), e[2].lower(), "windowed", str(window) )
+    rule = sensor_data( e[1].lower(), e[2].lower(), "windowed", str(window), trialID )
     f.write(rule)
 
     f.write("\n")

@@ -17,7 +17,7 @@ rm -rf $outdir
 mkdir -p $outdir
 
 # # process positive examples +
-# for f in ../WashingtonDatasets/adlnormal/*.{t1,t2,t3,t4,t5}
+# for f in ../../WashingtonDatasets/adlnormal/*.{t1,t2,t3,t4,t5}
 # do
 #  echo "+Processing $f"
 #  # format data on $f
@@ -25,7 +25,7 @@ mkdir -p $outdir
 # done
 
 # # process negative examples -
-# for f in ../WashingtonDatasets/adlerror/*.{t1,t2,t3,t4,t5}
+# for f in ../../WashingtonDatasets/adlerror/*.{t1,t2,t3,t4,t5}
 # do
 #  echo "-Processing $f"
 #  # format data on $f
@@ -33,7 +33,7 @@ mkdir -p $outdir
 # done
 
 # process background knowledge §
-for f in ../WashingtonDatasets/adlnormal/*.{t1,t2,t3,t4,t5}
+for f in ../../WashingtonDatasets/adlnormal/*.{t1,t2,t3,t4,t5}
 do
  echo "§Processing $f"
  # format data on $f
