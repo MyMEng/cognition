@@ -13,14 +13,22 @@ wire/test.pl
 wire/t[1-5].f*
 wire/t[1-5].n*
 wire/t[1-5].b*
+stdg/*.l
+stdg/*.pl
 
 # LaTex
 *.aux
 *.bbl
 *.blg
+*.bib
 *.fdb_latexmk
 *.fls
 *.log
 *.pdf
-*toc
+*.toc
+*.bib
+*.nav
+*.out
+*.snm
+*.vrb
 
