@@ -4,10 +4,12 @@
 \usecolortheme{rose}
 
 \usepackage{color}
+\usepackage{xcolor}
 \usepackage{beamerthemeshadow}
 \usepackage{mathrsfs}
 \usepackage{url}
 \usepackage{listings}
+\usepackage{amssymb}
 
 \definecolor{greenish}{RGB}{152,204,112}
 \definecolor{redish}{RGB}{244,158,196}
@@ -151,7 +153,7 @@ sensor(i08, false, sequence, 10).
 sensor(i08, false, windowed, 1).
 ...
 \end{lstlisting}
-\tiny\caption{\tiny Learnt rules\label{lst:rules}}
+\tiny\caption{\tiny Knowledge representation\label{lst:knowledge}}
 \end{figure}
 \end{example}
 \end{column}
@@ -268,12 +270,12 @@ device(TimeWindow, hob) :-
   \begin{frame}
     \frametitle{Challenges}
     \begin{itemize}
-      \item Design customisable spatio-temporal (smart house) data generator to test and design models
-      \item Investigate spatio-temporal data representation as logical facts
-      \item Research representation of unbounded variables like time in first-order logic
-      \item Examine use of background knowledge not contained in the original dataset
-      \item Create and test different activity recognition models in ILP
-      \item Build mechanism for new features discovery
+      \item \makebox[0pt][l]{$\square$}\raisebox{.15ex}{\hspace{0.1em}$\checkmark$} Design customisable spatio-temporal (smart house) data generator to test and design models
+      \item \makebox[0pt][l]{$\square$}\raisebox{.15ex}{\hspace{0.1em}$\checkmark$} Investigate spatio-temporal data representation as logical facts
+      \item \makebox[0pt][l]{$\square$}\raisebox{.15ex}{\hspace{0.1em}$\color{white}\checkmark$} Research representation of unbounded variables like time in first-order logic
+      \item \makebox[0pt][l]{$\square$}\raisebox{.15ex}{\hspace{0.1em}$\color{white}\checkmark$} Examine use of background knowledge not contained in the original dataset
+      \item \makebox[0pt][l]{$\square$}\raisebox{.15ex}{\hspace{0.1em}$\color{white}\checkmark$} Create and test different activity recognition models in ILP
+      \item \makebox[0pt][l]{$\square$}\raisebox{.15ex}{\hspace{0.1em}$\color{white}\checkmark$} Build mechanism for new features discovery
     \end{itemize}
   \end{frame}
 
