@@ -376,6 +376,65 @@ tool to generate such data would be of great importance in testing
 \section{Activities per person}
 \section{Activities per dataset: \{t1, t2, t3, t4, t5\}}
 
+\chapter{data generator}
+
+data generator generates smart house data based on 4 description files:
+\section{\texttt{rooms.l}}
+Defines interconnection of rooms in form of an adjacency matrix:\\
+\lstinputlisting[language=Python]{../stdg/rooms.l}
+
+The first element in first line must be \texttt{[X]}\\
+The headers must be \emph{room_name} --- must be without spaces.
+
+\section{\texttt{activities.l}}
+This file specifies the parameters of Gaussian distribution describing \emph{activities names} in form of:\\
+\texttt{name_of_activity mean standard_deviation}
+
+it is used to simulate time needed to accomplish activity in \emph{seconds}.
+
+\lstinputlisting[language=Python]{../stdg/activities.l}
+
+\section{\texttt{path.l}}
+This files describe activities to generate in form \texttt{keyword(goal)}:\\
+\lstinputlisting[language=Python]{../stdg/path.l}
+
+the \texttt{keywords} in this file are:\\
+\begin{description}
+\item[\textttt{start}] where the person starts
+\item[\textttt{go}] where to go
+\item[\textttt{do}] what activity to do
+\end{description}
+
+The \texttt{goals} are:
+\begin{description}
+\item[room names] defined in \texttt{rooms.l} file and matched with \texttt{go} or \texttt{start} keywords
+
+\item[activities] have to be defined in both \texttt{activities.l}} and \texttt{layout.l} files; are matched with \texttt{do} keywords
+\end{description}
+
+
+this file must start with command \texttt{start}
+
+\section{\texttt{layout.l}}
+All measures are in meters\\
+the room layout description is based on cartesian coordinates with origin in bottom left corner\\
+
+This file defines sensor layouts for each of the rooms defined in \texttt{rooms.l} file:\\
+\lstinputlisting[language=Python]{../stdg/layout.l}
+
+each room has to be described as:
+\texttt{room_name} \texttt{width_of_room} \texttt{height_of_room} \texttt{:}\\
+The room description line has to be finished with \texttt{:}, without spaces.\\
+
+followed by sensors descriptions:\\
+\texttt{motion_sensorID} \texttt{width_of_sensor_location} \texttt{height_of_sensor_location} \texttt{range_of_sensor_radius}\\
+or
+\texttt{item_sensorID} \texttt{width_of_sensor_location} \texttt{height_of_sensor_location} \texttt{activity_name}\\
+or\\
+door description starting with \texttt{door} keyword and finished with \texttt{room_name} to which the door lead:\\
+\texttt{door} \texttt{width_of_sensor_location} \texttt{height_of_sensor_location} \texttt{room_name}\\
+
+comment lines start with \texttt{;}\\
 
 
 \begin{center}
