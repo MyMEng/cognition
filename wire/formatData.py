@@ -1,8 +1,10 @@
 #! /usr/local/bin/python
 
+# TODO: handle incompleteness in data --- missing *off* if double *on*
+
 import sys
 import time, datetime
-from pprint import pprint
+# from pprint import pprint
 
 # time window length in microsecond (10^-6): 5 seconds
 WINDOWLENGTH = 5 * 1000000
@@ -45,6 +47,10 @@ def convertDataEntry( line ):
   elif signal == "START_INSTRUCT":
     uniformSignal = "true"
   elif signal == "STOP_INSTRUCT":
+    uniformSignal = "false"
+  elif signal == "true":
+    uniformSignal = "true"
+  elif signal == "false":
     uniformSignal = "false"
   elif signal == str(numericValue):
     uniformSignal = signal
@@ -107,96 +113,58 @@ def get_window( initTime, currentTime ):
   # get window: 0--WINDOWLENGTH is 0
   return int(diff/WINDOWLENGTH)
 
-
 if __name__ == '__main__':
   # Check whether file is given as argument
   args = sys.argv
-  if len(args) != 3:
+  if len(args) != 2:
     # Fail
-    print "No file or data-type specified."
-    print "usage: formatData.py path/to/file type"
-    print "where type can be either + (positive examples) or - (negative examples)"
-    sys.exit(1)
-
-  # Get type
-  dataType = args[2]
-  if dataType != '+' and dataType != '-' and dataType != '~':
-    print "Wrong type specified"
-    print "type can be either '+' (positive examples) or '-' (negative examples)"
+    print "No file specified.\nUsage: formatData.py path/to/file"
     sys.exit(1)
 
   # Initialise matrix
   data = []
 
-  f = open(args[1], 'r')
-  for line in f:
-    data.append( convertDataEntry(line) )
-  f.close()
+  with open(args[1], 'r') as f: 
+    for line in f:
+      data.append( convertDataEntry(line) )
 
-  # # Get name of file
-  # ind = args[1][::-1].find('/')
-  # if ind != -1:
-  #   name = args[1][::-1][:ind][::-1]
-  # else:
-  #   name = args[1]
-  # # and create local name
-  # nameb = name + ".b" #background
-  # namef = name + ".f" #positive
-  # namen = name + ".n" #negative
+  # Get name of file without subdirectories
+  slashInd = args[1][::-1].find('/')
+  if slashInd != -1:
+    name = args[1][::-1][:slashInd][::-1]
+  else:
+    name = args[1]
+  # Get the name without extension
+  dotInd = name[::-1].find('.')
+  if dotInd != -1 and name[-dotInd:] == "txt":
+    name = name[::-1][dotInd+1:][::-1]
+  else:
+    # name = name
+    pass
 
-  # TODO: handle incompleteness in data --- missing *off* if double *on*
-
-  # 1:  Make a phone call. # 2:  Wash hands. # 3:  Cook. # 4:  Eat. # 5:  Clean.
-  # Create 5+ and 5- files for each activity - Decide on activity based on filename
-  activity = args[1][-2:]
-  fab = activity + ".b"
-  faf = activity + ".f"
-  fan = activity + ".n"
-
-  record = None
-  if dataType == '+':
-    print "Nothing to do for: ", dataType
-    sys.exit(0)
-    # record = faf
-  elif dataType == '-':
-    print "Nothing to do for: ", dataType
-    sys.exit(0)
-    # record = fan
-  elif dataType == '~':
-    record = fab
-  else: # error
-    print "Unrecognised type!"
-    sys.exit(1)
-
-  # Open record file and append to it
-  f = open(record, 'a')
+  # and create local name
+  record = name + ".pl" #background
 
   # Convert to Aleph format
   # normalise time so that each activity starts at 0 - memorise first time-stamp 
   init = data[0][0]
 
-  # Target rule: m08( time, tatus ).
-  for i, e in enumerate(data):
-    f.write("\n")
+  # Open record file and append to it
+  with open(record, 'a') as f:
+    for i, e in enumerate(data):
+      f.write("\n")
 
-    # relative time knowledge
-    rule = sensor_data( e[1].lower(), e[2].lower(), "relative", str(e[0] - init) )
-    f.write(rule)
+      # relative time knowledge
+      rule = sensor_data( e[1].lower(), e[2].lower(), "relative", str(e[0] - init) )
+      f.write(rule)
+      # absolute time knowledge
+      rule = sensor_data( e[1].lower(), e[2].lower(), "absolute", str(e[0]) )
+      f.write(rule)
+      # absolute time knowledge
+      rule = sensor_data( e[1].lower(), e[2].lower(), "sequence", str(i) )
+      f.write(rule)
+      # windowed time knowledge
+      rule = sensor_data( e[1].lower(), e[2].lower(), "windowed", str(get_window( init, e[0] )) )
+      f.write(rule)
 
-    # absolute time knowledge
-    rule = sensor_data( e[1].lower(), e[2].lower(), "absolute", str(e[0]) )
-    f.write(rule)
-
-    # absolute time knowledge
-    rule = sensor_data( e[1].lower(), e[2].lower(), "sequence", str(i) )
-    f.write(rule)
-
-    # windowed time knowledge
-    window = get_window( init, e[0] )
-    rule = sensor_data( e[1].lower(), e[2].lower(), "windowed", str(window) )
-    f.write(rule)
-
-    f.write("\n")
-
-  f.close()
-  # pprint(data)
+      f.write("\n")
