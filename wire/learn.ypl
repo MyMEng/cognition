@@ -1,0 +1,7 @@
+#!/usr/local/bin/yap -L --
+#
+
+:- [aleph].
+:- read_all(data).
+:- induce.
+:- write_rules('rules.pl').
