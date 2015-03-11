@@ -4,7 +4,7 @@
 # Notes
 *.txt
 notes.md
-wire/0sup/*
+wire/output/*
 
 # Code
 wire/aleph.yap
