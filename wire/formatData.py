@@ -9,25 +9,44 @@ import time, datetime
 # time window length in microsecond (10^-6): 5 seconds
 WINDOWLENGTH = 5 * 1000000
 
+activityRule = "activity"
+
 # Data format: 2008-03-28 13:42:40.467418 M18 ON
-def convertDataEntry( line ):
+def convertDataEntry( sequenced, line ):
   entities = line.split()
 
-  ##############################################################################
-  sensor = entities[2]
+  # get date
+  date = " ".join(entities[0:2])
+  # some readings does not have milliseconds
+  try:
+    stamp = time.mktime(datetime.datetime.strptime( date, "%Y-%m-%d %H:%M:%S.%f" ).timetuple())
+    # #
+    dot = entities[1].find('.')
+    msec = float( entities[1][dot:] )
+    # #
+    stamp += msec
+  except:
+    stamp = time.mktime(datetime.datetime.strptime( date, "%Y-%m-%d %H:%M:%S" ).timetuple())
+
+  # Convert timestamp to integer
+  stamp *= 1000000
+  stamp = int(stamp)
   ##############################################################################
 
+  # get sensor ID
+  sensor = entities[2].lower()
   ##############################################################################
+
+  # get signal value
   signal = entities[3]
-
   # check if can be parsed
   try:
     numericValue = float(signal)
   except:
     numericValue = None
+
   # output variable
   uniformSignal = None
-
   if   signal == "ON":
     uniformSignal = "true"
   elif signal == "OFF":
@@ -59,29 +78,32 @@ def convertDataEntry( line ):
     sys.exit(1)
   ##############################################################################
 
-  ##############################################################################
-  # Action begins
-  action = ''
-  if len(entities) > 4:
-    action = ' '.join(entities[4:])
-  ##############################################################################
   
-  ##############################################################################
-  date = " ".join(entities[0:2])
-  # some readings does not have milliseconds
-  try:
-    stamp = time.mktime(datetime.datetime.strptime( date, "%Y-%m-%d %H:%M:%S.%f" ).timetuple())
-    # #
-    dot = entities[1].find('.')
-    msec = float( entities[1][dot:] )
-    # #
-    stamp += msec
-  except:
-    stamp = time.mktime(datetime.datetime.strptime( date, "%Y-%m-%d %H:%M:%S" ).timetuple())
+  # Action begins & ends here
+  action = []
+  if len(entities) > 4:
+    actions = entities[4:]
 
-  # Convert timestamp to integer
-  stamp *= 1000000
-  stamp = int(stamp)
+    # the length should be even
+    if len(actions) % 2 != 0:
+      print "Action beging and end wrongly encoded!"
+      print ' '.join(entities)
+      sys.exit(1)
+
+    for a in range(0, len(actions), 2):
+      actionID = actions[a].lower()
+      aD = actions[a+1].lower()
+      actionDescription = None
+      if   aD == 'begin':
+        actionDescription = 'true'
+      elif aD == 'end':
+        actionDescription = 'false'
+      else:
+        print "Unknown block description!"
+        print ' '.join(entities)
+        sys.exit(1)
+      action.append( (actionID, actionDescription, [stamp, sequenced]) )
+
   ##############################################################################
 
   return (stamp, sensor, uniformSignal, action)
@@ -123,24 +145,21 @@ if __name__ == '__main__':
 
   # Initialise matrix
   data = []
+  groundFacts = []
 
   with open(args[1], 'r') as f: 
-    for line in f:
-      data.append( convertDataEntry(line) )
+    for i, line in enumerate(f):
+      out = convertDataEntry(i, line)
+      data.append( out[0:3] )
+      groundFacts += out[3]
 
   # Get name of file without subdirectories
   slashInd = args[1][::-1].find('/')
-  if slashInd != -1:
-    name = args[1][::-1][:slashInd][::-1]
-  else:
-    name = args[1]
+  name = args[1][::-1][:slashInd][::-1] if slashInd!=-1 else args[1]
   # Get the name without extension
   dotInd = name[::-1].find('.')
   if dotInd != -1 and name[-dotInd:] == "txt":
     name = name[::-1][dotInd+1:][::-1]
-  else:
-    # name = name
-    pass
 
   # and create local name
   record = name + ".pl" #background
@@ -168,3 +187,58 @@ if __name__ == '__main__':
       f.write(rule)
 
       f.write("\n")
+
+  # write down ground truth and ground false
+  recordf = name + ".f.pl"
+  recordn = name + ".n.pl"
+  # add two time representations to ground facts
+  for i in range(len(groundFacts)):
+    rel = groundFacts[i][2][0]-init
+    win = get_window( init, groundFacts[i][2][0] )
+    groundFacts[i][2].insert(0, rel)
+    groundFacts[i][2].append(win)
+  # generate positives and negatives - generate only for *sequence*
+  pos = []
+  neg = []
+  farEnd = len(data)
+  while len(groundFacts) != 0:
+    # get first
+    a = []
+    a += [groundFacts.pop(0)]
+    # find all the rest of the activity
+    for i in range(len(groundFacts))[::-1]:
+      if groundFacts[i][0] == a[0][0]:
+        a.append( groundFacts.pop(i) )
+    
+    # for the moment forbid the same activity repeated within one file
+    # or the list does not start with *{* and finishes with *}*
+    if len(a) != 2 or a[0][1] != 'true' or a[1][1] != 'false':
+      print "The same block name used more than once: *", a[0][0], "* !"
+      print "or"
+      print "Wrong block structure!"
+      print ">\n", a
+      sys.exit(1)
+
+    # use only *sequence*
+    beginning = a[0][2][2]
+    end = a[1][2][2]
+    # generate for all the events
+    for i in range(beginning):
+      neg.append( activityRule + "(" + a[0][0] + ", " + str(i) + ")." )
+    for i in range(beginning, end):
+      pos.append( activityRule + "(" + a[0][0] + ", " + str(i) + ")." )
+    for i in range(end, farEnd):
+      neg.append( activityRule + "(" + a[0][0] + ", " + str(i) + ")." )
+    ## generate for one event with range
+    # neg.append( activityRule + "(" + a[0][0] + ", " + str(0) + ", " + str(beginning-1) + ")." )
+    # pos.append( activityRule + "(" + a[0][0] + ", " + str(beginning) + ", " + str(end-1) + ")." )
+    # neg.append( activityRule + "(" + a[0][0] + ", " + str(end) + ", " + str(farEnd) + ")." )
+
+  # Write positive and negative examples
+  with open(recordf, 'wb') as pf:
+    pf.write( '\n'.join(pos) )
+    pf.write('\n')
+  with open(recordn, 'wb') as nf:
+    nf.write( '\n'.join(neg) )
+    nf.write('\n')
+

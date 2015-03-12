@@ -16,6 +16,8 @@ for i in ${ls[@]}; do
 
   ./formatData.py $i/data.txt
   mv data.pl $i/
+  mv data.f.pl $i/
+  mv data.n.pl $i/
 
   cp alephHeader.pl $i/data.b
 
