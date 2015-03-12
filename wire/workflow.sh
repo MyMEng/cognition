@@ -18,6 +18,11 @@ for i in ${ls[@]}; do
   mv data.pl $i/
   mv data.f.pl $i/
   mv data.n.pl $i/
+  mv data.A.arff $i/
+  mv data.R.arff $i/
+  mv data.S.arff $i/
+  mv data.W.arff $i/
+  mv data.D.arff $i/
 
   cp alephHeader.pl $i/data.b
 
