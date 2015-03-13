@@ -171,6 +171,36 @@ def getBool(s):
     print "unknown Bool type: ", s, "!"
     sys.exit(1)
 
+# update sensor status based on current entry
+def updateSensor(f, sensorStatus):
+  if type(f[1]) == str:
+    if f[1].lower() != 'true' and f[1].lower() != 'false':
+      print "Unknown sensor status (true/false): *", f[1], "*!"
+      sys.exit(1)
+    sensorStatus[f[0].lower()] = getBool(f[1])
+  elif type(f[1]) == float:
+    sensorStatus[f[0].lower()] = f[1]
+  else:
+    print "Unknown sensor status type: *", f[1], "*!"
+    sys.exit(1)
+  return sensorStatus
+
+# get signals
+def getSignals(sensorNames, sensorStatus, groundTruth, arffGroundTruth):
+  racwd = ""
+  for j in sensorNames:
+    racwd += str(sensorStatus[j[0]]).lower() + ','
+  # update label record
+  for j in groundTruth:
+    beg = arffGroundTruth[j][0][2]
+    end = arffGroundTruth[j][1][2]
+    if i in range(beg, end):
+      groundTruth[j] = True
+    else:
+      groundTruth[j] = False
+  return (racwd, groundTruth)
+
+
 if __name__ == '__main__':
   # Check whether file is given as argument
   args = sys.argv
@@ -366,43 +396,36 @@ if __name__ == '__main__':
       cdt[-1][-1].append( (d[1], d[2]) )
     else:
       cdt.append( (d[0], d[3], [(d[1], d[2])]) )
-  pprint(data)
-  pprint(cdt)
+
   ## generate data
   i = 0
-  for e in data:
-    # update sensor status based on current entry
-    if type(e[2]) == str:
-      if e[2].lower() != 'true' and e[2].lower() != 'false':
-        print "Unknown sensor status (true/false): *", e[2], "*!"
-        sys.exit(1)
-      sensorStatus[e[1].lower()] = getBool(e[2])
-    elif type(e[2]) == float:
-      sensorStatus[e[1].lower()] = e[2]
-    else:
-      print "Unknown sensor status type: *", e[2], "*!"
-      sys.exit(1)
-    racwd = ""
-    for j in sensorNames:
-      racwd += str(sensorStatus[j[0]]).lower() + ','
-    # update label record
-    for j in groundTruth:
-      beg = arffGroundTruth[j][0][2]
-      end = arffGroundTruth[j][1][2]
-      if i in range(beg, end):
-        groundTruth[j] = True
-      else:
-        groundTruth[j] = False
-    # check current class if none give 'none' # detect multi-label issue and report it
-    cc = checkLabel(groundTruth)
-    # remember that time/date goes first
+  currentWindow = None
+  for e in cdt:
+    for f in e[2]:
+      # update sensor status based on current entry
+      sensorStatus = updateSensor(f, sensorStatus)
+
+      # get features status
+      (racwd, groundTruth) = getSignals(sensorNames, sensorStatus, groundTruth, arffGroundTruth)
+
+      # check current class if none give 'none' # detect multi-label issue and report it
+      cc = checkLabel(groundTruth)
+
+      # remember that time/date goes first # update sequence
+      Sarff.append(str(i) + ',' + racwd + cc)
+      # update i
+      i += 1
+
+    # update common time-points for Date, 
+    Darff.append("\"" + e[1] + "\"," + racwd + cc)
     Rarff.append(str(e[0] - init) + "," + racwd + cc)
     Aarff.append(str(e[0]) + ',' + racwd + cc)
-    Sarff.append(str(i) + ',' + racwd + cc)
-    Warff.append(str(get_window( init, e[0] )) + ',' + racwd + cc)
-    Darff.append("\"" + e[3] + "\"," + racwd + cc)
-    # update i
-    i += 1
+
+    # handle separately windowed case
+    if currentWindow != get_window( init, e[0] ):
+      currentWindow = get_window( init, e[0] )
+      Warff.append(str(currentWindow) + ',' + racwd + cc)
+    
 
 
 
