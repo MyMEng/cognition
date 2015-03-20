@@ -5,6 +5,7 @@
 import sys
 import time, datetime
 from pprint import pprint
+import operator # for sorting
 
 # time window length in microsecond (10^-6): 5 seconds
 WINDOWLENGTH = 5 * 1000000
@@ -186,18 +187,33 @@ def updateSensor(f, sensorStatus):
   return sensorStatus
 
 # get signals
-def getSignals(sensorNames, sensorStatus, groundTruth, arffGroundTruth):
+def getSignals(sensorNames, sensorStatus, groundTruth, arffGroundTruth, i):
   racwd = ""
   for j in sensorNames:
-    racwd += str(sensorStatus[j[0]]).lower() + ','
+    if j[1] == atributeTF:
+      racwd += str(sensorStatus[j[0]]).lower() + ','
+    elif j[1] == atributeN:
+      if sensorStatus[j[0]] == False:
+        racwd += str(-1).lower() + ','
+      elif type(sensorStatus[j[0]]) == float:
+        racwd += str(sensorStatus[j[0]]).lower() + ','
+      else:
+        print "Unknown number type of sensor ", j, " of type ", str(type(sensorStatus[j[0]])), " valued: ", sensorStatus[j[0]]
+        sys.exit(1)
+    else:
+      print "Unknown attribute type!"
+      sys.exit(1)
   # update label record
   for j in groundTruth:
-    beg = arffGroundTruth[j][0][2]
-    end = arffGroundTruth[j][1][2]
-    if i in range(beg, end):
-      groundTruth[j] = True
-    else:
-      groundTruth[j] = False
+    # for each range
+    groundTruth[j] = False
+    for k in range(len(arffGroundTruth[j])):
+      beg = arffGroundTruth[j][k][0][2]
+      end = arffGroundTruth[j][k][1][2]
+      if i in range(beg, end):
+        # print "i: ", i, " - ", j
+        groundTruth[j] = True
+        break
   return (racwd, groundTruth)
 
 
@@ -231,6 +247,9 @@ if __name__ == '__main__':
   record = name + ".pl" #background
 
   # Convert to Aleph format
+  ## sort before converting as some datasets(Washington) are not ordered
+  data.sort(key=operator.itemgetter(0))
+
   # normalise time so that each activity starts at 0 - memorise first time-stamp 
   init = data[0][0]
 
@@ -274,38 +293,58 @@ if __name__ == '__main__':
   while len(groundFacts) != 0:
     # get first
     a = []
-    a += [groundFacts.pop(0)]
+    a += [groundFacts.pop(-1)]
     # find all the rest of the activity
     for i in range(len(groundFacts))[::-1]:
       if groundFacts[i][0] == a[0][0]:
         a.append( groundFacts.pop(i) )
+    a.reverse()
     
-    # for the moment forbid the same activity repeated within one file
     # or the list does not start with *{* and finishes with *}*
-    if len(a) != 2 or a[0][1] != 'true' or a[1][1] != 'false':
-      print "The same block name used more than once: *", a[0][0], "* !"
-      print "or"
-      print "Wrong block structure!"
-      print ">\n", a
+    ## some activity is not closed
+    if len(a)%2 != 0:
+      print "One of the activity blocks is not closed!"
       sys.exit(1)
+    ## check for exact closure
+    for ai in range(0, len(a), 2):
+      if a[ai][1] != 'true' or a[ai+1][1] != 'false' or a[ai][2][2] > a[ai+1][2][2]:
+        # print "The same block name used more than once: *", a[0][0], "* !"
+        print "Block not closed: *", a[ai][0], "* !"
+        print "or"
+        print "Wrong block structure!"
+        print ">\n", a
+        sys.exit(1)
+      if ai >= 1:
+        if a[ai][2][2] < a[ai-1][2][2]:
+          print "Blocks are overlapping!"
+          sys.exit(1)
 
-    # use only *sequence*
-    beginning = a[0][2][2]
-    end = a[1][2][2]
+    # get ground true/false for each block
+    bottom = 0
+    for bn in range(0, len(a), 2):
+      # use only *sequence*
+      beginning = a[bn][2][2]
+      end = a[bn+1][2][2]
 
-    # memorise beginning and end for WEKA
-    arffGroundTruth[a[0][0]] = ( a[0][2], a[1][2] )
+      # memorise beginning and end for WEKA
+      if a[bn][0] in arffGroundTruth:
+        arffGroundTruth[a[bn][0]].append( (a[bn][2], a[bn+1][2]) )
+      else:
+        arffGroundTruth[a[bn][0]] = [(a[bn][2], a[bn+1][2])]
 
-    # generate for all the events
-    for i in range(beginning):
-      neg.append( activityRule + "(" + a[0][0] + ", " + str(i) + ")." )
-    for i in range(beginning, end):
-      pos.append( activityRule + "(" + a[0][0] + ", " + str(i) + ")." )
-    for i in range(end, farEnd):
+      # generate for all the events
+      for i in range(bottom, beginning):
+        neg.append( activityRule + "(" + a[0][0] + ", " + str(i) + ")." )
+      for i in range(beginning, end):
+        pos.append( activityRule + "(" + a[0][0] + ", " + str(i) + ")." )
+      # neg.append( activityRule + "(" + a[0][0] + ", " + str(0) + ", " + str(beginning-1) + ")." )
+      # pos.append( activityRule + "(" + a[0][0] + ", " + str(beginning) + ", " + str(end-1) + ")." )
+      bottom = end
+
+    # finish off
+    for i in range(bottom, farEnd):
       neg.append( activityRule + "(" + a[0][0] + ", " + str(i) + ")." )
     ## generate for one event with range
-    # neg.append( activityRule + "(" + a[0][0] + ", " + str(0) + ", " + str(beginning-1) + ")." )
-    # pos.append( activityRule + "(" + a[0][0] + ", " + str(beginning) + ", " + str(end-1) + ")." )
     # neg.append( activityRule + "(" + a[0][0] + ", " + str(end) + ", " + str(farEnd) + ")." )
 
   # Write positive and negative examples
@@ -406,7 +445,7 @@ if __name__ == '__main__':
       sensorStatus = updateSensor(f, sensorStatus)
 
       # get features status
-      (racwd, groundTruth) = getSignals(sensorNames, sensorStatus, groundTruth, arffGroundTruth)
+      (racwd, groundTruth) = getSignals(sensorNames, sensorStatus, groundTruth, arffGroundTruth, i)
 
       # check current class if none give 'none' # detect multi-label issue and report it
       cc = checkLabel(groundTruth)
