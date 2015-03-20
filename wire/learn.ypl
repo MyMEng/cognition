@@ -4,4 +4,7 @@
 :- [aleph].
 :- read_all(data).
 :- induce.
+# :- induce_cover.
+# :- induce_max.
+# :- induce_features.
 :- write_rules('rules.pl').
