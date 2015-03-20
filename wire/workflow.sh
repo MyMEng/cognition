@@ -1,8 +1,14 @@
 #! /bin/bash
 # Workflow
-# {l0,l1,l2,l3,l4,l5,l6,l7,l8,l9}
-ls=(l0 l1 l2 l3 l4 l5 l6 l7 l8 l9)
-# ls=(a8)
+
+# check if argument was given as trialID, if not perform 10 trials
+if [ -z "$1" ]; then
+  # {l0,l1,l2,l3,l4,l5,l6,l7,l8,l9}
+  ls=(l0 l1 l2 l3 l4 l5 l6 l7 l8 l9)
+else
+  ls=(a0)
+  ls=($1)
+fi
 
 for i in ${ls[@]}; do
   mkdir $i
@@ -37,7 +43,15 @@ for i in ${ls[@]}; do
   ssh kacper@192.168.56.101 $i/learn.ypl
   scp kacper@192.168.56.101:~/$i/rules.pl $i/
   ssh kacper@192.168.56.101 rm -fr $i
+
+  # clean rules and move
+  ./cleanupSingles.py $i/rules.pl
+  mv rules.cleaned.pl $i
 done
 
-# do cross validation
-./cross-validate.py "${ls[*]}"
+if [ ${#ls[@]} -le 1 ]; then
+  echo "Cannot perform cross-validation: only one element."
+else
+  # do cross validation
+  ./cross-validate.py "${ls[*]}"
+fi
