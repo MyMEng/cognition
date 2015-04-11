@@ -1,0 +1,283 @@
+activityIDs(phone_call).
+activityIDs(wash_hands).
+activityIDs(cook).
+activityIDs(eat).
+activityIDs(clean).
+%%
+roomIDs(hall).
+roomIDs(wardrobe).
+roomIDs(cupboard).
+roomIDs(kitchen).
+roomIDs(kitchen_cupboard).
+roomIDs(living_room).
+%
+roomIDs(stairs).
+roomIDs(upper_hall).
+roomIDs(room_1).
+roomIDs(wardrobe_1).
+roomIDs(room_2).
+roomIDs(wardrobe_2).
+roomIDs(room_3).
+roomIDs(wardrobe_3).
+roomIDs(bathroom).
+roomIDs(bathroom_cupboard).
+roomIDs(bathroom_toilet).
+%%
+connected__(hall, wardrobe).
+connected__(hall, cupboard).
+connected__(hall, stairs).
+connected__(hall, living_room).
+%
+connected__(living_room, kitchen).
+%
+connected__(kitchen, kitchen_cupboard).
+%
+connected__(stairs, upper_hall).
+%
+connected__(upper_hall, room_1).
+connected__(upper_hall, room_2).
+connected__(upper_hall, room_3).
+connected__(upper_hall, bathroom).
+%
+connected__(room_1, wardrobe_1).
+connected__(room_2, wardrobe_2).
+connected__(room_3, wardrobe_3).
+%
+connected__(bathroom, bathroom_toilet).
+connected__(bathroom, bathroom_cupboard).
+%%
+sensorInRoom(m26, stairs).
+sensorInRoom(m19, hall).
+sensorInRoom(m21, hall).
+sensorInRoom(m22, hall).
+sensorInRoom(m23, hall).
+sensorInRoom(m24, hall).
+sensorInRoom(m25, hall).
+sensorInRoom(m20, cupboard).
+sensorInRoom(m16, kitchen).
+sensorInRoom(m17, kitchen).
+sensorInRoom(m18, kitchen).
+sensorInRoom(t02, kitchen).
+sensorInRoom(m01, living_room).
+sensorInRoom(m02, living_room).
+sensorInRoom(m03, living_room).
+sensorInRoom(m04, living_room).
+sensorInRoom(m05, living_room).
+sensorInRoom(m06, living_room).
+sensorInRoom(m07, living_room).
+sensorInRoom(m08, living_room).
+sensorInRoom(m09, living_room).
+sensorInRoom(m10, living_room).
+sensorInRoom(m11, living_room).
+sensorInRoom(m12, living_room).
+sensorInRoom(m13, living_room).
+sensorInRoom(m14, living_room).
+sensorInRoom(m15, living_room).
+sensorInRoom(t01, living_room).
+sensorInRoom(i08, living_room).
+sensorInRoom(i09, living_room).
+sensorInRoom(m27, upper_hall).
+sensorInRoom(m28, upper_hall).
+sensorInRoom(m29, upper_hall).
+sensorInRoom(m43, room_1).
+sensorInRoom(m42, room_2).
+sensorInRoom(m30, room_3).
+sensorInRoom(m30, room_3).
+sensorInRoom(m31, room_3).
+sensorInRoom(m32, room_3).
+sensorInRoom(m33, room_3).
+sensorInRoom(m34, room_3).
+sensorInRoom(m35, room_3).
+sensorInRoom(m36, room_3).
+sensorInRoom(t03, room_3).
+sensorInRoom(m37, bathroom).
+sensorInRoom(m38, bathroom).
+sensorInRoom(m39, bathroom).
+sensorInRoom(m40, bathroom).
+sensorInRoom(m41, bathroom_toilet).
+%
+sensorInRoom(asterisk, living_room).
+%
+sensorInRoom(i01, kitchen).
+sensorInRoom(i02, kitchen).
+sensorInRoom(i03, kitchen).
+sensorInRoom(i04, kitchen).
+sensorInRoom(i05, kitchen).
+sensorInRoom(i06, kitchen).
+sensorInRoom(i07, kitchen).
+sensorInRoom(d01, kitchen).
+sensorInRoom(ad1-a, kitchen).
+sensorInRoom(ad1-b, kitchen).
+sensorInRoom(ad1-c, kitchen).
+%%
+sensorActivity(asterisk, phone).
+sensorActivity(i08, phone_book).
+sensorActivity(ad1-a, water_hot).
+sensorActivity(ad1-b, water_cold).
+sensorActivity(ad1-c, burner).
+sensorActivity(d01, cabinet).
+sensorActivity(i01, oatmeal).
+sensorActivity(i02, raisins).
+sensorActivity(i03, brown_sugar).
+sensorActivity(i04, bowl).
+sensorActivity(i05, measuring_spoon).
+sensorActivity(i06, medicine_container).
+sensorActivity(i07, pot).
+%%
+itemSensorInRoom(i08, living_room).
+itemSensorInRoom(i09, living_room).
+itemSensorInRoom(asterisk, living_room).
+%
+itemSensorInRoom(ad1-a, kitchen).
+itemSensorInRoom(ad1-b, kitchen).
+itemSensorInRoom(ad1-c, kitchen).
+itemSensorInRoom(d01, kitchen).
+itemSensorInRoom(i01, kitchen).
+itemSensorInRoom(i02, kitchen).
+itemSensorInRoom(i03, kitchen).
+itemSensorInRoom(i04, kitchen).
+itemSensorInRoom(i05, kitchen).
+itemSensorInRoom(i06, kitchen).
+itemSensorInRoom(i07, kitchen).
+%
+itemSensorInRoom(t02, kitchen).
+itemSensorInRoom(t01, living_room).
+itemSensorInRoom(t03, room_3).
+%%
+motionSensorInRoom(m26, stairs).
+motionSensorInRoom(m19, hall).
+motionSensorInRoom(m21, hall).
+motionSensorInRoom(m22, hall).
+motionSensorInRoom(m23, hall).
+motionSensorInRoom(m24, hall).
+motionSensorInRoom(m25, hall).
+motionSensorInRoom(m20, cupboard).
+motionSensorInRoom(m16, kitchen).
+motionSensorInRoom(m17, kitchen).
+motionSensorInRoom(m18, kitchen).
+motionSensorInRoom(m01, living_room).
+motionSensorInRoom(m02, living_room).
+motionSensorInRoom(m03, living_room).
+motionSensorInRoom(m04, living_room).
+motionSensorInRoom(m05, living_room).
+motionSensorInRoom(m06, living_room).
+motionSensorInRoom(m07, living_room).
+motionSensorInRoom(m08, living_room).
+motionSensorInRoom(m09, living_room).
+motionSensorInRoom(m10, living_room).
+motionSensorInRoom(m11, living_room).
+motionSensorInRoom(m12, living_room).
+motionSensorInRoom(m13, living_room).
+motionSensorInRoom(m14, living_room).
+motionSensorInRoom(m15, living_room).
+motionSensorInRoom(m27, upper_hall).
+motionSensorInRoom(m28, upper_hall).
+motionSensorInRoom(m29, upper_hall).
+motionSensorInRoom(m43, room_1).
+motionSensorInRoom(m42, room_2).
+motionSensorInRoom(m30, room_3).
+motionSensorInRoom(m30, room_3).
+motionSensorInRoom(m31, room_3).
+motionSensorInRoom(m32, room_3).
+motionSensorInRoom(m33, room_3).
+motionSensorInRoom(m34, room_3).
+motionSensorInRoom(m35, room_3).
+motionSensorInRoom(m36, room_3).
+motionSensorInRoom(m37, bathroom).
+motionSensorInRoom(m38, bathroom).
+motionSensorInRoom(m39, bathroom).
+motionSensorInRoom(m40, bathroom).
+motionSensorInRoom(m41, bathroom_toilet).
+%%
+sensorsIDs(m01).
+sensorsIDs(m02).
+sensorsIDs(m03).
+sensorsIDs(m04).
+sensorsIDs(m05).
+sensorsIDs(m06).
+sensorsIDs(m07).
+sensorsIDs(m08).
+sensorsIDs(m09).
+sensorsIDs(m10).
+sensorsIDs(m11).
+sensorsIDs(m12).
+sensorsIDs(m13).
+sensorsIDs(m14).
+sensorsIDs(m15).
+sensorsIDs(m16).
+sensorsIDs(m17).
+sensorsIDs(m18).
+sensorsIDs(m19).
+sensorsIDs(m20).
+sensorsIDs(m21).
+sensorsIDs(m22).
+sensorsIDs(m23).
+sensorsIDs(m24).
+sensorsIDs(m25).
+sensorsIDs(m26).
+sensorsIDs(m27).
+sensorsIDs(m28).
+sensorsIDs(m29).
+sensorsIDs(m30).
+sensorsIDs(m31).
+sensorsIDs(m32).
+sensorsIDs(m33).
+sensorsIDs(m34).
+sensorsIDs(m35).
+sensorsIDs(m36).
+sensorsIDs(m37).
+sensorsIDs(m38).
+sensorsIDs(m39).
+sensorsIDs(m40).
+sensorsIDs(m41).
+%
+sensorsIDs(i01).
+sensorsIDs(i02).
+sensorsIDs(i03).
+sensorsIDs(i04).
+sensorsIDs(i05).
+sensorsIDs(i06).
+sensorsIDs(i07).
+sensorsIDs(i08).
+sensorsIDs(i09).
+%
+sensorsIDs(d01).
+sensorsIDs(t01).
+sensorsIDs(t02).
+sensorsIDs(t03).
+sensorsIDs(asterisk).
+sensorsIDs(ad1-a).
+sensorsIDs(ad1-b).
+sensorsIDs(ad1-c).
+%%
+deviceIDs(phone).
+deviceIDs(phone_book).
+deviceIDs(water_hot).
+deviceIDs(water_cold).
+deviceIDs(burner).
+deviceIDs(cabinet).
+deviceIDs(oatmeal).
+deviceIDs(raisins).
+deviceIDs(brown_sugar).
+deviceIDs(bowl).
+deviceIDs(measuring_spoon).
+deviceIDs(medicine_container).
+deviceIDs(pot).
+%%guesswork
+sensorInField(t01, m06).
+sensorInField(t02, m17).
+sensorInField(t03, m31).
+sensorInField(d01, m17).
+sensorInField(i01, m17).
+sensorInField(i02, m17).
+sensorInField(i03, m17).
+sensorInField(i04, m17).
+sensorInField(i05, m17).
+sensorInField(i06, m17).
+sensorInField(i07, m17).
+sensorInField(ad1-a, m18).
+sensorInField(ad1-b, m18).
+sensorInField(ad1-c, m17).
+sensorInField(asterisk, m10).
+sensorInField(i08, m10).
+sensorInField(i09, m09).
