@@ -26,11 +26,12 @@
 :- determination( activity/2, getDeviceList/2 ).
 %%
 :- determination( activity/2, aPriori/2 ).
-:- determination( activity/2, getTimeIncrement/2 ).
-:- determination( activity/2, getTimeDecrement/2 ).
+:- determination( activity/2, act/2 ).
+%% :- determination( activity/2, getTimeIncrement/2 ).
+%% :- determination( activity/2, getTimeDecrement/2 ).
 :- determination( activity/2, roomRangers/2 ).
-:- determination( activity/2, nextActivity/2 ).
-:- determination( activity/2, previousActivity/2 ).
+%% :- determination( activity/2, nextActivity/2 ).
+%% :- determination( activity/2, previousActivity/2 ).
 
 
 % Mode declarations: modeHead; modeBody
@@ -43,13 +44,17 @@
 %% :- modeb( *, location(+integer, #rooms, #sensorMode) ).
 %% :- modeb( *, device(+integer, #devices, #sensorMode) ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% :- modeh( *, activity(-activityIDs, +integer) ).
 :- modeh( *, activity(#activityIDs, +integer) ).
-:- modeh( *, activity(-activityIDs, +integer) ).
 %%%%
+:- modeb( *, act(#activityIDs, -#activityIDs) ).
+%%
 :- modeb( *, device(+integer, #deviceIDs) ).
 :- modeb( *, location(+integer, #roomIDs) ).
 :- modeb( *, device(+integer, -deviceIDs) ).
 :- modeb( *, location(+integer, -roomIDs) ).
+:- modeb( *, device(+integer, +deviceIDs) ).
+:- modeb( *, location(+integer, +roomIDs) ).
 %%
 :- modeb( *, aPriori(+deviceIDs, -activityIDs) ).
 :- modeb( *, aPriori(-deviceIDs, +activityIDs) ).
@@ -58,6 +63,8 @@
 :- modeb( *, getTimeDecrement(+integer, -integer) ).
 %%
 :- modeb( *, roomRangers(+roomIDs, +roomIDs) ).
+:- modeb( *, roomRangers(+roomIDs, #roomIDs) ).
+:- modeb( *, roomRangers(#roomIDs, +roomIDs) ).
 %%
 :- modeb( *, nextActivity(+integer, -activityIDs) ).
 :- modeb( *, nextActivity(+integer, #activityIDs) ).
@@ -75,10 +82,111 @@
 %%   not(Activity1 = Activity2).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+connected(A, B, Path) :-
+  connected(A, B, [], Path).
+connected(A, B, V, Path) :-
+  connected_(A, X), not( member(X, V) ),
+  (
+    B = X, reverse([B,A|V], Path)
+  ; connected(X, B, [A|V], Path)
+  ), !.
+
+connected_(A, B) :-
+  connected__(A, B); connected__(B, A).
+
+nowAt(Room, Time, TimeType) :-
+  %% there is presence in given room at some time T...
+  spaceTime(Room, TimeType, T),
+  %% ...which is before our time of interest...
+  T =< Time,
+  %% ...and we do not move to any other room between *Time* and *T*
+  \+nowAt_(Room, TimeType, T, Time), !.
+
+nowAt_(Room, TimeType, T1, T2) :-
+  spaceTime(OtherRoom, TimeType, Tbound),
+  \+(OtherRoom = Room),
+  T1 =< Tbound, Tbound =< T2.
+
+nowDo(Activity, Time, TimeType) :-
+  %% the activity is held at some time T...
+  activityTime(Activity, true, TimeType, T1),
+  %% ...which started now or before our time of interest...
+  T1 =< Time,
+  %% ... and has not ended yet.
+  \+nowDo_(Activity, Time, TimeType).
+
+nowDo_(Activity, Time, TimeType) :-
+  activityTime(Activity, false, TimeType, T),
+  T =< Time.
+
+location_(Time, Location) :-
+  sensorInRoom(SensorID, Location),
+  sensor_state(SensorID, true, Time), !.
+
+location(Time, Location) :-
+  (sensorInRoom(SensorID, Location),
+   sensor_state(SensorID, true, Time),
+   Time >= 0, !  );
+  %% think about cut at the end
+  ( !, Time > 0, location(Time-1, Location) ).
+
+location(Time, Location, State) :-
+  (sensorInRoom(SensorID, Location),
+   sensor_state(SensorID, State, Time),
+   Time >= 0, !  );
+  %% think about cut at the end
+  ( !, Time > 0, location(Time-1, Location) ).
+
+%% return all activities between given times
+locations(T1, T2, Loc) :-
+  location(T1, Loc);
+  (T1<T2, locations(T1+1, T2, Loc)).
+
+device(Time, Device) :-
+  sensorActivity(SensorID, Device),
+  sensor_state(SensorID, true, Time).
+
+device(Time, Device, State) :-
+  sensorActivity(SensorID, Device),
+  sensor_state(SensorID, State, Time).
+
+devices(T1, T2, Dev) :-
+  device(T1, Dev);
+  (T1<T2, devices(T1+1, T2, Dev)).
+
+sensor_state(SensorID, SensorState, Time) :-
+  sensor_state(SensorID, SensorState, sequence, Time).
+
+sensor_state(SensorID, SensorState, TimeType, Time) :-  %% there is sensor in given state...
+  sensor(SensorID, SensorState, TimeType, T1),
+  % ... before our time of interest...
+  T1 =< Time,
+  %% ...and its status does not change after that.
+  negate(NotSensor, SensorState),  \+sensor_state(SensorID, NotSensor, TimeType, T1, Time),!.
+
+%% sensor state between T1 and T2 inclusive
+sensor_state(SensorID, SensorState, TimeType, T1, T2) :-
+  sensor(SensorID, SensorState, TimeType, T),
+  T1 =< T, T =< T2.
+
+negate(Y, X) :-
+  (X ->
+   Y = false;
+   Y = true).
+
+sensorModes(true).
+sensorModes(false).
+
+
+
+
 % knowledge 'a priori'
 aPriori(tv    , watchTV   ) :- true.
 aPriori(burner, cook      ) :- true.
 aPriori(phone , phone_call) :- true.
+
+% Activity determiner
+act(A, A) :- true.
 
 % what devices are turned on at Time
 getDeviceList(Time, List) :-
