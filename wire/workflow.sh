@@ -13,9 +13,11 @@ fi
 for i in ${ls[@]}; do
   mkdir $i
 
-  ../../SHgen/generator.py ../../SHgen/examples/rooms.l ../../SHgen/examples/layout.l ../../SHgen/examples/activities.l ../../SHgen/examples/path1.ui
+  ../../SHgen/generator.py ../../SHgen/examples/rooms.l ../../SHgen/examples/layout.l ../../SHgen/examples/activities.l ../../SHgen/examples/casas.l #path1.ui
 
   mv bg.pl $i/
+  cat alephBody.pl >> $i/bg.pl
+
   mv data.txt $i/
   mv data.f $i/
   mv data.n $i/
