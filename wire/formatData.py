@@ -105,7 +105,16 @@ def convertDataEntry( sequenced, line ):
       sys.exit(1)
 
     for a in range(0, len(actions), 2):
-      actionID = actions[a].lower()
+      apID = actions[a]
+      # if possible split action ID on: person and action
+      pid = apID.find('_')
+      if pid == -1:
+        actionID = apID.lower()
+        personID = ""
+      else:
+        actionID = apID[pid+1:].lower()
+        personID = apID[:pid][0].lower() + apID[:pid][1:]
+
       aD = actions[a+1].lower()
       actionDescription = None
       if   aD == 'begin':
@@ -116,7 +125,7 @@ def convertDataEntry( sequenced, line ):
         print "Unknown block description!"
         print ' '.join(entities)
         sys.exit(1)
-      action.append( (actionID, actionDescription, [stamp, sequenced]) )
+      action.append( (actionID, actionDescription, [stamp, sequenced], personID) )
 
   ##############################################################################
 
@@ -235,6 +244,13 @@ if __name__ == '__main__':
       data.append( out[0:4] )
       groundFacts += out[4]
 
+  # check dataset for multiple residents
+  multipleResidents = False
+  for i in groundFacts:
+    if i[3] != "":
+      multipleResidents = True
+      break
+
   # Get name of file without subdirectories
   slashInd = args[1][::-1].find('/')
   name = args[1][::-1][:slashInd][::-1] if slashInd!=-1 else args[1]
@@ -276,6 +292,7 @@ if __name__ == '__main__':
   # write down ground truth and ground false
   recordf = name + ".f.pl"
   recordn = name + ".n.pl"
+
   # add two time representations to ground facts
   for i in range(len(groundFacts)):
     rel = groundFacts[i][2][0]-init
@@ -296,7 +313,8 @@ if __name__ == '__main__':
     a += [groundFacts.pop(-1)]
     # find all the rest of the activity
     for i in range(len(groundFacts))[::-1]:
-      if groundFacts[i][0] == a[0][0]:
+      # find same activity for same person
+      if groundFacts[i][0] == a[0][0] and groundFacts[i][3] == a[0][3]:
         a.append( groundFacts.pop(i) )
     a.reverse()
     
@@ -324,7 +342,7 @@ if __name__ == '__main__':
     for bn in range(0, len(a), 2):
       # use only *sequence*
       beginning = a[bn][2][2]
-      end = a[bn+1][2][2]
+      end = a[bn+1][2][2] + 1 # !!!CHANGE!!!: include last command
 
       # memorise beginning and end for WEKA
       if a[bn][0] in arffGroundTruth:
@@ -332,18 +350,24 @@ if __name__ == '__main__':
       else:
         arffGroundTruth[a[bn][0]] = [(a[bn][2], a[bn+1][2])]
 
+      # check for multiple people
+      if multipleResidents:
+        PID = ", " + a[bn][3]
+      else:
+        PID = ""
+
       # generate for all the events
       for i in range(bottom, beginning):
-        neg.append( activityRule + "(" + a[0][0] + ", " + str(i) + ")." )
+        neg.append( activityRule + "(" + a[bn][0] + ", " + str(i) + PID + ")." )
       for i in range(beginning, end):
-        pos.append( activityRule + "(" + a[0][0] + ", " + str(i) + ")." )
+        pos.append( activityRule + "(" + a[bn][0] + ", " + str(i) + PID + ")." )
       # neg.append( activityRule + "(" + a[0][0] + ", " + str(0) + ", " + str(beginning-1) + ")." )
       # pos.append( activityRule + "(" + a[0][0] + ", " + str(beginning) + ", " + str(end-1) + ")." )
       bottom = end
 
     # finish off
     for i in range(bottom, farEnd):
-      neg.append( activityRule + "(" + a[0][0] + ", " + str(i) + ")." )
+      neg.append( activityRule + "(" + a[bn][0] + ", " + str(i) + PID + ")." )
     ## generate for one event with range
     # neg.append( activityRule + "(" + a[0][0] + ", " + str(end) + ", " + str(farEnd) + ")." )
 
@@ -356,7 +380,11 @@ if __name__ == '__main__':
     nf.write('\n')
 
 
-  
+  # code below is just ARFF generation
+  if multipleResidents:
+    print "ARFF generation for multiple residents (multi-label data) is not supported."
+    sys.exit(0)
+
   # write ARFF file for Weka
   ## relative
   recordRarff = name + ".R.arff"
@@ -420,12 +448,6 @@ if __name__ == '__main__':
     groundTruth[e] = False
 
 
-
-
-
-
-
-
   # create common data type
   cdt = []
   for d in data:
@@ -464,12 +486,6 @@ if __name__ == '__main__':
     if currentWindow != get_window( init, e[0] ):
       currentWindow = get_window( init, e[0] )
       Warff.append(str(currentWindow) + ',' + racwd + cc)
-    
-
-
-
-
-
 
 
   # write the files
