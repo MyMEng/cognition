@@ -97,7 +97,105 @@ sensorModes(false).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% knowledge 'a priori'
+%%% THIS CHANGES FOR REAL DATA!!!!!!!!!!!!
+% knowledge 'a priori' - order of activities
+%% define activity time window
+activityTimeWindow(5).
+
+% check last time activity happened in time
+checkPastActivities(UpToTime, Activity, WasAtTime) :- % +,+,-
+  findall(T, bactivity(Activity, T), Ts),
+  highestNumberWithinRange(Ts, UpToTime, WasAtTime).
+
+% find highest value within range
+highestNumberWithinRange([H|List], UpperBound, Value) :-
+  H < UpperBound,
+  highestNumberWithinRange_(List, UpperBound, H, Value).
+highestNumberWithinRange_([H|List], UpperBound, V, Value) :-
+  (  H < UpperBound, H > V
+   -> highestNumberWithinRange_(List, UpperBound, H, Value)
+   ;  highestNumberWithinRange_(List, UpperBound, V, Value)
+  ).
+highestNumberWithinRange_([], _, Value, Value).
+
+
+%% after COOKING must be EATING (within some reasonable window)
+activityOrder(Time, eat) :- % +,- % #eat
+  % find last time (< +Time) the activity was COOK
+  checkPastActivities(Time, cook, WasAtTime),
+  % and not it isn't COOKING
+  \+bactivity(cook, Time),
+  % check whether it is within range
+  TimeDifference is Time - WasAtTime,
+  activityTimeWindow(Range),
+  TimeDifference =< Range.%,
+  % than it's EATING
+  %% CurrentActivity = eat.
+
+%% %% after EATING must be WASHING-UP (within some reasonable window
+%% activityOrder(Time, clean) :- % +,- % #eat
+%%   % find last time (< +Time) the activity was COOK
+%%   checkPastActivities(Time, eat, WasAtTime),
+%%   % and not it isn't COOKING
+%%   \+bactivity(eat, Time),
+%%   % check whether it is within range
+%%   TimeDifference is Time - WasAtTime,
+%%   activityTimeWindow(Range),
+%%   TimeDifference =< Range,
+%%   % than it's EATING
+%%   CurrentActivity = clean.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% only valid for generator!!!!!!!!!!!!!!!!!!!!
+inCabinet(oatmeal).
+inCabinet(raisins).
+inCabinet(brown_sugar).
+inCabinet(bowl).
+inCabinet(measuring_spoon).
+inCabinet(medicine_container).
+inCabinet(pot).
+%
+deviceIDs(none).
+%
+outOfCabinet(Time, ItemList) :- % [pot, raisin, ...]
+  findall(L, inCabinet(L), Li),
+  checkItemsWithSensors(Time, Li, ItemList).
+
+checkItemsWithSensors(Time, Li, ItemList) :-
+  checkItemsWithSensors_(Time, Li, [], ItemList).
+checkItemsWithSensors_(Time, [Device|Li], TempItemList, ItemList) :-
+  ( device(Time, Device)
+  -> checkItemsWithSensors_(Time, Li, [Device|TempItemList], ItemList)
+   ; checkItemsWithSensors_(Time, Li, TempItemList, ItemList)
+  ).
+checkItemsWithSensors_(_, [], [I|ItemList], [I|ItemList]). % at least one element I
+checkItemsWithSensors_(_, [], [], [none]). % 0 elements
+
+medicineInList(List) :-
+  inList(medicine_container, List).
+inList(A, [B|Bi]) :-
+    A = B, !
+  ; inList(A, Bi), !.
+
+%%%%%%%%%%
+waterUsed(Time) :-
+    device(Time, water_hot), !
+  ; device(Time, water_cold), !.
+
+waterType(hot).
+waterType(cold).
+typeOfWater(Time, WaterType) :-
+  pass.
+
+% particular direction of change
+%% switvch from off to on or vice versa
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% knowledge 'a priori' - bind device with activity
 aPriori(tv    , watchTV   ) :- true.
 aPriori(burner, cook      ) :- true.
 aPriori(phone , phone_call) :- true.
@@ -148,10 +246,10 @@ timeLB(LB) :-
   findall(Rand, activity(_, Rand), V),
   min_list(V, LB).
 
-% get next/previous activity
-nextActivity(Time, NextActivity) :-
-  timeUB(TimeBound),
-  queuedActivity(Time, forward, TimeBound, NextActivity).
+%% % get next/previous activity
+%% nextActivity(Time, NextActivity) :-
+%%   timeUB(TimeBound),
+%%   queuedActivity(Time, forward, TimeBound, NextActivity).
 
 previousActivity(Time, NextActivity) :-
   timeLB(TimeBound),

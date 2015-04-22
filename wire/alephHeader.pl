@@ -20,16 +20,22 @@
 %% :- set(gsamplesize, 20).
 
 % Determinations
+%% :- determination( activity/2, activityOrder/2 ).
+:- determination( activity/2, outOfCabinet/2 ).
+:- determination( activity/2, waterUsed/1 ).
+:- determination( activity/2, medicineInList/1 ).
+
+
 %% :- determination( activity/2, sensor_state/3 ).
-:- determination( activity/2, device/2 ).
+%% :- determination( activity/2, device/2 ).
 :- determination( activity/2, location/2 ).
-:- determination( activity/2, getDeviceList/2 ).
+%% :- determination( activity/2, getDeviceList/2 ).
 %%
-:- determination( activity/2, aPriori/2 ).
-:- determination( activity/2, act/2 ).
+%% :- determination( activity/2, aPriori/2 ).
+%% :- determination( activity/2, act/2 ).
 %% :- determination( activity/2, getTimeIncrement/2 ).
 %% :- determination( activity/2, getTimeDecrement/2 ).
-:- determination( activity/2, roomRangers/2 ).
+%% :- determination( activity/2, roomRangers/2 ).
 %% :- determination( activity/2, nextActivity/2 ).
 %% :- determination( activity/2, previousActivity/2 ).
 
@@ -47,31 +53,41 @@
 %% :- modeh( *, activity(-activityIDs, +integer) ).
 :- modeh( *, activity(#activityIDs, +integer) ).
 %%%%
-:- modeb( *, act(#activityIDs, -activityIDs) ).
+%% :- modeb( *, act(#activityIDs, -activityIDs) ).
 %%
-:- modeb( *, device(+integer, #deviceIDs) ).
+%% :- modeb( *, device(+integer, #deviceIDs) ).
 :- modeb( *, location(+integer, #roomIDs) ).
-:- modeb( *, device(+integer, -deviceIDs) ).
-:- modeb( *, location(+integer, -roomIDs) ).
-:- modeb( *, device(+integer, +deviceIDs) ).
-:- modeb( *, location(+integer, +roomIDs) ).
+%% :- modeb( *, device(+integer, -deviceIDs) ).
+%% :- modeb( *, location(+integer, -roomIDs) ).
+%% :- modeb( *, device(+integer, +deviceIDs) ).
+%% :- modeb( *, location(+integer, +roomIDs) ).
 %%
-:- modeb( *, aPriori(+deviceIDs, -activityIDs) ).
-:- modeb( *, aPriori(-deviceIDs, +activityIDs) ).
+%% :- modeb( *, activityOrder(+integer, -activityIDs) ).
+%% :- modeb( *, activityOrder(+integer, #activityIDs) ).
 %%
-:- modeb( *, getTimeIncrement(+integer, -integer) ).
-:- modeb( *, getTimeDecrement(+integer, -integer) ).
+:- modeb( *, outOfCabinet(+integer, [#deviceIDs|#list]) ).
+
+:- modeb( *, outOfCabinet(+integer, -list) ).
+:- modeb( *, medicineInList(+list) ).
+
+:- modeb( *, waterUsed(+integer) ).
 %%
-:- modeb( *, roomRangers(+roomIDs, +roomIDs) ).
-:- modeb( *, roomRangers(+roomIDs, #roomIDs) ).
-:- modeb( *, roomRangers(#roomIDs, +roomIDs) ).
+%% :- modeb( *, aPriori(+deviceIDs, -activityIDs) ).
+%% :- modeb( *, aPriori(-deviceIDs, +activityIDs) ).
 %%
-:- modeb( *, nextActivity(+integer, -activityIDs) ).
-:- modeb( *, nextActivity(+integer, #activityIDs) ).
-:- modeb( *, previousActivity(+integer, -activityIDs) ).
-:- modeb( *, previousActivity(+integer, #activityIDs) ).
+%% :- modeb( *, getTimeIncrement(+integer, -integer) ).
+%% :- modeb( *, getTimeDecrement(+integer, -integer) ).
 %%
-:- modeb( *, getDeviceList(+integer, [#deviceIDs|#list]) ).
+%% :- modeb( *, roomRangers(+roomIDs, +roomIDs) ).
+%% :- modeb( *, roomRangers(+roomIDs, #roomIDs) ).
+%% :- modeb( *, roomRangers(#roomIDs, +roomIDs) ).
+%%
+%% :- modeb( *, nextActivity(+integer, -activityIDs) ).
+%% :- modeb( *, nextActivity(+integer, #activityIDs) ).
+%% :- modeb( *, previousActivity(+integer, -activityIDs) ).
+%% :- modeb( *, previousActivity(+integer, #activityIDs) ).
+%%
+%% :- modeb( *, getDeviceList(+integer, [#deviceIDs|#list]) ).
 %%
 
 % Set constrains

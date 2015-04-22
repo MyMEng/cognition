@@ -13,10 +13,14 @@ fi
 for i in ${ls[@]}; do
   mkdir $i
 
-  ../../SHgen/generator.py ../../SHgen/examples/rooms.l ../../SHgen/examples/layout.l ../../SHgen/examples/activities.l ../../SHgen/examples/casas.l #path1.ui
+  ../../SHgen/generator.py ../../SHgen/examples/rooms.l ../../SHgen/examples/layout.l ../../SHgen/examples/activities.l ../../SHgen/examples/casas.l #casas.s #path1.ui
 
   mv bg.pl $i/
   cat alephBody.pl >> $i/bg.pl
+
+  # move truth to background!!!
+  ./editTruth.py
+  mv data.fb $i/
 
   mv data.txt $i/
   mv data.f $i/
@@ -39,6 +43,9 @@ for i in ${ls[@]}; do
 
   cp learn.ypl $i/
   cp aleph.yap $i/
+
+  # move truth to background!!!
+  cat $i/data.fb >> $i/data.b
 
   # Copy the directory "foo" from the local host to a remote host's directory "bar"
   scp -r $i kacper@192.168.56.101:~/
