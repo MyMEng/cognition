@@ -167,17 +167,24 @@ The activity model proposed in this paper aims at wide variety of real-life appl
 
 
 
-Why is it needed -> society geting older, spatio-temporal data is everywhere, SPHERE project
+Why is it needed -> Population ageing - society geting older, spatio-temporal data is everywhere, SPHERE project
 Applicaitons -> in monitoring, in city control, etc.
 Why interesting -> it generalises to any spatio-temporal data therefore can be used
 
-  \subsection{Healthcare: SPHERE Project}
-All aforementioned applications of ILP are of great importance in healthcare. Being able to monitor patients who live at home and effectively describe their activities with ILP result in better patient care possibilities. Moreover, when used in hospitals or daily care centres recognising multiple patients is desirable.\\
+\begin{figure}
+  \centering
+  \includegraphics[scale=.4]{./gfx/populationOver65}
+  \caption{Percentage of world population over 65, 1950--2050; \citep{populationAgeing}.}
+\end{figure}
+
+    \subsubsection{Healthcare: SPHERE Project}
+All \citep{sphere} aforementioned applications of ILP are of great importance in healthcare. Being able to monitor patients who live at home and effectively describe their activities with ILP result in better patient care possibilities. Moreover, when used in hospitals or daily care centres recognising multiple patients is desirable.\\
 \emph{SPHERE Project} hosted at the University of Bristol develops sensors, wearable devices, and smart house solutions---hardware and algorithms for healthcare applications. Proposed here ILP tool could extend suit of available analytic technologies and become great foundation for \emph{Narrative Analtics} presented in \emph{Section~\ref{sec:narrative}}.
 
+    \subsubsection{Smart City monitoring}
+police and actionsliek fireman
 
-
-
+    \subsubsection{Complex systems monitoring and control}
 
 
 
@@ -373,6 +380,13 @@ and finally and most notably you can discretise time stamps which is a lot easie
 
 
 \section{Data generator}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=.9\textwidth]{./gfx/room_layout}
+  \caption{Room layout of simulated house.}
+\end{figure}
+
 use coded background knowledge to generate data: sample path and sensor firing\\
 tool to generate such data would be of great importance in testing and model building\\
 
@@ -463,6 +477,13 @@ Needed files:
 %===============================================================================
 \chapter{Inductive Logic Programming\label{ch:ILP}}
 \section{Main concept}
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=.5]{./gfx/ilp}
+  \caption{ILP scheme\label{fig:ilp}}
+\end{figure}
+
 \section{\texttt{ALEPH}}
 \section{Applications to spatio-temporal data}
 pros and cons Use of background knowledge
