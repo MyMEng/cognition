@@ -133,11 +133,11 @@ Keywords: \textbf{Inductive, Logic, Programming, Prolog, Activity, Recognition, 
 \thispagestyle{empty}
 \mbox{}
 
-================================================================================
-================================================================================
-================================================================================
-================================================================================
-================================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
 \chapter{Introduction\label{ch:introduction}} %Background
 \setcounter{page}{1}
 % -------- plain English -> explain to someone
@@ -246,12 +246,40 @@ single occupier data can be coverteed to ARFF format and different models in Wek
 
 
 
-================================================================================
-================================================================================
-================================================================================
-================================================================================
-================================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
 \chapter{Spatio-temporal data\label{ch:stData}}
+Introduce the data
+--CASAS example
+--What the data looks like
+--Problems with the data -> hard to learn activity models
+
+The generator
+--Capabilities
+--Advantages
+--Design activities and learn them
+--Proof of the generator producing real-life data
+--ILP ready:
+----generates background knowledge, positives, negatives, and location activity details
+
+The converter
+--Convert CASAS-like data to knowledge representation
+--Generate positive and negative examples
+--Handles both single and multiple residents
+
+Cross-validation
+--Performs cross-validation on learnt rules and generated data
+--Reports statistics per label (activity) and overall performance
+
+Knowledge representation of spatiotemporal data
+--Data example - 4 time representations
+--Background knowledge makes learnt rules universal
+
+
+
 
 \subsection{Unbounded sensor readings}
 just treshold them\\
@@ -424,12 +452,21 @@ Needed files:
 
 
 
-================================================================================
-================================================================================
-================================================================================
-================================================================================
-================================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
 \chapter{Inductive Logic Programming\label{ch:ILP}}
+\section{Main concept}
+\section{\texttt{ALEPH}}
+\section{Applications to spatio-temporal data}
+pros and cons Use of background knowledge
+\section{Least general generalisation}
+activity description
+\section{Feature discovery and feature extraction}
+
+-----
 
 \citeauthor{plotkin1972automatic} in early 1970s and \citeauthor{shapiro1983algorithmic} in early 1980s created foundation of \emph{Inductive Logic Programming}(ILP). Both authors introduced techniques and tools to learn \emph{first-order formulas}---parametrised rules that are the core of ILP---from set of facts. Since then, ILP techniques found number of interdisciplinary applications with new tools being created now and then for rules learning purposes.
 
@@ -467,12 +504,21 @@ closed concept - keep not needed clauses in body.
 
 
 
-================================================================================
-================================================================================
-================================================================================
-================================================================================
-================================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
 \chapter{Sequential multi-class model---single resident\label{ch:smcm}}
+Simple generated datasets\\
+Synthetic CASAS #2 -- narrated datasets\\
+CASAS #2 -- narrated datasets\\
+Continuity rule -- introducing bias\\
+Meta-rule -- smoothing out predictions\\
+Generality of learnt rules (synthetic <--> genuine) Results overview\\
+Overlapping activities -- single resident multi-label case\\
+
+
 \vspace{1em}
 \begin{figure}[htb]
 \lstset{
@@ -500,20 +546,25 @@ device(TimeWindow, tv) :- sensor(105, on, TimeWindow).
 
 
 
-================================================================================
-================================================================================
-================================================================================
-================================================================================
-================================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
 \chapter{Multi-label model---multiple residents\label{ch:mlm}}
 
 
-================================================================================
-================================================================================
-================================================================================
-================================================================================
-================================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
+%===============================================================================
 \chapter{Summary\label{ch:summary}}
+Data generator as a helpful tool for building and testing models\\
+ILP can be used as one of models for activity recognition: its strong points not available (or hard to achieve) in other models
+Further development: data narration
+
+---
 
 \section{Further development: Data Narrative\label{sec:narrative}}
 Proposed here rules learning mechanism can be extended with ``grammar'' capable of generating \emph{Narrative Analysis} of spatio-temporal data: a \emph{succinct natural language description} of a selected time-space window of the data of interest. In healthcare and smart house scenarios, such techniques can be combined with activity recognition models to generate comprehensible descriptions of monitored activities with terminology and level of detail tuned to a particular recipient. In the context of the SPHERE project these techniques would facilitate making sense from acquired data for healthcare applications in a more transparent way than is possible with black-box approaches.
