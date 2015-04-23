@@ -32,6 +32,7 @@ stdg/*.pl
 *.out
 *.snm
 *.vrb
+*.dvi
 ## master graphics
 paper/gfx/masters/*
 
