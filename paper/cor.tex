@@ -239,7 +239,7 @@ For instance,~\citet{fatima2013analysis} report \emph{accuracy} ranging from $\s
     \subsection{Project contribution}
 Broad activity recognition literature and variety of tested therein models clearly indicate that no single classifier can handle diversity of activity structures embedded in the data. Each model has its pros and cons therefore perfect solution should use all of the models offering features not covered by the others---the concept known as \emph{ensemble learning}.\\
 
-As none of published so far literature discusses application of \emph{first-order formulas} i.e.\ parametrised logical rules, as building blocks of activity recognition model this work comprehensibly covers this problem. Therefore, the main aim of the project is to apply \emph{Inductive Logic Programming} (ILP) techniques to spatio-temporal data acquired from ``smart'' installations---houses in particular---in order to build \emph{Activity Recognition Model} and extract new, more informative features from raw signals.\\
+As none of published so far piece of literature discusses application of \emph{first-order formulas} i.e.\ parametrised logical rules, as building blocks of activity recognition model this work comprehensibly covers this problem to expand collection of used techniques. Therefore, the main aim of the project is to apply \emph{Inductive Logic Programming} (ILP) techniques to spatio-temporal data acquired from ``smart'' installations---houses in particular---in order to build \emph{Activity Recognition Model} and extract new, more informative features from raw signals.\\
 
 To address the first problem capabilities of ILP system and model description via set of first-order logical rules are investigated. Both cases: houses with single and multiple occupiers are examined.\\
 The latter task involves critical analysis of designed for model learning signal features and assessing their quality. Such novel signal characteristics can be used in any other activity recognition model to boost its performance.\\
@@ -249,36 +249,50 @@ Designing a new model and signal features can become difficult task when exact s
 Finally, the project aims at proposing \emph{unified activity-recognition model evaluation measures}. A systematic way of assessing performance of classifier in activity recognition tasks is beneficial for comparing and contrasting multiple solutions. With such techniques unambiguous assessment of multiple methods for particular activity is possible yielding obvious identification of best solution.
 
 \section{Techniques}
-To achieved set above goals discover application of ILP to expand set of tested techniques.
-
-\texttt{ALEPH} Prolog based ILP system
+To achieve set above goals performance of proposed technique is evaluate on both \emph{CASAS datasets} and \emph{CASAS-inspired synthetic} datasets produced by the generator. Both datasets are translated from log-like format into \emph{knowledge representation} i.e.\ sensor readings are expressed as logical facts. The evaluation is made by means of \emph{cross-validation}. CASAS datasets are split into activities per person to produce folds so that each fold contains number of activities performed by single person. On the other hand, when evaluating synthetic data each fold is generated independently with common activity structure and small variation of order of used items and detours from originally planned motion trajectory.\\
 
 % why I think it's best for the problem -> more details
-datasets from CASAS
-Data generation with custom made program
+The core of proposed technique is \texttt{ALEPH}---Inductive Logic Programming system producing \texttt{Prolog} clauses as the model of data. This approach to learning activity recognition model was chosen as it lacks needed attention in the subject literature.\\
 
-data will be converted to knowledge representation
+Proposed here rule based classifier greatly differs from currently used methods. Instead of employing \emph{propositional logic} it uses more powerful first-order logic, to express data and activity structure believes. More advanced ``grammar'' implies more possibilities to express complex relations between sensor events. This extra power can be harnessed to compose new data features which can be used in training other models and potentially improve their performance.\\
 
-Cross validation
+Furthermore, expressing the activity model in \texttt{Prolog} programming language brings to power all its advantages. Easy \emph{search space traversal} and built-in \emph{failure by negation} are invaluable tools in feature construction. Finally, learnt activity recognition model can be easily transformed to a \emph{generative model} for data hence, serve as an activity example generator.\\
+\texttt{Prolog} is also well known for its \emph{natural language processing} capabilities. Rule based model can be therefore used to produce \emph{Data Narrative}---a plain English interpretation of the data which supersedes any other visualisation technique targeted at general public.\\
 
+Another advantage of ILP learning is use of \emph{background knowledge}. It encodes \emph{clauses} needed to build the target model but can also contain any information or rules that might be beneficial for raw data interaction.\\
+In smart-house model such component is of invaluable help as it can contain all the house and activity details that are absent in raw data. Room layout, sensor placement, activity structure are just some of them.\\
+Moreover, background knowledge acts as a \emph{proxy} between raw data and model, making the latter universal. It means that in majority of cases model learnt for one dataset can be applied to any other by using data-specific background knowledge.\\
 
-all of the above methods duse representation fo blah blah not like ILP
-Prolog rules and ILP
-rules can be farly easy read by a human
-rules can be easly manipulated
-rules can be extended by natural grama generation -> plain english
-rule base dmodel can become -> a generative model for data
-rules can be translated into new features -> Furthermore, such model can be used to build new features: in presented above example both \texttt{location} and \texttt{device} rules can be transformed to become features. Rebuilt dataset may become more ``informative'' than the original one, therefore, it can improve classification carried out with variety of different machine learning models.
-rules are easy to expand -> different level of depth - meal -> type of meal -> based on used ingredients
+Very often monitored activities exhibit hierarchy and structure. Rule based model allow to easily adjust the \emph{resolution of prediction} therefore, activities can be described with different level of depth. Considering activity of eating, the model can simply predict the activity: \emph{eating}; it can also suggest meal type (breakfast, lunch, brunch, etc.) based on time of day; or even food type (pasta, pizza, etc.) based on used ingredients.\\
 
+Rule based model has one more distinctive feature not exhibited by many other machine learning models: it is \emph{human readable}. Such models are easy to inspect and tune simply by eye-balling. Rules can be evaluated whether they make sense, obscure information can be discover and gained knowledge used to design new more suitable features in iterative manner. Rule manipulation is also feasible therefore, they can be simplified (by removing predicate), extended (by appending predicate), or combined (by enclosing them in meta-rule).\\
 
 \section{Deliverables}
+presented above example both \texttt{location} and \texttt{device} rules can be transformed to become features. Rebuilt dataset may become more ``informative'' than the original one, therefore, it can improve classification carried out with variety of different machine learning models.
+
 Deliverables / contribution -> what the project will result in
-data generator that produces real like data
-rules for activity (that are considered difficult to recognise) recognition of single person in house
-rules for multiple residents in the house
+data generator that produces real like data -> higly customisalbels, allowing personalisation of room layout and motion sensor, publiclally available, free, \\
+
+rules for activity (that are considered difficult to recognise) recognition of single person in house\\
+techniques and advantages for\\
+
+rules for multiple residents in the house\\
+same as above
 
 \section{Challenges}
+Lack of labelled data to train and test models Incompleteness of data
+Noisy data
+Time handling (unbounded variable)
+Real valued sensor output
+Information loss: room and sensor layout
+
+􏰁Design customisable spatio-temporal (smart house) data generator to test and design models
+􏰀􏰁Investigate spatio-temporal data representation as logical facts
+􏰀􏰁Research representation of unbounded variables like time in first-order logic
+􏰀􏰁Examine use of background knowledge not contained in the original dataset
+􏰀􏰁Create and test different activity recognition models in ILP 􏰀􏰁 Build mechanism for new features discovery
+
+
 Lack of labelled data to train and test models -> not knowing what is in real data -> therefore neeed to emulate some to check it out
 time represenataition - unbounded variable in aI and ILP: time and real-valued sensors
 data noise and incompleteness
