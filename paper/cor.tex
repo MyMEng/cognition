@@ -294,16 +294,12 @@ Handling data of house occupied by multiple residents introduces difficulty of d
 Finally, designing the most suitable an universal evaluation technique is crucial for results comparison. The main difficulty of this task are multiple classification error possibilities. The significance of each of them has to be considered to build performance metric that express real-life usefulness of proposed methodology.
 
 \section{Result evaluation}
-Proof of generator
+For the proposed generator to be publicly accepted in the community dealing with smart-house activity recognition the proof of producing real-like data is necessary. Presented here proof is based on treating output of the generator with model learnt on real data and vice versa. This technique aims at assessing similarity between synthetic and real data.\\
 
-OUtput asses ->
-assess the generator by applying models learnt on real data and on generated data to prove bidirectionality
-use cross validation with random bits in generated data
-use models learnd on data and vice versa to assess it
-used CRF on both generated data and real data to compare results
-genuine data can be split per person (each person doing 5 diff activities) -> cross validated
-single occupier data can be coverteed to ARFF format and different models in Weka can be used to check it out
-
+% OUtput asses ->
+To prove importance of presented here activity recognition work systematic and versatile evaluation technique is necessary. Firstly, similar technique to generator evaluation is used: applying ``synthetic'' model to genuine data and vice versa. Moreover, different than rule based models are used on both type of data to compare their performance against proposed here technique.\\
+Evaluation measures such as accuracy per activity, overall accuracy, accuracy per person per activity are used. Furthermore, for single occupier cases the raw signals are translated into \texttt{ARFF} format and different machine learning models from \texttt{Weka} package are applied to it.\\
+Finally, all evaluation is based on \emph{cross validation} to make it more robust. The genuine data is split per person so that each fold contains 5 different activities. The synthetic data is generated with random bits based on script corresponding to the genuine data.
 
 
 %===============================================================================
