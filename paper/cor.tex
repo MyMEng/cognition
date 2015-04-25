@@ -194,7 +194,7 @@ Despite huge popularity in healthcare, spatio-temporal data feeds can also be fo
 Among many possible applications, produced analysis can result in timely police intervention or well planned route for emergency services, therefore, help in evacuation, crowd management, terrorist attack prevention and airport security control.
 
       \subsubsection{Complex Systems}
-Spatio-temporal data is also produced in large quantities by many of complex systems monitoring and control devices, e.g.: scientific facilities, buildings, data centres~\citep{moore2005data} and power plants~\citep{amin2005toward}. 
+Spatio-temporal data are also produced in large quantities by many of complex systems monitoring and control devices, e.g.: scientific facilities, buildings, data centres~\citep{moore2005data} and power plants~\citep{amin2005toward}. 
 Tasks impossible to handle by humans either due to large data volume throughput or demand for low response time are vast area of application for spatio-temporal data analysis. Such tools facilitate well suited for needs system management and risk detection. Power distribution and balancing, nuclear reactor control, data centre heat management are such tasks to name a few.
 
       \subsubsection{Wildlife}
@@ -277,35 +277,21 @@ The generator repository contains detailed design and usage description to be ea
 Moreover, the project studies in great detail application of ILP to various smart-house settings. Signal output as knowledge representation is proposed. Activity recognition problems defined in literature as ``hard'' for both single and multiple residents are attempted and quality of results is discussed. The capabilities, limitations and advantages of ILP in described scenario is thoroughly investigated and illustrated with examples. The role of background knowledge encoding additional signal characteristics is examined. Used signal features are described and their role in model construction is critically evaluated. Finally, result evaluation techniques are proposed and used to score achieved results.
 
 \section{Challenges}
-Lack of labelled data to train and test models Incompleteness of data
-Noisy data
-Time handling (unbounded variable)
-Real valued sensor output
-Information loss: room and sensor layout
+Issues in all layers: data, ILP and result evaluation arise. To overcome them, multiple solutions are presented and tested to select the best possible one for smart-house data analysis.\\
 
-􏰁Design customisable spatio-temporal (smart house) data generator to test and design models
-􏰀􏰁Investigate spatio-temporal data representation as logical facts
-􏰀􏰁Research representation of unbounded variables like time in first-order logic
-􏰀􏰁Examine use of background knowledge not contained in the original dataset
-􏰀􏰁Create and test different activity recognition models in ILP 􏰀􏰁 Build mechanism for new features discovery
+% prediction continuity issues, and readings in time continuity issues
+Very often the data collected from smart-houses are corrupted or obscure due to incompleteness and sensor noise. This phenomenon leads to confusing gaps between ``observed'' actions causing model learning difficulties and intermittent prediction space. With help of inductive learning such implicit information---describing intermediate steps between actions---can be inferred to overcome rule creation difficulty and produce logically consistent scenario.\\
+Moreover output of smart-house installations is an unlabelled dataset. Filling the missing activity description is manual labour hence it is time consuming and prone to errors. Lack of reliable ground truth information very often causes model learning difficulties.\\
 
+First-order logic data representation has many advantages but it struggles with unbounded variables like real numbers. This drawback imposes limitations on time and real-valued sensor output representation which is crucial for spatio-temporal data. Discovering possible representations and evaluating their usefulness is of great importance.\\
 
-Lack of labelled data to train and test models -> not knowing what is in real data -> therefore neeed to emulate some to check it out
-time represenataition - unbounded variable in aI and ILP: time and real-valued sensors
-data noise and incompleteness
-Information loss: room and sensor layout
-incompleteness and noise in the data
-tuning ILP systemin this case ALEPH, to build activity recognition model
-design of features to extract relevant information form data
-design of background knowledge to extract the features
-prediction continuity issues, and readings in time continuity issues
-adjusting resolution of the rules -> detail of prediction -> meal -> what kind of meal -> etc. -> level of depth -> dicover hierarchy -> chain of sub-activities contributing to the main action, or state which sensor or sequence of sensors build such actions.
-what evaluation techniques to use -> multiple error possibilities
-multiple residents dicovery -> Most often monitored places are inhabited or being used by multiple people. Another important task that can be performed with proposed technique is identifying actions and agents associated with them when multiple users simultaneously share observed space.
+Learning a data model with ILP is a complex process with number of intermediate steps. First, the learning environment of \texttt{Aleph} ILP system has to be configured to build activity recognition model. For this purpose variety of activity rule structures has to be discovered. Then, datasets and activity scripts need to be analysed to find any relevant structures to extract and format them as signal features. To this end, mechanism in form of \texttt{Prolog} rules has to be built.\\
+Background knowledge---the main component of \texttt{Aleph}---is a powerful tool. To make the best use of it, its capabilities and limitations must be discovered. Deciding on useful for feature construction information not contained in the original dataset like room and sensor layout is necessary.\\
 
-Very often the data collected from smart houses is corrupted or obscure due to sensor noise, leading to confusing gaps between ``observed'' actions. With help of inductive learning such implicit information---describing intermediate steps between actions---can be inferred to overcome rule creation difficulty and produce logically consistent scenario. This in turn can be translated into natural language using second ``grammar''.\\
+Adjusting the resolution (level of detail) of achieved prediction is also a significant task. Therefore, right balance in prediction detail and accuracy trade-off has to be found.\\
+Handling data of house occupied by multiple residents introduces difficulty of distinguishing them. Well known problem of agents sharing common space or crossing each other paths has to be resolved.\\
 
-Finally, data derived from smart houses is highly structured. Human activities can be hierarchically organised with complex actions composed of sub-actions, until ``atomic level'' is reached. This creates possibility to apply filters to produce multiple levels of narrative complexity based on target audience. Adjusting level of detail (granularity) of produced description would result in emphasis on different aspects of carried out activities during period of interest, hence, extracting relevant for the audience information.
+Finally, designing the most suitable an universal evaluation technique is crucial for results comparison. The main difficulty of this task are multiple classification error possibilities. The significance of each of them has to be considered to build performance metric that express real-life usefulness of proposed methodology.
 
 \section{Result evaluation}
 Proof of generator
@@ -682,6 +668,8 @@ what my results mean to general public
 Proposed here ILP tool could extend suit of available analytic technologies for activity recognition and become great foundation for \emph{Narrative Analtics} presented in \emph{Section~\ref{sec:narrative}}.
 
 Proposed here rules learning mechanism can be extended with ``grammar'' capable of generating \emph{Narrative Analysis} of spatio-temporal data: a \emph{succinct natural language description} of a selected time-space window of the data of interest. In healthcare and smart house scenarios, such techniques can be combined with activity recognition models to generate comprehensible descriptions of monitored activities with terminology and level of detail tuned to a particular recipient. In the context of the SPHERE project these techniques would facilitate making sense from acquired data for healthcare applications in a more transparent way than is possible with black-box approaches.
+
+Human activities can be hierarchically organised with complex actions composed of sub-actions, until ``atomic level'' is reached. This creates possibility to apply filters to produce multiple levels of narrative complexity based on target audience. Adjusting level of detail (granularity) of produced description would result in emphasis on different aspects of carried out activities during period of interest, hence, extracting relevant for the audience information.\\
 
     \subsection{Visualisation techniques}
 Most commonly used visualisation techniques nowadays are tables, graphs, and diagrams. Unfortunately, such charts often need expertise in a field to be correctly interpreted. Moreover, aforementioned methods often trade-off clarity for completeness of shown data hence make it difficult for a broad audience to see the big picture.\\
