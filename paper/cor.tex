@@ -645,27 +645,52 @@ and similar. In particular, in ILP and AI such values a lot easier to work with 
 The remaining two representations: \emph{relative} and \emph{windowed} are of little use in presented here learning approach.
 
     \subsection{Background knowledge}
-additional information about signal, and flat house
-is crucial part of ILP
+Background knowledge is a general name for a place containing all the information relevant to model learning. By far, it is the most important component of ILP containing building blocks of target model. Moreover, it is a place for logical representation of signals and all relevant rules interacting with them. Additionally, it contains any information not contained or implicit in the raw signals.\\
 
-Additionally to facts prolog rules for useing them are neede --- kind of feature extractors using addtional knowledge\\
-
---Background knowledge makes learnt rules universal--- translates sensor id into location and used device see listing below
+From large enough sample of smart-house data it is feasible to infer room layout and interconnections, unfortunately this task is computationally complex and impractical in most cases. ILP comes with help in such scenarios as it is ready to use any information not given in raw signals by reading it from background knowledge. Room connections information is great feature as it helps to predict motion trajectory and person's location.\\
+Sensor allocation---placement in rooms---is another information not given in raw signal. With help of sensors location, sensor activations can be translated into room name in which the activity is happening.\\
+Examples of information used in the background knowledge file is given in \emph{Figure~\ref{lst:bg}}. Fact \texttt{connected\_\_} informs about room connections via doors; \texttt{sensorInRoom} contains information where sensor of given ID is placed; \texttt{sensorActivity} is used with all item and appliance sensors and assigns human readable name to sensor ID; finally, \texttt{sensorInField} tells in range of which motion sensor item or appliance is located.\\
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
-connected__(bathroom, hall).
+connected__(   bathroom, hall    ).
 
-sensorInRoom(m61, bathroom).
+sensorInRoom(  m61     , bathroom).
 
-sensorActivity(ad1-c, burner).
+sensorActivity(ad1-c   , burner  ).
 
-sensorInField(ad1-b, m83).
+sensorInField( ad1-b   , m83     ).
+
+aPriori(tv    , watchTV   ).
+aPriori(burner, cook      ).
+aPriori(phone , phone_call).
+
+bedroom(residentA, bedroom1).
+bedroom(residentB, bedroom2).
   \end{minted}
   \caption{Background knowledge facts snippet.\label{lst:bg}}
 \end{figure}
 
-is widely used ??
+Apart from house layout information \emph{prior believes} of any kind can be used in background knowledge---see \texttt{aPriori} keyword \emph{Figure~\ref{lst:bg}}. A priori information such as likely place of activity, device or item required to complete it, and the order of activities are of invaluable help. For example, watching TV is most often associated with living room and a meal cannot be eaten unless it has been cooked. It is a fact that watching television requires TV to be on, cooking is happening on a hob and to make a phone call one needs to use a phone.\\
+With multiple residents in a house information such as bedroom assignment helps to distinguish them (\texttt{bedroom} keyword in \emph{Figure~\ref{lst:bg}}).\\
+
+\begin{figure}[htb] % [breaklines]
+  \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+location(Time, Location) :-
+  (sensorInRoom(SensorID, Location),
+   sensor_state(SensorID, true, Time),
+   Time >= 0, !  )
+  ;( !, Time > 0,
+    location(Time-1, Location) ).
+  \end{minted}
+  \caption{Example rule.\label{lst:bg:rule}}
+\end{figure}
+
+Another component of background knowledge are \texttt{Prolog} rules interacting with facts and signals---they can be understood as \emph{feature extractors}. Rule example is shown in \emph{Figure~\ref{lst:bg:rule}}; it queries \emph{where} (room name) a person is at given \emph{time}.\\
+
+Background knowledge can be also understood as \emph{proxy} between raw signals and high level activity rules. As output rules are based on room, item, appliance names and not sensor IDs they are universal. Already existing model can be applied to any other house by using specific to that place background knowledge.\\
+Finally, learnt rules can be used in future iterations of learning process by appending them to the background knowledge.
+
 
     \subsection{Positives and negatives}
 The final component of ILP are positive and negative examples of model to learn. Sample facts for both single and multiple occupiers are presented respectively in \emph{Figure~\ref{lst:singleposneg}}~\&~\emph{\ref{lst:multiposneg}}.\\
@@ -746,6 +771,14 @@ It is also popular in computer science in: programming assistants, algorithmic d
 To construct Activity Recognition Model two popular ILP \texttt{Prolog} implementations are examined: \texttt{Aleph}\footnote{\url{http://www.cs.ox.ac.uk/activities/machlearn/Aleph/aleph.html}} and \texttt{Progol}\footnote{\url{http://www.doc.ic.ac.uk/~shm/progol.html}}.
 
   \section{\texttt{ALEPH}}
+
+    \subsection{Input files}
+\begin{enumerate}
+  \item Background
+  \item Positives
+  \item Negatives
+\end{enumerate}
+
     \subsection{The basic algorithm}
 (page 4):
 \begin{enumerate}
@@ -755,12 +788,9 @@ To construct Activity Recognition Model two popular ILP \texttt{Prolog} implemen
   \item Remove redundant.
 \end{enumerate}
 
-    \subsection{Input files}
-\begin{enumerate}
-  \item Background
-  \item Positives
-  \item Negatives
-\end{enumerate}
+
+backgroudn beside earlier mention stuff requires Aleph configureation
+give example ocnfiguration
 
 
   \section{Applications to spatio-temporal data}
@@ -814,6 +844,8 @@ Generality of learnt rules (synthetic <--> genuine) Results overview
   \section{Overlapping activities}
 single resident multi-label case
 
+  \section{Features}
+
 
 % \vspace{1em}
 % \begin{figure}[htb]
@@ -865,6 +897,8 @@ device(TimeWindow, tv) :-
     \subsection{Still case}
 
   \section{CASAS \#9}
+
+  \section{Features}
 
 
 %===============================================================================
