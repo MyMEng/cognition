@@ -590,7 +590,12 @@ Multi agent case is just combination of multiple single agent case with special 
 
 
 
+
+
   \section{Knowledge representation of spatio-temporal data}
+Activity learning method described here requires .
+
+
 Ilp system can only handel data in form o flogical facts therefore it needs to be represented like this
 
 facts expressed in \texttt{Prolog} language.
@@ -598,7 +603,7 @@ facts expressed in \texttt{Prolog} language.
 
 
     \subsection{Unbounded sensor readings}
-just treshold them\\
+just treshold them --> on above given threshold
 
 special case is time.
 
@@ -614,7 +619,7 @@ and finally and most notably you can discretise time stamps which is a lot easie
   time of year (winter, summer autumn, spring), month: jan, feb, , time of day: morning, afternoon, evening, night
 
 \begin{figure}[htb] % [breaklines]
-  \begin{minted}{Prolog}
+  \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 sensor(m12, true, relative, 4007842 ).
 sensor(m12, true, absolute, 1430004781866056 ).
 sensor(m12, true, sequence, 2 ).
@@ -633,7 +638,7 @@ sensor(m13, false, windowed, 1 ).
 --Background knowledge makes learnt rules universal
 
 \begin{figure}[htb] % [breaklines]
-  \begin{minted}{Prolog}
+  \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 connected__(bathroom, hall).
 
 sensorInRoom(m61, bathroom).
@@ -652,7 +657,7 @@ as above
 examples for both single resident and multiple residents
 
 \begin{figure}[htb] % [breaklines]
-  \begin{minted}{Prolog}
+  \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 activity(cook, 47).
 activity(eat, 51).
 activity(eat, 52).
@@ -664,7 +669,7 @@ activity(washUp, 60).
 \end{figure}
 
 \begin{figure}[htb] % [breaklines]
-  \begin{minted}{Prolog}
+  \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 activity(sleep, 14, residentA).
 activity(sleep, 15, residentA).
 activity(sleep, 16, residentA).
@@ -685,12 +690,7 @@ Moreover, the converter uses activity and person ID information given in 4\ts{th
 
   \section{The cross-validation}
 Once the data is converted and passed to \texttt{Aleph} the model in form of rules describing activities is produced. To evaluate their quality 10-fold cross-validation is performed.\\
-For each script of activities 10 data recordings are gathered together with corresponding model learnt with ILP.
-
-Rules correcponding to each sample are tested on nine remaining samples and compared with ground truth to produce accuracy report on each label separatly and all labels combined. The output of cross-validation framework is on of the diagnostics used to evaluate model performance.
-
- capabilities on given set of activities
-
+For each script of activities 10 data recordings are gathered together with corresponding model learnt with ILP. Then, each sample model is evaluated on the remaining nine datasets and the results are checked against corresponding ground truth. After testing all possible model-data combinations overall and per-label accuracy and is reported. The output of cross-validation framework is on of the diagnostics used to evaluate model performance.
 
 %===============================================================================
 %===============================================================================
@@ -747,6 +747,8 @@ To construct Activity Recognition Model two popular ILP \texttt{Prolog} implemen
 
   \section{Applications to spatio-temporal data}
 pros and cons Use of background knowledge
+
+failure by negation -> if we don't know whether it;s on -> it's not
 
   \section{Background knowledge}
 not possible to give experiment design and structure in data\\
@@ -808,7 +810,7 @@ single resident multi-label case
 % }
 % \begin{lstlisting}
 \begin{figure}[htb] % [breaklines]
-  \begin{minted}{Prolog}
+  \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 activity(Person, cooking) :-
   location(Person, TimeWindow, kitchen), device(TimeWindow, hob).
 activity(Person, watchingTV) :-
