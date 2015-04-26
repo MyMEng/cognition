@@ -593,30 +593,27 @@ Multi agent case is just combination of multiple single agent case with special 
 
 
   \section{Knowledge representation of spatio-temporal data}
-Activity learning method described here requires .
+Activity learning method described here requires signals represented as logical facts. ILP system used in this study is written in \texttt{Prolog} programming language therefore, all data has to be expressed in thereof predicates. This requirement causes some problems introduced by sensor type variety.\\
 
-
-Ilp system can only handel data in form o flogical facts therefore it needs to be represented like this
-
-facts expressed in \texttt{Prolog} language.
-
-
+The most common sensor output are binary variables: on-off, present-absent, opened-closed, etc.\ produced by motion and item sensors. Expressing them in predicates is straight-forward as their search space is finite---a set containing two elements.
 
     \subsection{Unbounded sensor readings}
-just treshold them --> on above given threshold
+Another type of sensor output are real and whole numbers. Handling these quantities is well known and broadly documented issue in Artificial Intelligence and Logic Programming. As \texttt{Prolog} is a language based on search space traversal numbers i.e.\ unbounded variables have infinite (unbounded) search space.\\
 
-special case is time.
+When sensor output is numerical it is converted to Boolean space by simple shareholding. The critical value is hand-picked based on observation of output values.\\
+A special case of unbounded readings is time.
 
     \subsection{Time representation\label{sec:timeRepresentation}}
---Data example - 4 time representations
-4 different time representations
-sequence is most suitable for this application
-not sparse numbers hich are easy to iterate without exhaustive serch
-but additionally timestamp is great source of information
-as its of a magnitude $10^{16}$ (micro-seconds $\mu$-seconds)
-but you can extract time differenc of any two sensor activations -- time elapsed since given event -- and treshold it
-and finally and most notably you can discretise time stamps which is a lot easier than working with numbers in ilp and AI namely:
-  time of year (winter, summer autumn, spring), month: jan, feb, , time of day: morning, afternoon, evening, night
+Date-time is complex object encoding many useful information. Unfortunately, its human readable format---YYYY-MM-DD HH:mm:SS.ssssss---is of no use in computer science. Converted to machine language it is expressed as a \emph{timestamp}---number of seconds elapsed since epoch dated on 00:00:00, 1\ts{st} January 1970, UTC.\\
+
+For my study I chose to represent time in 4 different way:
+\begin{description}
+\item[absolute] is timestamp represented in micro-seconds ($\mu$-seconds: $10^{16}s$) rather than seconds,
+\item[relative] is number of micro-seconds elapsed since first sensor activation in the dataset,
+\item[sequenced] is a sequential number of sensor activation in the dataset starting with $0$,
+\item[windowed] is sequential number of fixed-time-interval window that the event fall into; the first time-windows starts on first sensor activation and has ID $0$; window of 5 seconds is used in the study.
+\end{description}
+Representation examples are shown in \emph{Figure~\ref{lst:timerepresentation}}.\\
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -624,7 +621,6 @@ sensor(m12, true, relative, 4007842 ).
 sensor(m12, true, absolute, 1430004781866056 ).
 sensor(m12, true, sequence, 2 ).
 sensor(m12, true, windowed, 0 ).
-
 
 sensor(m13, false, relative, 5994214 ).
 sensor(m13, false, absolute, 1430004783852428 ).
@@ -634,8 +630,27 @@ sensor(m13, false, windowed, 1 ).
   \caption{Signal represented as \texttt{Prolog} facts.\label{lst:timerepresentation}}
 \end{figure}
 
+As no single time representation is best for ILP application all four were tested and evaluated. \emph{Sequence} is most suitable in search space environment---the numbers are not sparse therefore the application can easily iterate through them without large computational overhead.\\
+For this reason I chose this representation as the main time format. Despite being helpful in ILP scenario sequential number is highly uninformative. It lacks basic information such as time of day or possibility to be transformed into time elapsed since last sensor reading.\\
+
+To enrich source of information used by learning algorithm \emph{timestamp} representation is used. Following directly from sequence number it can be easily accessed. With such detailed representation of micro-second accuracy, precise time elapsed since any event can be calculated.\\
+Moreover this value can be thresholded hence discretised to produce bounded variables such as:
+\begin{description}
+\item[time of year] winter, summer, autumn, spring;
+\item[month] January, February, March, etc.;
+\item[time of day] morning, afternoon, evening, night;
+\end{description}
+and similar. In particular, in ILP and AI such values a lot easier to work with than numbers.\\
+
+The remaining two representations: \emph{relative} and \emph{windowed} are of little use in presented here learning approach.
+
     \subsection{Background knowledge}
---Background knowledge makes learnt rules universal
+additional information about signal, and flat house
+is crucial part of ILP
+
+Additionally to facts prolog rules for useing them are neede --- kind of feature extractors using addtional knowledge\\
+
+--Background knowledge makes learnt rules universal--- translates sensor id into location and used device see listing below
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -650,11 +665,10 @@ sensorInField(ad1-b, m83).
   \caption{Background knowledge facts snippet.\label{lst:bg}}
 \end{figure}
 
-Additionally to facts prolog rules for useing them are neede --- kind of feature extractors using addtional knowledge
+is widely used ??
 
     \subsection{Positives and negatives}
-as above
-examples for both single resident and multiple residents
+The final component of ILP are positive and negative examples of model to learn. Sample facts for both single and multiple occupiers are presented respectively in \emph{Figure~\ref{lst:singleposneg}}~\&~\emph{\ref{lst:multiposneg}}.\\
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -667,6 +681,8 @@ activity(washUp, 60).
   \end{minted}
   \caption{Positives and negatives for single resident.\label{lst:singleposneg}}
 \end{figure}
+
+These examples use \emph{sequence} representation of time to express when (and by whom) activity \emph{is}: positives, and \emph{is not}: negatives done. Both types have common structure and are separated into two different files to be distinguishable.\\
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -681,6 +697,8 @@ activity(useBathroom, 7, residentB).
   \end{minted}
   \caption{Positives and negatives for multiple resident.\label{lst:multiposneg}}
 \end{figure}
+
+For each activity the sets of positive and negative examples have to be disjoint with regard to time. The ILP system generalises positive examples into complex rules containing in body references to sensor states under restriction of not covering any or some negative examples.
 
   \section{The converter}
 The next step in model learning is data conversion from CASAS-like log format to \texttt{Prolog} \emph{knowledge representation} i.e.\ state signal readings as logical facts. The converter is capable of handling both single and multiple residents datasets. To this end, number of conversion steps is need.\\
