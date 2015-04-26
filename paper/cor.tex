@@ -101,7 +101,7 @@ Kacper B.\ Sokol, \monthyeardate\today
 % Abstract
 \begin{abstract}
 \thispagestyle{empty}
-This project describes \texttt{Prolog}'s \emph{Inductive Logic Programming} approach to learn parametrised rules describing \emph{human activities}. To this end, \emph{Activity Recognition Model} is constructed based on data collected from installations such as smart houses and smart cities. Such sites characterise with vast number of sensors monitoring place of interest, therefore, allow for detailed tracking of \emph{atomic actions} that contribute towards more general activities.\\
+This project describes \texttt{Prolog}'s \emph{Inductive Logic Programming} approach to learn parametrised rules describing \emph{human activities}. To this end, \emph{Activity Recognition Model} is constructed based on both: simulated data and one collected from smart-house installations. Such premises characterise with vast number of sensors monitoring place of interest, therefore, allow for detailed tracking of \emph{atomic actions} that contribute towards more general activities.\\
 Constructed model can be then used to analyse output from smart sites, therefore, describe ongoing human activities. Then, the model is extended to facilitate monitoring of multiple people simultaneously e.g.\ multiple occupiers of a flat.\\
 Another, application is to discover structure in the data. Identifying dependencies between sensors and constructing new, more informative features is shown. Both approaches aim at improving performance of classification and are compared and contrasted against the currently most popular model in use: conditional random fields.\\
 Furthermore, proposed Activity Recognition Model is extended with basic \emph{Narrative Analytics}. Its goal is to transform generated rules to \emph{natural language}, therefore, produce human readable description of monitored activities.\\
@@ -113,9 +113,9 @@ To build and test proposed framework both SPHERE Project, and Washington State U
 
 
 \begin{center}
-Keywords: \textbf{Inductive, Logic, Programming, Prolog, Activity, Recognition, Model, SPHERE}
+Keywords: \textbf{Inductive, Logic, Programming, Prolog, Activity, Recognition, Data, Generation, SPHERE}
 
-\let\thefootnote\relax\footnote{\noindent This publication including source code is available as \texttt{GIT} repository at: \url{https://github.com/So-Cool/cognition}.}
+% \let\thefootnote\relax\footnote{\noindent This publication including source code is available as \texttt{GIT} repository at: \url{https://github.com/So-Cool/cognition}.}
 \end{center}
 \end{abstract}
 
@@ -846,19 +846,19 @@ An example of more advanced, first-order logical rule is presented in \emph{Figu
 Generally speaking, inductive logic programming is a \emph{search problem}. The algorithm traverses through \emph{candidate solution space} i.e.\ set of ``well-formed'' hypotheses, to find the most suitable one. ILP problem can be solved using na\"{\i}ve generate and test algorithm however, this approach is highly inefficient. The most suitable solution has four steps: select example, build most-specific-clause, search, and remove redundancies~\citep{muggleton1994inductive}.
 
       \subsubsection{Select example}
-Select positive example that is not yet covered by learnt rule form the positives set.
+Select positive example that is not yet covered by learnt rule form the positives set. If all were tested stop the procedure.
 
       \subsubsection{Build most-specific-clause}
-lol\\
-check what is the most general rule covering this example
+Also known as \emph{saturation step}. Construct \emph{bottom clause}: definite clause with many literals that is most specific given that it entails previously selected example and complies with provided restrictions.
 
       \subsubsection{Search}
-search subsets of found clauses --- power sets--- for improved performance
+Also known as \emph{reduction step}. Search through subsets of previously found literals to build more general clause .
+for improved performance
 
       \subsubsection{Remove redundancies}
+The clause with the best score is added to the current theory, and all examples made redundant are removed. This step is sometimes called the "cover removal" step. Note here that the best clause may make clauses other than the examples redundant. Again, this is ignored here. Return to Step 1.\\
 remove clauses not imporveing classification results to become more general -> better for prediction\\
 repeat
-
 
   \section{Applications to spatio-temporal data}
 built with events, where each event is based on sensor readings
@@ -868,6 +868,7 @@ failure by negation -> if we don't know whether it;s on -> it's not
 easy meta-rule writing adn fixing continuity issues
 
   \section{Closed Concept \& Least General Generalisation}
+ILP reduces the result.
 activity description
 keep not needed clauses in body.
 
