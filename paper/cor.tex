@@ -644,7 +644,7 @@ and similar. In particular, in ILP and AI such values a lot easier to work with 
 
 The remaining two representations: \emph{relative} and \emph{windowed} are of little use in presented here learning approach.
 
-    \subsection{Background knowledge}
+    \subsection{Background knowledge\label{sec:data:bkg}}
 Background knowledge is a general name for a place containing all the information relevant to model learning. By far, it is the most important component of ILP containing building blocks of target model. Moreover, it is a place for logical representation of signals and all relevant rules interacting with them. Additionally, it contains any information not contained or implicit in the raw signals.\\
 
 From large enough sample of smart-house data it is feasible to infer room layout and interconnections, unfortunately this task is computationally complex and impractical in most cases. ILP comes with help in such scenarios as it is ready to use any information not given in raw signals by reading it from background knowledge. Room connections information is great feature as it helps to predict motion trajectory and person's location.\\
@@ -692,15 +692,15 @@ Background knowledge can be also understood as \emph{proxy} between raw signals 
 Finally, learnt rules can be used in future iterations of learning process by appending them to the background knowledge.
 
 
-    \subsection{Positives and negatives}
+    \subsection{Positives and negatives\label{sec:data:posneg}}
 The final component of ILP are positive and negative examples of model to learn. Sample facts for both single and multiple occupiers are presented respectively in \emph{Figure~\ref{lst:singleposneg}}~\&~\emph{\ref{lst:multiposneg}}.\\
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
-activity(cook, 47).
-activity(eat, 51).
-activity(eat, 52).
-activity(eat, 53).
+activity(cook  , 47).
+activity(eat   , 51).
+activity(eat   , 52).
+activity(eat   , 53).
 activity(washUp, 59).
 activity(washUp, 60).
   \end{minted}
@@ -741,78 +741,127 @@ For each script of activities 10 data recordings are gathered together with corr
 %===============================================================================
 %===============================================================================
 \chapter{Inductive Logic Programming\label{ch:ILP}}
-\citeauthor{plotkin1972automatic} in early 1970s and \citeauthor{shapiro1983algorithmic} in early 1980s created foundation of \emph{Inductive Logic Programming}(ILP). Both authors introduced techniques and tools to learn \emph{first-order formulas}---parametrised rules that are the core of ILP---from a set of facts. Since then, ILP techniques found number of interdisciplinary applications with new tools being created now and then for rules learning purposes.
+\citet{plotkin1972automatic} in early 1970s and \citet{shapiro1983algorithmic} in early 1980s created foundation of \emph{Inductive Logic Programming} (ILP). Both authors introduced techniques and tools to learn \emph{first-order formulas} (parametrised rules that are the core of the ILP) describing chosen object based on a set of facts. Since then, ILP techniques found number of interdisciplinary applications with new tools being created now and then for rules learning purposes.
 
-  \section{Main concept}
-built with events, where each event is based on sensor readings
+  \section{Inductive Logic Programming}
+The concept of Inductive Logic Programming is based on fusion of two well known techniques: \emph{inductive learning} and \emph{logic programming}. The first component facilitates building model from available observations and generating new knowledge form experience. The latter, introduces a powerful representation of knowledge as \emph{first-order logical rules}~\citep{muggleton1994inductive,muggleton1995inverse}.
 
+    \subsection{Logic programming}
+\emph{Propositional logic} widely used in machine learning models is ``\emph{weaker}'' than first-order logic used in ILP. A propositional sentences (rules) are made of facts combined with \emph{logical connectives} such as: not ($\neg$), and ($\land$), or ($\lor$), existence ($\exists$), etc.. Such sentence can only be evaluated to true or false based on predicates in its body e.g.\
+$$\left(\left(\texttt{sensorM42} \land \texttt{sensorM47}\right) \lor \left(\texttt{sensorM27} \land \texttt{sensorM30}\right)\right) \land time = 40$$
+where \texttt{sensor$\Bigcdot\Bigcdot\Bigcdot$} denotes sensor $\Bigcdot\Bigcdot\Bigcdot$ being on, is true if either both \texttt{sensorM42} and \texttt{sensorM47} or \texttt{sensorM27} and \texttt{sensorM30} are simultaneously on at time $40$.\\
+
+Thanks to first-order logic ILP overcomes mentioned above ``limited representation formalism'' (expressing data in form of a propositional logic). Many problems considered hard to solve while expressed propositionally can be easily tackled with ILP. The power of first-order logic lies in expressing its sentences with \emph{parametrised} predicates. Use of domain specific quantified variables alters logical state of sentence based on their input and output therefore facilitates expressing complex relations. An example of first-order activity rule: \texttt{activity(A,B)} where variable \texttt{A} denotes activity ID and \texttt{B} time, is given below. The rule illustrates the dependence between predicates via free variables.\\
+\begin{eqnarray*}
+&\texttt{activityOrder(B,A)} \land \texttt{location(B,livingRoom)} \land \\
+&\texttt{outOfCabinet(B,C)} \land \texttt{medicineInList(C)}
+\end{eqnarray*}
+The major limitation of first-order logic is its restriction to finite variable domains---it cannot describe rules built on infinite sets like real or natural numbers.\\
+
+Finally, ILP does not have difficulties in incorporating substantial background knowledge in form of first-order sentences to the model. This feature is not very common among machine learning models, nevertheless, use of domain knowledge is ``essential for intelligent behaviour''~\citep{muggleton1994inductive}.
+
+    \subsection{Inductive learning}
+The second component of ILP is inductive learning: constructing \emph{first-order clausal theories}. Such hypotheses are based on combining background knowledge with facts representation of positive and negative examples; see \emph{Figure~\ref{fig:ilp}}.\\
 \begin{figure}[htb]
   \centering
   \includegraphics[scale=.5]{./gfx/ilp}
   \caption{ILP scheme\label{fig:ilp}}
 \end{figure}
+ILP aims at building theory that under consideration of background knowledge explains facts: covers as much positive examples as possible without covering and or most of negative examples. To this end, it uses \emph{induction} as a basic mode of inference: generalization of specific observations to theories, rather than deduction: transforming general theories to the more specific clauses.
 
-  \section{Inductive Logic Programming}
-The concept of Inductive Logic Programming is based on fusion of two well known techniques: \emph{inductive learning} and \emph{logic programming}. The first component facilitates building model from available observations and generating new knowledge form experience. The latter, introduces a powerful representation of knowledge as \emph{first-order logical rules}~\citep{muggleton1994inductive,muggleton1995inverse}.\\
+    \subsection{Applications}
+The rules produced with ILP are human readable unlike models produced by majority of machine learning solutions, what gives it great advantage over competition. Easy to understand rules means that the logic models are arguably easy to manipulate. They can be changed by simply adding, deleting, and modifying clauses or literals.\\
+Such model representation is invaluable in \emph{scientific theory formation} and problems where data cannot be easily represented in attribute-vale language. ILP is widely used in structure-activity prediction for drug design~\citep{king1992drug,michael1992modelling} and protein secondary-structure prediction~\citep{muggleton1992protein}. It is also popular tool in computer science as: programming assistance, algorithmic debugging, program testing and verification, and reverse engineering~\citep{shapiro1983algorithmic,bergadno1993inductive,bratko1993inductive}.\\
 
-First-order logic is more powerful than widely used \emph{propositional logic}, which builds sentences (i.e.\ rules) with facts only by using logical connectives. The first, extends propositional logic by using as part of the rules quantified variables (i.e.\ parameters) that belong to some domain of interest. The major limitation of first-order logic is its restriction to finite variable domains---it cannot describe rules built on infinite sets like real or natural numbers.\\ %  as opposed to
+The two most popular \texttt{Prolog} ILP implementations are \texttt{Aleph}\footnote{\url{http://www.cs.ox.ac.uk/activities/machlearn/Aleph/aleph.html}} and \texttt{Progol}\footnote{\url{http://www.doc.ic.ac.uk/~shm/progol.html}}. \texttt{Aleph} is chosen for this study due to its comprehensive documentation availability and ease of use on contemporary platforms.
 
-The power of ILP is inherited from first-order logical rules that it is built upon. First of all, ILP overcomes the use of ``limited representation formalism''---expressing data in form of a propositional logic. As many problems cannot be expressed propositionally, but it is possible in some form of first-order logic, previously difficult to solve problems can be easily tackled.\\
-Moreover, ILP does not have difficulties in incorporating substantial background knowledge to the model in learning process. This feature is not very common among machine learning models, nevertheless, use of domain knowledge is ``essential for intelligent behaviour''~\citep{muggleton1994inductive}.\\
-
-Constructing \emph{first-order clausal theories} i.e.\ hypotheses is based on combining background knowledge with information represented as facts: positive and negative examples. ILP aims at building theory that explains facts under consideration of background knowledge.\\
-To this end, it uses \emph{induction} as a basic mode of inference---generalization of specific observations to theories, rather than deduction---transforming general theories to the more specific clauses.\\
-
-The rules produced with ILP are human readable unlike models produced by majority of machine learning solutions, what gives it great advantage over competition. Easy to understand rules means that the logic models are arguably easy to manipulate. They can be changed by simply adding, deleting, and appending clauses or literals.\\
-
-Such model representation is invaluable in \emph{scientific theory formation} and problems where data cannot be easily represented in attribute-vale language. ILP is widely used in structure-activity prediction for drug design~\citep{king1992drug,michael1992modelling} and protein secondary-structure prediction~\citep{muggleton1992protein}.\\
-It is also popular in computer science in: programming assistants, algorithmic debugging, program testing and verification, and reverse engineering~\citep{shapiro1983algorithmic,bergadno1993inductive,bratko1993inductive}.\\
-
-To construct Activity Recognition Model two popular ILP \texttt{Prolog} implementations are examined: \texttt{Aleph}\footnote{\url{http://www.cs.ox.ac.uk/activities/machlearn/Aleph/aleph.html}} and \texttt{Progol}\footnote{\url{http://www.doc.ic.ac.uk/~shm/progol.html}}.\\
-Aleph is chosen based on its availablility and easy to use on contemporary platforms.
-
-  \section{\texttt{ALEPH}}
-Aleph is ILP writen in Prolog. it works wiht both YAP and SWI-Prolog implementation
+  \section{\texttt{Aleph}}
+\texttt{Aleph}: A Learning Engine for Proposing Hypotheses, is \texttt{Prolog} based Inductive Logic Programming system developed at Oxford University by \citeauthor{muggleton1994inductive}. It is compatible with two most popular \texttt{Prolog} language implementations: \texttt{YAP}---Yet Another Prolog, and \texttt{SWI-Prolog}.
 
     \subsection{Input files}
-to learn a model it needs 3 files
+\texttt{Aleph} infers hypotheses using three files, the first two contain positive and negative examples of target rule model, the third encodes program settings and additional informations.
 
       \subsubsection{Background}
-not possible to give experiment design and structure in data\\
-possible to recover partialy but hard to do, time consuming\\
+Background file contains \texttt{Aleph} configuration and target model specification; see example given in \emph{Figure~\ref{lst:alephSettings}}. Settings such as used evaluation function, allowed maximal number of negative examples covered by a single target rule, and minimal number of positive examples that each rule has to cover are used.\\
+Additionally, user provides target rule specification. Based on presented example the target \texttt{activity} rule has $2$ variables (is of \emph{arity} $2$): (constant, \#) activity ID and (input, +) integer representing time. The body of the rule can contain arbitrary number of \texttt{device} and \texttt{location} predicates each having $2$ variables. The first takes integer time input and constant device ID; the latter integer time input and constant room ID.\\
+Finally, target model constrains can be specified (\texttt{false} keyword): in presented example no two activities can happen at the same time.\\
+\begin{figure}[htb] % [breaklines]
+  \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+% Internal settings
+:- set(evalfn, wracc).
+:- set(noise , 3    ).
+:- set(minpos, 1    ).
+% Determinations
+:- determination(activity/2, device/2  ).
+:- determination(activity/2, location/2).
+% Mode declarations: rule head definition
+:- modeh(*, activity(#activityIDs, +integer) ).
+% Rule body definition
+:- modeb(*, device(+integer, #deviceIDs)).
+:- modeb(*, location(+integer, #roomIDs)).
+% Constrains
+false :-
+  activity(Activity1, T),
+  activity(Activity2, T),
+  not(Activity1 = Activity2).
+  \end{minted}
+  \caption{Example \texttt{Aleph} settings.\label{lst:alephSettings}}
+\end{figure}
+Therefore, target rules are of the form \texttt{activity(ActivityID, Time) :- $\Bigcdot$}.\\
 
-in prolog and ILP it an be represent and used as knowledge:\\
-structure of rooms\\
-ensor layout\\
-
-contains configuration
-backgroudn beside earlier mention stuff requires Aleph configureation
-give example ocnfiguration
+Additionally to presented above \texttt{Aleph} settings, background knowledge file also contains facts and rules discussed is \emph{Section~\ref{sec:data:bkg}}.
 
       \subsubsection{Positives}
-indicate at which time points in data the activity was happening
+Positive examples file lists activity facts of the form \texttt{activity(ActivityID, Time).} to indicate at which time points the activity was happening in a data. Example file is discussed in \emph{Section~\ref{sec:data:posneg}}.
 
       \subsubsection{Negatives}
-in case of activcyt learning its a complement of positives examples bounded form below by $0$ and above by number of sensor reading in the data set.
+Negative examples file is of the same form as positive example file. It indicates time-points when activities were not undertaken. In presented here learning scenario the negative time-points are set complement of positives examples and are bounded from below by $0$ and from above by number of sensor readings in the data set; see \emph{Figure~\ref{fig:timepoints}} for reference. Example file is discussed in \emph{Section~\ref{sec:data:posneg}}.
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.85\textwidth]{./gfx/activityStructure}
+  \caption{Activity structure example.\label{fig:timepoints}}
+\end{figure}
+
+    \subsection{\texttt{Aleph} output}
+Based on input data \texttt{Aleph} outputs set of rules compliant with given specification. Presented in \emph{Figure~\ref{lst:alephSettings}} settings could result in first from the top rule given in \emph{Figure~\ref{lst:alephOut}}. It does not contain free variables in the body hence can be expressed in propositional logic.\\
+The second one is more complex yet still propositional. \texttt{outOfCabinet(A,[none])} predicate gives list of items taken out of cupboard at time \texttt{A}.\\
+The third activity rule is a \emph{singularity}. Positive example \texttt{activity(clean,87).} is outputted as the ILP algorithm could not generalised it to proper rule without breaking any of the restrictions imposed by the background file. Such rules are pruned out prior to cross-validation.\\
+\begin{figure}[htb] % [breaklines]
+  \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+activity(wash_hands,A) :-
+  device(A,water_hot).
+
+activity(wash_hands,A) :-
+  outOfCabinet(A,[none]),
+  waterUsed(A).
+
+activity(clean,87).
+  \end{minted}
+  \caption{Example activity model.\label{lst:alephOut}}
+\end{figure}
+
+An example of more advanced, first-order logical rule is presented in \emph{Figure~\ref{lst:bg:rule}}. Free variables present in the rule body ensure clauses interaction.
 
     \subsection{The basic algorithm}
-(page 4):
+Generally speaking, inductive logic programming is a \emph{search problem}. The algorithm traverses through \emph{candidate solution space} i.e.\ set of ``well-formed'' hypotheses, to find the most suitable one. ILP problem can be solved using na\"{\i}ve generate and test algorithm however, this approach is highly inefficient. The most suitable solution has four steps: select example, build most-specific-clause, search, and remove redundancies~\citep{muggleton1994inductive}.
 
       \subsubsection{Select example}
-select not covered example form positives
+Select positive example that is not yet covered by learnt rule form the positives set.
 
       \subsubsection{Build most-specific-clause}
+lol\\
 check what is the most general rule covering this example
 
       \subsubsection{Search}
 search subsets of found clauses --- power sets--- for improved performance
 
-      \subsubsection{Remove redundant}
+      \subsubsection{Remove redundancies}
 remove clauses not imporveing classification results to become more general -> better for prediction\\
 repeat
 
 
   \section{Applications to spatio-temporal data}
+built with events, where each event is based on sensor readings
 pros and cons
 Use of background knowledge
 failure by negation -> if we don't know whether it;s on -> it's not
@@ -970,3 +1019,5 @@ The first one is deriving high-level knowledge from low-level data (sensor input
 
 % useful expressions:
 %% aggregate signal
+% \citeauthor{BiBTeX_reference}
+%  as opposed to
