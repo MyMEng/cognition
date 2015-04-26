@@ -741,16 +741,16 @@ For each script of activities 10 data recordings are gathered together with corr
 %===============================================================================
 %===============================================================================
 \chapter{Inductive Logic Programming\label{ch:ILP}}
-  \section{Main concept}
-  built with events, where each event is based on sensor readings
+\citeauthor{plotkin1972automatic} in early 1970s and \citeauthor{shapiro1983algorithmic} in early 1980s created foundation of \emph{Inductive Logic Programming}(ILP). Both authors introduced techniques and tools to learn \emph{first-order formulas}---parametrised rules that are the core of ILP---from a set of facts. Since then, ILP techniques found number of interdisciplinary applications with new tools being created now and then for rules learning purposes.
 
-\begin{figure}
+  \section{Main concept}
+built with events, where each event is based on sensor readings
+
+\begin{figure}[htb]
   \centering
   \includegraphics[scale=.5]{./gfx/ilp}
   \caption{ILP scheme\label{fig:ilp}}
 \end{figure}
-
-\citeauthor{plotkin1972automatic} in early 1970s and \citeauthor{shapiro1983algorithmic} in early 1980s created foundation of \emph{Inductive Logic Programming}(ILP). Both authors introduced techniques and tools to learn \emph{first-order formulas}---parametrised rules that are the core of ILP---from set of facts. Since then, ILP techniques found number of interdisciplinary applications with new tools being created now and then for rules learning purposes.
 
   \section{Inductive Logic Programming}
 The concept of Inductive Logic Programming is based on fusion of two well known techniques: \emph{inductive learning} and \emph{logic programming}. The first component facilitates building model from available observations and generating new knowledge form experience. The latter, introduces a powerful representation of knowledge as \emph{first-order logical rules}~\citep{muggleton1994inductive,muggleton1995inverse}.\\
@@ -768,43 +768,55 @@ The rules produced with ILP are human readable unlike models produced by majorit
 Such model representation is invaluable in \emph{scientific theory formation} and problems where data cannot be easily represented in attribute-vale language. ILP is widely used in structure-activity prediction for drug design~\citep{king1992drug,michael1992modelling} and protein secondary-structure prediction~\citep{muggleton1992protein}.\\
 It is also popular in computer science in: programming assistants, algorithmic debugging, program testing and verification, and reverse engineering~\citep{shapiro1983algorithmic,bergadno1993inductive,bratko1993inductive}.\\
 
-To construct Activity Recognition Model two popular ILP \texttt{Prolog} implementations are examined: \texttt{Aleph}\footnote{\url{http://www.cs.ox.ac.uk/activities/machlearn/Aleph/aleph.html}} and \texttt{Progol}\footnote{\url{http://www.doc.ic.ac.uk/~shm/progol.html}}.
+To construct Activity Recognition Model two popular ILP \texttt{Prolog} implementations are examined: \texttt{Aleph}\footnote{\url{http://www.cs.ox.ac.uk/activities/machlearn/Aleph/aleph.html}} and \texttt{Progol}\footnote{\url{http://www.doc.ic.ac.uk/~shm/progol.html}}.\\
+Aleph is chosen based on its availablility and easy to use on contemporary platforms.
 
   \section{\texttt{ALEPH}}
+Aleph is ILP writen in Prolog. it works wiht both YAP and SWI-Prolog implementation
 
     \subsection{Input files}
-\begin{enumerate}
-  \item Background
-  \item Positives
-  \item Negatives
-\end{enumerate}
+to learn a model it needs 3 files
 
-    \subsection{The basic algorithm}
-(page 4):
-\begin{enumerate}
-  \item Select example.
-  \item Build most-specific-clause.
-  \item Search.
-  \item Remove redundant.
-\end{enumerate}
-
-
-backgroudn beside earlier mention stuff requires Aleph configureation
-give example ocnfiguration
-
-
-  \section{Applications to spatio-temporal data}
-pros and cons Use of background knowledge
-
-failure by negation -> if we don't know whether it;s on -> it's not
-
-  \section{Background knowledge}
+      \subsubsection{Background}
 not possible to give experiment design and structure in data\\
 possible to recover partialy but hard to do, time consuming\\
 
 in prolog and ILP it an be represent and used as knowledge:\\
 structure of rooms\\
 ensor layout\\
+
+contains configuration
+backgroudn beside earlier mention stuff requires Aleph configureation
+give example ocnfiguration
+
+      \subsubsection{Positives}
+indicate at which time points in data the activity was happening
+
+      \subsubsection{Negatives}
+in case of activcyt learning its a complement of positives examples bounded form below by $0$ and above by number of sensor reading in the data set.
+
+    \subsection{The basic algorithm}
+(page 4):
+
+      \subsubsection{Select example}
+select not covered example form positives
+
+      \subsubsection{Build most-specific-clause}
+check what is the most general rule covering this example
+
+      \subsubsection{Search}
+search subsets of found clauses --- power sets--- for improved performance
+
+      \subsubsection{Remove redundant}
+remove clauses not imporveing classification results to become more general -> better for prediction\\
+repeat
+
+
+  \section{Applications to spatio-temporal data}
+pros and cons
+Use of background knowledge
+failure by negation -> if we don't know whether it;s on -> it's not
+easy meta-rule writing adn fixing continuity issues
 
   \section{Closed Concept \& Least General Generalisation}
 activity description
