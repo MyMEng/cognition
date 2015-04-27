@@ -101,16 +101,18 @@ Kacper B.\ Sokol, \monthyeardate\today
 % Abstract
 \begin{abstract}
 \thispagestyle{empty}
-This project describes \texttt{Prolog}'s \emph{Inductive Logic Programming} approach to learn parametrised rules describing \emph{human activities}. To this end, \emph{Activity Recognition Model} is constructed based on both: simulated data and one collected from smart-house installations. Such premises characterise with vast number of sensors monitoring place of interest, therefore, allow for detailed tracking of \emph{atomic actions} that contribute towards more general activities.\\
-Constructed model can be then used to analyse output from smart sites, therefore, describe ongoing human activities. Then, the model is extended to facilitate monitoring of multiple people simultaneously e.g.\ multiple occupiers of a flat.\\
-Another, application is to discover structure in the data. Identifying dependencies between sensors and constructing new, more informative features is shown. Both approaches aim at improving performance of classification and are compared and contrasted against the currently most popular model in use: conditional random fields.\\
-Furthermore, proposed Activity Recognition Model is extended with basic \emph{Narrative Analytics}. Its goal is to transform generated rules to \emph{natural language}, therefore, produce human readable description of monitored activities.\\
+This project researches \texttt{Prolog}'s \emph{Inductive Logic Programming} approach to learn parametrised rules describing \emph{Activities of Daily Life} based on data acquired form smart-houses: premises equipped with vast number of sensors.\\
 
-To achieve aforementioned goals, signal issues such as noise, errors, and incompleteness among others are addressed. Furthermore, data transformation is presented: expressing sensors output as knowledge facts. Proposed tool helps to present acquired data in a more transparent way mainly for healthcare applications.\\
+To this end, highly customisable smart-house data generator is constructed and capabilities of \texttt{Aleph} inductive logic programming framework are assessed on various spatio-temporal datasets. Subsequently, \emph{Activity Recognition Model} is constructed based on data collected from simulations and Washington State University CASAS smart-house installations. Both single and multiple occupiers models are considered.\\
 
-To build and test proposed framework both SPHERE Project, and Washington State University CASAS datasets are used.
+To achieve aforementioned goals, signal issues such as noise and incompleteness among others are addressed. Furthermore, method for raw data transformation into logical facts is proposed and evaluated. Difficulties such as real-valued sensor output and time representation in first-order logic are described.\\
 
+The second objective of this work is to examine structure of used spatio-temporal data with a view to discover and form new features. To this end, dependencies between sensors are identified and assessed in order to construct more informative features. Hence, by extending dataset with new features performance of any classification algorithm can be significantly boosted.\\
 
+Finally, \emph{Narrative Analytics} is proposed: an extension of Activity Recognition Model transforming generated rules into \emph{natural language}. Introduced data visualisation technique produces plain English description of monitored premise, hence, house situation can be recognised without time consuming data interpretation.\\
+
+The main utilisation of proposed here techniques is house monitoring for healthcare applications. SPHERE Project hosted at the University of Bristol addresses increasing healthcare costs and decreasing quality of life by designing tools and techniques allowing patients to live at home regardless of their medical conditions.\\
+Described in this paper activity recognition approach aims at improving classification results and presenting smart-house data in a more transparent way. To the best of my knowledge, presented here methods are first of its kind and has not been yet described in any publication.
 
 \begin{center}
 Keywords: \textbf{Inductive, Logic, Programming, Prolog, Activity, Recognition, Data, Generation, SPHERE}
