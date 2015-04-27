@@ -854,13 +854,11 @@ Select positive example that is not yet covered by learnt rule form the positive
 Also known as \emph{saturation step}. Construct \emph{bottom clause}: definite clause with many literals that is most specific given that it entails previously selected example and complies with provided restrictions.
 
       \subsubsection{Search}
-Also known as \emph{reduction step}. Search through subsets of previously found literals to build more general clause .
-for improved performance
+Also known as \emph{reduction step}. Search through subsets of previously found literals to build more general clause that complies with given restriction.\\
+More general clause can improved performance by covering more than one positive example.
 
       \subsubsection{Remove redundancies}
-The clause with the best score is added to the current theory, and all examples made redundant are removed. This step is sometimes called the "cover removal" step. Note here that the best clause may make clauses other than the examples redundant. Again, this is ignored here. Return to Step 1.\\
-remove clauses not imporveing classification results to become more general -> better for prediction\\
-repeat
+Also known as \emph{cover removal}. Memorise the clause with the best score (coverage) and remove positive examples made redundant (covered) by new clause. Return to \emph{Select example} step.
 
   \section{Applications to spatio-temporal data}
 built with events, where each event is based on sensor readings
