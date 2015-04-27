@@ -265,7 +265,7 @@ The core of proposed technique is \texttt{ALEPH}---Inductive Logic Programming s
 
 Proposed here rule based classifier greatly differs from currently used methods. Instead of employing \emph{propositional logic} it uses more powerful first-order logic, to express data and activity structure believes. More advanced ``grammar'' implies more possibilities to express complex relations between sensor events. This extra power can be harnessed to compose new data features which can be used in training other models and potentially improve their performance.\\
 
-Furthermore, expressing the activity model in \texttt{Prolog} programming language brings to power all its advantages. Easy \emph{search space traversal} and built-in \emph{failure by negation} are invaluable tools in feature construction. Finally, learnt activity recognition model can be easily transformed to a \emph{generative model} for data hence, serve as an activity example generator.\\
+Furthermore, expressing the activity model in \texttt{Prolog} programming language brings to power all its advantages. Easy \emph{search space traversal} and built-in \emph{negation as failure} are invaluable tools in feature construction. Finally, learnt activity recognition model can be easily transformed to a \emph{generative model} for data hence, serve as an activity example generator.\\
 \texttt{Prolog} is also well known for its \emph{natural language processing} capabilities. Rule based model can be therefore used to produce \emph{Data Narrative}---a plain English interpretation of the data which supersedes any other visualisation technique targeted at general public.\\
 
 Another advantage of ILP learning is use of \emph{background knowledge}. It encodes \emph{clauses} needed to build the target model but can also contain any information or rules that might be beneficial for raw data interaction.\\
@@ -861,11 +861,13 @@ More general clause can improved performance by covering more than one positive 
 Also known as \emph{cover removal}. Memorise the clause with the best score (coverage) and remove positive examples made redundant (covered) by new clause. Return to \emph{Select example} step.
 
   \section{Applications to spatio-temporal data}
-built with events, where each event is based on sensor readings
-pros and cons
-Use of background knowledge
-failure by negation -> if we don't know whether it;s on -> it's not
-easy meta-rule writing adn fixing continuity issues
+With a bit of tuning ILP can be applied to spatio-temporal data with quite good results. Despite difficulty in handling numerical values rule based model is highly suitable for activity recognition task.\\
+
+Arbitrary information that can be appended to background knowledge greatly improves raw signal handling. \texttt{Prolog's} \emph{negation as failure} is consistent with lacking sensor state. \texttt{Prolog} assumes that any sensor is off if it cannot be ``proven'' to be on; regardless of whether it does not exist at all or it has not been activated yet, hence, according to data it is neither on nor off. This approach helps in smoothing out sensor readings e.g.\ if current location cannot be inferred from available sensor readings the model assumes last known location.\\
+
+Moreover, output model written in \texttt{Prolog} is human readable therefore relations in data revealed by ILP can be understood and used to improve the model. The output theory can be also easily modified and enclosed within meta-rules. This practice is an easy fix for prediction continuity issue.\\
+
+Finally, expressing hierarchy in rule based model can be easily achieved by placing one rule in the body of the other or conditioning only on some subset of body literals. The concepts of rule generalisation and specialisation directly correspond to moving up and down the hierarchical structure.
 
   \section{Closed Concept \& Least General Generalisation}
 A \emph{closed concept} is a concept that includes all implicitly understood conditions. For example rule:\\
