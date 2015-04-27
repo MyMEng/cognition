@@ -868,17 +868,30 @@ failure by negation -> if we don't know whether it;s on -> it's not
 easy meta-rule writing adn fixing continuity issues
 
   \section{Closed Concept \& Least General Generalisation}
-ILP reduces the result.
-activity description
-keep not needed clauses in body.
+A \emph{closed concept} is a concept that includes all implicitly understood conditions. For example rule:\\
+\begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+activity(wash_hands,A) :-
+  device(A,water_hot),
+  location(A,kitchen).
+\end{minted}
+and:\\
+\begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+activity(wash_hands,A) :-
+  device(A,water_hot).
+\end{minted}
+both have the same coverage of positive examples, but the first is more general, therefore, it is a closed concept. In other words, it is the \emph{least general generalisation} (LGG) of chosen positive example.\\
 
-``A closed concept is a concept where all the necessary and sufficient conditions required to include something within the concept can be listed. For example, the concept of a triangle is closed because a three-sided polygon, and only a three-sided polygon, is a triangle. All the conditions required to call something a triangle can be, and are, listed.''
+Due to \texttt{Aleph} search step, bottom clause i.e.\ LGG of currently selected positive example, is pruned of redundant (from performance perspective) literals, hence, activity details are lost. In the example given above location of washing hands is reduced. These disregarded informations are of great importance for feature construction and data narrative (see \emph{Section~\ref{sec:narrative}}).\\
+
+It is possible to generate closed concept of activity rules in \texttt{Aleph} by disabling search step. To achieve this, search setting has to be overwritten: \texttt{:- set(search, false).}.
 
   \section{Feature discovery and feature extraction}
 Rules used in a body of activity rules can be understood as features.
 Therefore they can be as well extracted and used with other models
 
 Name the most popular that I use
+
+the LGG can be used to see something
 
 
 %===============================================================================
