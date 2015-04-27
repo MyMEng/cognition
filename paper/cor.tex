@@ -888,12 +888,11 @@ Due to \texttt{Aleph} search step, bottom clause i.e.\ LGG of currently selected
 It is possible to generate closed concept of activity rules in \texttt{Aleph} by disabling search step. To achieve this, search setting has to be overwritten: \texttt{:- set(search, false).}.
 
   \section{Feature discovery and feature extraction}
-Rules used in a body of activity rules can be understood as features.
-Therefore they can be as well extracted and used with other models
+Building a data model with ILP requires right features to be available in background knowledge. By large, ILP algorithm searches through feature space to find their most suitable combination for each activity model. In presented here scenario features are understood as rules interacting with both, raw signals and each other in order to extract knowledge relevant to model.\\
+Designing such rules can be understood as feature construction and requires awareness of ``activity script'' used to generate the data regardless of their origin: simulation or human actor interacting with smart-house. ``Activity script'' can be both: general description of activities or ordered list of tasks to be perform by an agent.\\
 
-Name the most popular that I use
-
-the LGG can be used to see something
+Rule body of output activity model can be then examined to analyse relations between features and activities. Interesting predicates can be then applied directly to raw dataset to generate new feature vectors. It is widely known that well crafted features can boost performance of any machine learning model. Additionally, more informative LGG of output rules can be checked.\\
+Features used for both single and multiple resident models are discussed in detail in \emph{Section~\ref{sec:single:features}~\&~\ref{sec:multiple:features}}.
 
 
 %===============================================================================
@@ -906,12 +905,14 @@ presented above example both \texttt{location} and \texttt{device} rules can be 
 
   \section{Evaluation measures}
   \section{Simple synthetic dataset}
+Bias is introduced on location.
 
 Example of ILP rules learnt with \texttt{Prolog} are shown in \emph{Listing~\ref{lst:eg}}.
 
-  \section{Synthetic CASAS \#2}
-narrated datasets
   \section{CASAS \#2}
+    \subsection{Synthetic CASAS \#2}
+narrated datasets
+    \subsection{Genuine CASAS \#2}
 narrated datasets
   \section{Discontinuity}
 Continuity rule --- introducing bias\\
@@ -921,7 +922,7 @@ Generality of learnt rules (synthetic <--> genuine) Results overview
   \section{Overlapping activities}
 single resident multi-label case
 
-  \section{Features}
+  \section{Features\label{sec:single:features}}
 
 
 % \vspace{1em}
@@ -975,7 +976,7 @@ device(TimeWindow, tv) :-
 
   \section{CASAS \#9}
 
-  \section{Features}
+  \section{Features\label{sec:multiple:features}}
 
 
 %===============================================================================
