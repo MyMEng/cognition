@@ -507,7 +507,8 @@ door 0   0.5 hall
   \end{lstlisting}
 \end{figure}
 
-Subsequently, item sensors characteristics have to be specified. Each item, like TV, takes some time to use---average TV watching time. It is simulated by drawing a sample of Gaussian distribution with user specified mean and standard deviation. This feature is mainly used for simple activities but the time can be altered in activity specification (see next).\\
+Subsequently, item sensors characteristics have to be specified. Each item, like TV, takes some time to use---average TV watching time. It is simulated by drawing a sample of Gaussian distribution with user specified mean and standard deviation. This feature is mainly used for simple activities but the time can be altered in activity specification script (see next paragraph).\\
+Walking is simulated in the same way---single step size and time together with their standard deviations have to be specified.\\
 
 Finally, activity script used to simulate interaction with sensors has to be provided. Arbitrary number of activities (they can be nested) for multiple people can be defined. Each script is specified with start position and any of the following atomic actions can be issued: go to room, go to location within the room, use item (simulate previously defined time), pick up any item or start any device, put down the item or turn off the device. For more complex activities any command can be used between starting/taking and stopping/returning any device/item.\\
 Curly brackets together with activity name are used to surround atomic actions contributing towards this activity. Example script is given in \emph{Listing~\ref{lst:path}}.\\
@@ -961,45 +962,38 @@ Features used for both single and multiple resident models are discussed in deta
 %===============================================================================
 %===============================================================================
 \chapter{Summary\label{ch:summary}}
-% generally about what i've done
+All in all, generally about what I have done.
 
   \section{Smart-house data generator}
-% Data generator as a helpful tool for building and testing models\\
+Data generator as a helpful tool for building and testing models.\\
+Close enough within reasonalbel degree. ILP can be used as one of models for activity recognition: its strong points not available (or hard to achieve) in other models.\\
 
   \section{Rule based Activity Recognition Model}
-% ILP can be used as one of models for activity recognition: its strong points not available (or hard to achieve) in other models
+Onlybacisc activitry recognition probelm are addressed identifired in literature and common in data.
 
   \section{Work evaluation}
-% what my results mean to general public
+what my results mean to general public.\\
+Undenstendable rules -> undenstand data and not just use black-box methods which have good results.
 
   \section{Further development}
+Combine with other techniques to create model ensamble wiht using shown strong points and check how it works.
+
+developed here model still can be infinitely extended with new more complex rule rule, and addedd.
+
     \subsection{Model complexity}
-    \subsection{Data Narrative\label{sec:narrative}}
-% Proposed here ILP tool could extend suit of available analytic technologies for activity recognition and become great foundation for \emph{Narrative Analtics} presented in \emph{Section~\ref{sec:narrative}}.
+Presented here models only address basic activity recognition for single and multiple residents.As there are infinite amount of activity combinations more and more complex data can be generated and models leant.\\
 
-% Proposed here rules learning mechanism can be extended with ``grammar'' capable of generating \emph{Narrative Analysis} of spatio-temporal data: a \emph{succinct natural language description} of a selected time-space window of the data of interest. In healthcare and smart house scenarios, such techniques can be combined with activity recognition models to generate comprehensible descriptions of monitored activities with terminology and level of detail tuned to a particular recipient. In the context of the SPHERE project these techniques would facilitate making sense from acquired data for healthcare applications in a more transparent way than is possible with black-box approaches.
+    \subsection{Data Narrative concept\label{sec:narrative}}
+Most commonly used visualisation techniques nowadays are tables, graphs, and diagrams. Unfortunately, such charts often need expertise in a field to be correctly interpreted. Moreover, aforementioned methods often trade-off clarity for completeness of shown data hence make it difficult for a broad audience to see the big picture.\\
 
-% Human activities can be hierarchically organised with complex actions composed of sub-actions, until ``atomic level'' is reached. This creates possibility to apply filters to produce multiple levels of narrative complexity based on target audience. Adjusting level of detail (granularity) of produced description would result in emphasis on different aspects of carried out activities during period of interest, hence, extracting relevant for the audience information.\\
+\emph{Narrative Analysis} describes data with natural language: a \emph{succinct plain English description} of events encoded in selected time-space window. Despite its power, this form of data representation has been under-appreciated and devoted little attention in recent years.\\
+Data narration can be found in modern smart-phone weather and calendar applications where instead of detailed weather forecast or hour-by-hour calendar schedule, one sentence description is presented to the user. In combination with other visualisation techniques it has been proven as an effective method of expressing corporate financial data. Moreover, deep learning algorithms have been applied to images to generate captions---succinct scene descriptions~\citep{vinyals2014show}.\\
 
-      \subsubsection{Visualisation techniques}
-% Most commonly used visualisation techniques nowadays are tables, graphs, and diagrams. Unfortunately, such charts often need expertise in a field to be correctly interpreted. Moreover, aforementioned methods often trade-off clarity for completeness of shown data hence make it difficult for a broad audience to see the big picture.\\
+Successful adaptation of \emph{narrative analytics} to smart-house data would greatly benefit healthcare applications. Delivering comprehensible activity description within given time-space window and with level of detail tuned to a particular recipient would provide invaluable monitoring and diagnostic tool for day-care personnel and medical staff. Activities transparently expressed as English sentences gives possibility to quickly understand status of the system without time-consuming raw-data or charts interpretation.\\
+Furthermore, proposed here descriptive mechanisms could be extended to become a query-enabled database. In such a model user could ``ask'' a question in natural language to get narrative answer instead of numerical vector.\\
 
-% \emph{Narrative Analysis} aims at exploring possibility of describing data with natural language. This form of expressing information contained in the data has been under-appreciated and devoted little attention in recent years. Deep learning techniques have been applied to images to generate succinct scene description, nevertheless, it has not been used with raw data.\\
-% An example of data narration can be found in modern smart-phone weather and calendar applications where instead of detailed weather forecast or hour-by-hour calendar events, one sentence description is presented to the user. Furthermore, in recent years \emph{narrative analytics} in combination with visualisation techniques have been proven as effective method of expressing corporate financial data.\\
-
-% Successful adaptation of \emph{Narrative Analytics} to data provided by smart houses would greatly benefit healthcare applications. Being able to deliver activity description within given time-space window and with different level of detail would provide invaluable monitoring and diagnostic tool for daily care personnel and medical staff.
-
-      \subsubsection{Narrative Analytics}
-% Presented here extension is not restricted to smart house data. \emph{Narrative Analytics} can be applied to any spatio-temporal information---e.g.\ smart-city feed---resulting in brief situation description contained in the data. Such ``label'' gives possibility to quickly understand status of the system without time-consuming raw-data or charts interpretation. Improved response time would result in appropriate actions taken instantly, whether it is better disease diagnosis, or traffic conditions displayed in timely manner on interactive information signs.\\
-% Moreover, as produced description would also be hierarchical it can be formed in a ``tree'' structure with more general narratives being higher in hierarchy. Creating timetable filled with activity ``labels'' would give better insight into personal habits and routines yielding improved understanding of arising issues.\\
-% Furthermore, proposed here descriptive mechanisms could be extended to become a query-enabled database. In such model a user could ``ask'' a question in natural language to get narrative answer instead of numerical vector.\\
-
-% Data narration can have multiple other applications. Alternatively, it can be used to produce figure caption based on data used to draw it.
-
-% challenges
-% Creating a narrative of events is composed of two major components---``grammars'' needed to transform the data: \emph{data analysis}(objective of this project) and \emph{narrative generation}.\\
-% The first one is deriving high-level knowledge from low-level data (sensor input) with ILP. The latter is ``translating'' extracted information into natural language description, which also can be done using similar approach.
-
+% generative framework
+Proposed in this paper rule based activity recognition model can become foundation for advanced \emph{Narrative Analtics} tool. \texttt{Prolog} is well known for great natural language processing capabilities, therefore, activity rules can be translated into plain English data description.
 
 \begin{center}
 \noindent \line(1,0){250}
