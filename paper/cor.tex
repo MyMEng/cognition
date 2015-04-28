@@ -407,39 +407,28 @@ Participants performed five scripted \emph{Activity of Daily Living}:
 \end{figure}
 
       \subsubsection{Multiple residents}
-WSU Smart Apartment 2009 Two Resident Testbed
-
-This dataset represents sensor events collected in the WSU smart apartment testbed during the spring of 2009.  The apartment housed two residents, R1 and R2, at this time and they performed their normal daily activities.
-
+\emph{\#7 WSU Smart Apartment 2009 Two Resident Testbed} is the most popular choice among studies for multiple residents model training and testing. Its testbed design is presented in \emph{Figure~\ref{fig:house:twor}}, with cabinet sensor layout same as in single resident case---shown in \emph{Figure~\ref{fig:house:oner:b}}.\\
 \begin{figure}[htb]
   \centering%[width=.45\textwidth] % [height=6.3cm]
   \includegraphics[height=6.3cm]{gfx/sensorlayoutTWOR.jpg}
   \caption[Two residents test-bed sensor layout.]{Two residents test-bed sensor layout~\citep{cook2009assessing}.\label{fig:house:twor}}
 \end{figure}
 
+In multiple resident case the sensor set is extended with:
 \begin{description}
-\item[T$\Bigcdot\Bigcdot$] temperature sensors;
-\item[P001] electricity usage.
+\item[T$\Bigcdot\Bigcdot\Bigcdot$] temperature sensors; numerical, real-valued signal given in Celsius degrees; and
+\item[P$\Bigcdot\Bigcdot\Bigcdot$] electricity usage meter; numerical, integer-valued signal given in kiloWatt Hours.
 \end{description}
 
-additionally: $\Bigcdot$ R1 R2
-\begin{itemize}
-\item Clean
-\item Meal\_Preparation  
-\item R$\Bigcdot$\_Bed\_to\_Toilet
-\item R$\Bigcdot$\_Personal\_Hygiene
-\item R$\Bigcdot$\_Sleep
-\item R$\Bigcdot$\_Work
-\item Study
-\item Wash\_Bathtub
-\item Watch\_TV
-\end{itemize}
+This dataset was generated with two residents (\textbf{R$\Bigcdot$}): \textbf{R1} and \textbf{R2}, performing their \emph{normal daily activities} (not scripted), therefore, their details are unknown:\\[1em]
+\begin{tabular}{ l l l }
+  \textbf{R$\Bigcdot$\_Bed\_to\_Toilet}, & \textbf{R$\Bigcdot$\_Personal\_Hygiene}, & \textbf{Wash\_Bathtub}, \\
+  \textbf{R$\Bigcdot$\_Work}, & \textbf{R$\Bigcdot$\_Sleep}, & \textbf{Study}, \\
+  \textbf{Meal\_Preparation}, & \textbf{Clean}, & \textbf{Watch\_TV}. \\
+\end{tabular}
+~\\[1em]
 
-
-
-For multi-occupier case ... is used which looks like
-
-% \vspace{1em}
+Example CASAS multiple occupier dataset is presented in \emph{Listing~\ref{lst:CASAStwoR}}.
 \begin{figure}[htb]
 \lstset{
   captionpos=b,
@@ -458,9 +447,9 @@ For multi-occupier case ... is used which looks like
 2009-02-01 02:05:00.040187 P001 2797
 2009-02-01 02:05:26.041714 P001 2784
 ...
-2009-02-06 17:17:52.360349 M45  OFF
-2009-02-06 17:17:53.472079 M45  ON
-2009-02-06 17:17:57.329649 M45  OFF
+2009-02-01 08:07:57.016506 T004 20.5
+2009-02-01 08:07:57.826809 T002 21.5
+2009-02-01 08:07:58.442939 T003 22
 ...
 2009-02-06 11:28:36.666599 M09  OFF
 2009-02-06 11:28:36.81007  M15  OFF  R2_prepare_lunch  end
@@ -469,7 +458,6 @@ For multi-occupier case ... is used which looks like
 ...
   \end{lstlisting}
 \end{figure}
-% \vspace{1em}
 
     \subsection{Dataset issues}
 --Problems with the data -> hard to learn activity models
@@ -486,7 +474,7 @@ incompleteness: double turn ON's and no offs
 teh activities are not scripthed therefore it is TEDIOUS job to understand what is going on
 withou understending it is hard to design model
 
-
+in multi person are not scripted not described little is known to create features
 
 
 
