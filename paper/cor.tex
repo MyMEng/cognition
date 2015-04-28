@@ -459,7 +459,7 @@ Example CASAS multiple occupier dataset is presented in \emph{Listing~\ref{lst:C
   \end{lstlisting}
 \end{figure}
 
-    \subsection{CASAS issues}
+    \subsection{CASAS issues\label{sec:dataIssues}}
 CASAS are the best smart-house datasets that can be used for modelling activity recognition. Unfortunately, they exhibit issues common for every real datasets. Issues such as:
 \begin{description}
 \item[noise] random sensor activations;
@@ -473,109 +473,112 @@ Furthermore, CASAS specific drawbacks hinder their usage. Numeric output of wate
 As ILP activity learning is not documented precise data is required to evaluate its pros and cons. Hence, highly customisable smart-house data generator is required.
 
   \section{The smart-house generator}
-Purpose is to have control over data.
---Design activities and learn them -> know what is in the data
-can focus on learning and activity structure and not overcomming all the issues at once
+Smart-house data generator created as part of this project is intended to help in activity recognition model design, training and testing. It is highly customisable, hence, it gives user great control over generated data.\\
 
-randomness and noise\\
+The user can designing activities of arbitrary structure and complexity and use them to simulate corresponding smart-house output. Then, he can attempt to learn the structure encoded within it. As he knows activity details, he can bypass real data issues (see \emph{Section~\ref{sec:dataIssues}}) and focus on tuning the model. Overcoming one issue at the time greatly benefits model quality and helps to identify its strong and weak points.\\
 
-rooms fitted with motion sensors in systematic grid.\\
+The tool is open source and published as a \texttt{GitHub} repository together with complete documentation describing design choices, usage details and input-output examples.
 
-detailed description and usage are in repository ehre it is available for free\\
+    \subsection{Capabilities}
+To use the generator, firstly, the user has to describe house by stating room interconnections in form of adjacency matrix.\\
 
-use coded background knowledge to generate data: sample path and sensor firing\\
-tool to generate such data would be of great importance in testing and model building\\
+Then, room layout and sensors placement within each room needs to be specified. The room dimensions are required together with list of wanted sensors. The design is based on Cartesian coordinates with origin in bottom left corner of the room.\\
+For motion sensors: ID, position and range has to be specified. Sensors of these type detect motion radially from their location.\\
+Item sensors are defined with: ID, position, and its human readable name.\\
+Finally, door location is needed for layout completeness. They are encoded with \texttt{door} keyword, their coordinates and name of a room they lead to.\\
+Example definition of each sensor type (order preserved) is given in \emph{Listing~\ref{lst:sensorLayout}}.\\
+
+\begin{figure}[htb]
+\lstset{
+  captionpos=b,
+  frame=single,
+  backgroundcolor=\color{Bkgd},
+  rulecolor=\color{black},
+  language=HTML,
+  breaklines=true,
+  caption=Example sensor definitions.,
+  label=lst:sensorLayout,
+  float=tb
+}
+  \begin{lstlisting}
+m13  4.5 1   1
+i78  5.5 0.5 phone_book
+door 0   0.5 hall
+  \end{lstlisting}
+\end{figure}
+
+Subsequently, item sensors characteristics have to be specified. Each item, like TV, takes some time to use---average TV watching time. It is simulated by drawing a sample of Gaussian distribution with user specified mean and standard deviation. This feature is mainly used for simple activities but the time can be altered in activity specification (see next).\\
+
+Finally, activity script used to simulate interaction with sensors has to be provided. Arbitrary number of activities (they can be nested) for multiple people can be defined. Each script is specified with start position and any of the following atomic actions can be issued: go to room, go to location within the room, use item (simulate previously defined time), pick up any item or start any device, put down the item or turn off the device. For more complex activities any command can be used between starting/taking and stopping/returning any device/item.\\
+Curly brackets together with activity name are used to surround atomic actions contributing towards this activity. Example script is given in \emph{Listing~\ref{lst:path}}.\\
+
+\begin{figure}[htb]
+\lstset{
+  captionpos=b,
+  frame=single,
+  backgroundcolor=\color{Bkgd},
+  rulecolor=\color{black},
+  language=HTML,
+  breaklines=true,
+  caption=Example activity script.,
+  label=lst:path,
+  float=tb
+}
+  \begin{lstlisting}
+>ResidentA>
+origin(hall)
+go(kitchen)
+
+cook{
+  start(cabinet)
+    do(oatmeal)
+    do(pot)
+  stop(cabinet)
+
+  do(water_cold)
+
+  start(burner)
+
+  watchTV{
+    go(living_room)
+    do(tv)
+  }watchTV
+
+  go(kitchen)
+  stop(burner)
+}cook
+<ResidentA<
+  \end{lstlisting}
+\end{figure}
+
+Presented here tool is capable of generating arbitrarily complex user defined activities by specifying their atomic actions. The generator can simulate multiple residents interacting with the house simultaneously.\\
+Additionally to CASAS-like signal output, precise ground truth is recorded.\\
+
+Datasets generated for ILP activity recognition models are using house design presented in \emph{Figure~\ref{fig:simHouse}} with systematic grid of motion sensors fitted within each room.
 
 \begin{figure}[htb]
   \centering% [width=.9\textwidth]
   \includegraphics[height=7.3cm]{./gfx/room_layout}
-  \caption{Room layout of simulated house.}
+  \caption{Simulated house room layout.\label{fig:simHouse}}
 \end{figure}
 
-data generator generates smart house data based on 4 description files:
-% \section{\texttt{rooms.l}}
-Defines interconnection of rooms in form of an adjacency matrix:\\
-% \lstinputlisting[language=Python]{../stdg/rooms.l}
-
-The first element in first line must be \texttt{[X]}\\
-The headers must be \emph{roomName} --- must be without spaces.
-
-% \section{\texttt{activities.l}}
-This file specifies the parameters of Gaussian distribution describing \emph{activities names} in form of:\\
-\texttt{nameOfActivity mean standardDeviation}
-
-it is used to simulate time needed to accomplish activity in \emph{seconds}.
-
-% \lstinputlisting[language=Python]{../stdg/activities.l}
-
-% \section{\texttt{path.l}}
-This files describe activities to generate in form \texttt{keyword(goal)}:\\
-% \lstinputlisting[language=Python]{../stdg/path.l}
-
-the \texttt{keywords} in this file are:\\
-\begin{description}
-\item[\texttt{start}] where the person starts
-\item[\texttt{go}] where to go
-\item[\texttt{do}] what activity to do
-\end{description}
-
-The \texttt{goals} are:
-\begin{description}
-\item[room names] defined in \texttt{rooms.l} file and matched with \texttt{go} or \texttt{start} keywords
-
-\item[activities] have to be defined in both \texttt{activities.l} and \texttt{layout.l} files; are matched with \texttt{do} keywords
-\end{description}
-
-
-this file must start with command \texttt{start}\\
-to \texttt{do} given activity you first must go to the room that it is available in.
-
-% \section{\texttt{layout.l}}
-All measures are in meters\\
-the room layout description is based on cartesian coordinates with origin in bottom left corner\\
-
-This file defines sensor layouts for each of the rooms defined in \texttt{rooms.l} file:\\
-% \lstinputlisting[language=Python]{../stdg/layout.l}
-
-each room has to be described as:
-\texttt{roomName} \texttt{widthOfRoom} \texttt{heightOfRoom} \texttt{:}\\
-The room description line has to be finished with \texttt{:}, without spaces.\\
-
-followed by sensors descriptions:\\
-\texttt{motionSensorID} \texttt{widthOfSensorLocation} \texttt{heightOfSensorLocation} \texttt{rangeOfSensorRadius}\\
-or
-\texttt{itemSensorID} \texttt{widthOfSensorLocation} \texttt{heightOfSensorLocation} \texttt{activityName}\\
-or\\
-door description starting with \texttt{door} keyword and finished with \texttt{roomName} to which the door lead:\\
-\texttt{door} \texttt{widthOfSensorLocation} \texttt{heightOfSensorLocation} \texttt{roomName}\\
-
-comment lines start with \texttt{;}\\
-
-    \subsection{Capabilities}
-design house
-design sensor layout: motion sensor reac
-
-generate arbitrary activities
-with ground truth
-move arbitrary within the house
-prale arbitrary sensors
-
-generate any number of residents
-
     \subsection{Advantages}
+Created smart-house data generator is flexible and highly customisable. The simulated resident can perform tasks of arbitrary complexity ranging from simple motion to nested activities each using different combination of available items. Moreover, the output signal can be distorted with various kinds of noise and randomness.\\
 
-you know whta happens, can design activity structures, get exact ground truth
+The main advantage of proposed here simulation technique is detailed knowledge of ground truth, which is based on input activity script. Availability of various kind of simulation statistics can be used to visualise sensor behaviour and debug activity model trained on generated data.\\
+
+Finally, the raw signal output of the generator is given in widely accepted CASAS format. Therefore, simulations made with described here tool can be used with all activity recognition systems based on CASAS datasets.
 
     \subsection{ILP ready}
-----generates background knowledge, positives, negatives, and location activity details
+The smart-house data generator was designed with ILP model construction in mind, therefore, it outputs \texttt{Prolog} facts needed for this purpose. Information such as house specific background knowledge and positive \& negative examples required by ILP algorithm is recorded.\\
+Additionally, detailed sensor activations, time-location and activity structure informations are available for manual analysis of output signal.
+
     \subsection{Proof of concept}
---Proof of the generator producing real-life data
-Proof for single agent is enough.
-Multi agent case is just combination of multiple single agent case with special handling of cases when agents cross each others path i.e. preserving sensor off when someone is inside and double on's and off's\\
+The value of presented here smart-house data generator can increase significantly if it can be proven to produce real-like datasets. Proof for single resident case is sufficient as multiple residents house is based on combination of multiple single agent simulations. The latter effect is achieved by special handling (preserving sensor states) of cases when agents cross each other's paths and interact with common device or item.\\
+Presented here proof is based on \emph{similarity comparison} of ILP models learnt on CASAS and generated datasets.\\
 
-
-
-
+The evaluation is based on...\\
+>EVALUATION RESULTS<
 
   \section{Knowledge representation of spatio-temporal data}
 Activity learning method described here requires signals represented as logical facts. ILP system used in this study is written in \texttt{Prolog} programming language therefore, all data has to be expressed in thereof predicates. This requirement causes some problems introduced by sensor type variety.\\
@@ -958,44 +961,44 @@ Features used for both single and multiple resident models are discussed in deta
 %===============================================================================
 %===============================================================================
 \chapter{Summary\label{ch:summary}}
-generally about what i've done
+% generally about what i've done
 
   \section{Smart-house data generator}
-Data generator as a helpful tool for building and testing models\\
+% Data generator as a helpful tool for building and testing models\\
 
   \section{Rule based Activity Recognition Model}
-ILP can be used as one of models for activity recognition: its strong points not available (or hard to achieve) in other models
+% ILP can be used as one of models for activity recognition: its strong points not available (or hard to achieve) in other models
 
   \section{Work evaluation}
-what my results mean to general public
+% what my results mean to general public
 
   \section{Further development}
     \subsection{Model complexity}
     \subsection{Data Narrative\label{sec:narrative}}
-Proposed here ILP tool could extend suit of available analytic technologies for activity recognition and become great foundation for \emph{Narrative Analtics} presented in \emph{Section~\ref{sec:narrative}}.
+% Proposed here ILP tool could extend suit of available analytic technologies for activity recognition and become great foundation for \emph{Narrative Analtics} presented in \emph{Section~\ref{sec:narrative}}.
 
-Proposed here rules learning mechanism can be extended with ``grammar'' capable of generating \emph{Narrative Analysis} of spatio-temporal data: a \emph{succinct natural language description} of a selected time-space window of the data of interest. In healthcare and smart house scenarios, such techniques can be combined with activity recognition models to generate comprehensible descriptions of monitored activities with terminology and level of detail tuned to a particular recipient. In the context of the SPHERE project these techniques would facilitate making sense from acquired data for healthcare applications in a more transparent way than is possible with black-box approaches.
+% Proposed here rules learning mechanism can be extended with ``grammar'' capable of generating \emph{Narrative Analysis} of spatio-temporal data: a \emph{succinct natural language description} of a selected time-space window of the data of interest. In healthcare and smart house scenarios, such techniques can be combined with activity recognition models to generate comprehensible descriptions of monitored activities with terminology and level of detail tuned to a particular recipient. In the context of the SPHERE project these techniques would facilitate making sense from acquired data for healthcare applications in a more transparent way than is possible with black-box approaches.
 
-Human activities can be hierarchically organised with complex actions composed of sub-actions, until ``atomic level'' is reached. This creates possibility to apply filters to produce multiple levels of narrative complexity based on target audience. Adjusting level of detail (granularity) of produced description would result in emphasis on different aspects of carried out activities during period of interest, hence, extracting relevant for the audience information.\\
+% Human activities can be hierarchically organised with complex actions composed of sub-actions, until ``atomic level'' is reached. This creates possibility to apply filters to produce multiple levels of narrative complexity based on target audience. Adjusting level of detail (granularity) of produced description would result in emphasis on different aspects of carried out activities during period of interest, hence, extracting relevant for the audience information.\\
 
-    \subsection{Visualisation techniques}
-Most commonly used visualisation techniques nowadays are tables, graphs, and diagrams. Unfortunately, such charts often need expertise in a field to be correctly interpreted. Moreover, aforementioned methods often trade-off clarity for completeness of shown data hence make it difficult for a broad audience to see the big picture.\\
+      \subsubsection{Visualisation techniques}
+% Most commonly used visualisation techniques nowadays are tables, graphs, and diagrams. Unfortunately, such charts often need expertise in a field to be correctly interpreted. Moreover, aforementioned methods often trade-off clarity for completeness of shown data hence make it difficult for a broad audience to see the big picture.\\
 
-\emph{Narrative Analysis} aims at exploring possibility of describing data with natural language. This form of expressing information contained in the data has been under-appreciated and devoted little attention in recent years. Deep learning techniques have been applied to images to generate succinct scene description, nevertheless, it has not been used with raw data.\\
-An example of data narration can be found in modern smart-phone weather and calendar applications where instead of detailed weather forecast or hour-by-hour calendar events, one sentence description is presented to the user. Furthermore, in recent years \emph{narrative analytics} in combination with visualisation techniques have been proven as effective method of expressing corporate financial data.\\
+% \emph{Narrative Analysis} aims at exploring possibility of describing data with natural language. This form of expressing information contained in the data has been under-appreciated and devoted little attention in recent years. Deep learning techniques have been applied to images to generate succinct scene description, nevertheless, it has not been used with raw data.\\
+% An example of data narration can be found in modern smart-phone weather and calendar applications where instead of detailed weather forecast or hour-by-hour calendar events, one sentence description is presented to the user. Furthermore, in recent years \emph{narrative analytics} in combination with visualisation techniques have been proven as effective method of expressing corporate financial data.\\
 
-Successful adaptation of \emph{Narrative Analytics} to data provided by smart houses would greatly benefit healthcare applications. Being able to deliver activity description within given time-space window and with different level of detail would provide invaluable monitoring and diagnostic tool for daily care personnel and medical staff.
+% Successful adaptation of \emph{Narrative Analytics} to data provided by smart houses would greatly benefit healthcare applications. Being able to deliver activity description within given time-space window and with different level of detail would provide invaluable monitoring and diagnostic tool for daily care personnel and medical staff.
 
-    \subsection{Narrative Analytics}
-Presented here extension is not restricted to smart house data. \emph{Narrative Analytics} can be applied to any spatio-temporal information---e.g.\ smart-city feed---resulting in brief situation description contained in the data. Such ``label'' gives possibility to quickly understand status of the system without time-consuming raw-data or charts interpretation. Improved response time would result in appropriate actions taken instantly, whether it is better disease diagnosis, or traffic conditions displayed in timely manner on interactive information signs.\\
-Moreover, as produced description would also be hierarchical it can be formed in a ``tree'' structure with more general narratives being higher in hierarchy. Creating timetable filled with activity ``labels'' would give better insight into personal habits and routines yielding improved understanding of arising issues.\\
-Furthermore, proposed here descriptive mechanisms could be extended to become a query-enabled database. In such model a user could ``ask'' a question in natural language to get narrative answer instead of numerical vector.\\
+      \subsubsection{Narrative Analytics}
+% Presented here extension is not restricted to smart house data. \emph{Narrative Analytics} can be applied to any spatio-temporal information---e.g.\ smart-city feed---resulting in brief situation description contained in the data. Such ``label'' gives possibility to quickly understand status of the system without time-consuming raw-data or charts interpretation. Improved response time would result in appropriate actions taken instantly, whether it is better disease diagnosis, or traffic conditions displayed in timely manner on interactive information signs.\\
+% Moreover, as produced description would also be hierarchical it can be formed in a ``tree'' structure with more general narratives being higher in hierarchy. Creating timetable filled with activity ``labels'' would give better insight into personal habits and routines yielding improved understanding of arising issues.\\
+% Furthermore, proposed here descriptive mechanisms could be extended to become a query-enabled database. In such model a user could ``ask'' a question in natural language to get narrative answer instead of numerical vector.\\
 
-Data narration can have multiple other applications. Alternatively, it can be used to produce figure caption based on data used to draw it.
+% Data narration can have multiple other applications. Alternatively, it can be used to produce figure caption based on data used to draw it.
 
 % challenges
-Creating a narrative of events is composed of two major components---``grammars'' needed to transform the data: \emph{data analysis}(objective of this project) and \emph{narrative generation}.\\
-The first one is deriving high-level knowledge from low-level data (sensor input) with ILP. The latter is ``translating'' extracted information into natural language description, which also can be done using similar approach.
+% Creating a narrative of events is composed of two major components---``grammars'' needed to transform the data: \emph{data analysis}(objective of this project) and \emph{narrative generation}.\\
+% The first one is deriving high-level knowledge from low-level data (sensor input) with ILP. The latter is ``translating'' extracted information into natural language description, which also can be done using similar approach.
 
 
 \begin{center}
