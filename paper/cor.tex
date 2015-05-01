@@ -902,40 +902,104 @@ and for multiple residents houses another output variable for predicting a \text
 activity(Activity, Time, Person) :-
   ruleBody.
 \end{minted}
-The \texttt{ruleBody} is made of rules encoded in the background knowledge which serves as features, extracting relevant informations form house signals.\\
+The \texttt{ruleBody} is made of rules encoded in the background knowledge which serves as features, extracting relevant informations form house signals.
 
+  \section{Scripted data} % WHY I chose this that and that!!!!!!!!!!!!
 As the format of the rule is determined, the next step it to design the features building the rule body. To this end, an insight into how to distinguish particular activities is needed. Scripted CASAS datasets (see \emph{Section~\ref{sec:csasDataDet}}) are of great help. Their careful analysis can reveal patterns that can be learnt to differentiate activities.
 % by their careful examination
 
-  \section{Scripted data} % WHY I chose this that and that!!!!!!!!!!!!
-about scripted data: in detail step by step no detours <- good starting point
-
-    % Single resident case
-% presented above example both \texttt{location} and \texttt{device} rules can be transformed to become features. Rebuilt dataset may become more ``informative'' than the original one, therefore, it can improve classification carried out with variety of different machine learning models.
-
-
     \subsection{Sequential multi-class model for single resident\label{ch:smcm}}
-What are model assumptions\\
-how target rule looks like\\
-what I want to ahieve and why\\
+Beside target rule specification, model assumptions need to be stated. Based on CASAS scripted data it is clear that activities are sequential and they do not overlap (see \emph{Figure~\ref{fig:timepoints}}). Hence, the problem is single-label, \emph{multi-class}---there is always one label to be assign to a time point and this label is chosen from a set which usually has cardinality $>2$.
 
     \subsection{Basic activities}
-1. start with basics to discover how ILP realy works like and what the algorithm does with the data. -- CASAS \#1\#2 inspierd scripted data
-1.1 encode something in the data
-1.2 design features to pick it up
-1.3 learn it with ILP
-1.4 evaluate results
+To start model learning I selected two activities: \emph{cook} and \emph{phone call}, and generated my impression of them for one resident based on CASAS description. Therefore, the resulting synthetic dataset is simple, completed, noiseless and resemble real life activities. Such a simple learning task helped me to familiarise myself with \texttt{Aleph} data analysis mechanisms and discover its basic capabilities and limitations.
+
+      \subsubsection{Encode activities}
+I decided to script a simple scenario in the house given in the \emph{Figure~\ref{fig:simHouse}}. A person starts in the hall with random location; he moves to the living room; activity \emph{phone\_call} starts; approaches the phone book (finds a phone number); moves to the fixed phone (talks for some time); activity \emph{phone\_call} ends. Then the person goes to the kitchen; the activity \emph{cook} starts; he approaches and uses hob for some time; the activity stops when he turns off the hob. Finally, the person goes back to hall via living room.\\
+
+The detailed knowledge of steps taken by the agent allows to design basic features and test them. As produced by the generator data are in CASAS log format they are next converted into facts representation. Then, the logical signal representation is joined with house facts to produce basic background knowledge file. Additionally, during conversion step positives and negatives are produced. Hence, all basic components for ILP learning are present.
+
+      \subsubsection{Design features}
+Nevertheless, to build the activity rule body feature rules need to be added to background knowledge. Based on the script used to generate data I know that both activities can be distinguished by \emph{location}: phone call happens in the living room and cooking in the kitchen. Moreover, for both activities different devices and items are used: for the first the phone book and the fixed phone; for the latter hob.\\
+
+Therefore, this simple model should work with just these two features. The basic building block of both of them is a \texttt{Prolog} predicat which interacts with sensor readings. Its main task is to check whether at given time T (input variable) what sensors are on (input/output variable). To make the feature more universal i.e.\ allow also to condition on turned off sensor third (input/output) variable stating state of sensor is introduced. Finally as there exist multiple time representations () in background knowledge input variable stating time type is needed of the form:\\
+\begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+sensor_state(SensorID, SensorState, TimeType, Time) :-
+  ruleBody.
+\end{minted}
+For simplicity of use in this particular case the rule can be wraped to provide interface with variables that we need:\\
+\begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+sensor_state(SensorID, Time) :-
+  sensor_state(SensorID, true, sequence, Time).
+\end{minted}
+In prolog a rule variable can be both input and output. If we query a rule it an return answer, or we can test correctness of belief---then such variables become input and prolog evaluates such statement to true or false.\\
+As prolog is a search space it can be achieved by stating logical conditions warranting it.\\
+The basic condition is that before or at time T\\
+
+So it is straight forward to create features predicting current location and device that is on.\\
+Remember about continuity fix: when all the sensors go out assume last known position---bias\\
+\begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+location(Time, Location) :-
+  ruleBody.
+device(Time, Device) :-
+  ruleBody.
+\end{minted}
+
+Finally, designed feature rules are appended to the background knowledge file to be used by \texttt{Aleph}.
+
+      \subsubsection{Configure \texttt{Aleph}}
+The last step before runing the algorihtm is to put aleph configuration in background knowledge file preamble.\\
+not pure rules\\
+allow the rules to cover just one example -- as later they are purified. see point below\\
+allow use \emph{determinations} and these
+
+
+      \subsubsection{Learn the model}
+Run ILP on 3 created file. Write learn rules to file. Purify them by removing singularities.
+
+      \subsubsection{Evaluate results}
+Eyball the rules whether they make sense. and I identified the right features.\\
+They seem to work so we can proceed to more dificult case.\\
+Rule coverage?? in comparisonwith majority class.
+
+
+
+
+
 
     \subsection{CASAS flavoured activities}
+The next step is to reproduce casas data as faithfuly as possible -> sacas like without NOISE\\
 
-2. take basic dataset CASAS \#1 scripted and emulate it simulator <- no noise
-2.1 know what is in the data and design features to pick it up
-2.2 learn it with ILP evaluate it
+2. take basic dataset CASAS \#1 scripted and emulate it simulator <- no noise\\
+2.1 know what is in the data and design features to pick it up\\
+2.2 learn it with ILP evaluate it\\
+just mention that similar aleph configuration but extend determination and mode declaration with new feature.\\
+
+
+
+
+
+
+
 
     \subsection{CASAS activities}
+      \subsubsection{Data issues}
 % SCRIPTED - narrated datasets \#2 --- single resident
 
     \subsection{Overlapping activities}
+Despite the initial assumption of model being \emph{sequential} it is feasible to generalise it to multi-label overlapping case. As \texttt{Prolog} natively supports multiple answers to a query it is possible to apply previously learnt model to non-sequential scenario.\\
+ETC.
+
+
+
+
+
+
+
+
+
+
+
 
   \section{Unscripted data}
 % blah blah blah about item sensr not being popular.
@@ -947,12 +1011,24 @@ Two section explain: Movement case and Still case
     \subsection{Synthetic multiple residents}
 
     \subsection{CASAS multiple residents}
-NOT SCRIPTED - CASAS \#9 --- muti resident
+NOT SCRIPTED - CASAS \#9 --- muti resident\\
+F1 measuers\\
+40 seconds rule length on average on\\
+different window for each sensor
+
+
+
+
+
+
+
 
   \section{Signal features\label{sec:single:features}\label{sec:multiple:features}}
 % feature design to the needs of activity ruele: features are not used for all but for specific
 
   \section{Discontinuity problem}
+    \subsection{Signal discontinuity}
+    \subsection{Prediction discontinuity}
 % Continuity rule --- introducing bias\\
 % Meta-rule -- smoothing out predictions
 
