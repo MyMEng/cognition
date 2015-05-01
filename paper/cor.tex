@@ -892,16 +892,27 @@ Features used for both single and multiple resident models are discussed in deta
 %===============================================================================
 %===============================================================================
 \chapter{Activity recognition model}
-To strart with data ere eyeballed to confirm what is scripted---based on examinaiton patterns are piocked up\\
+The aim of the activity recognition model is to predict agent's \emph{actions} at \emph{time} of interest based on sensor signals delivered by smart-house. Therefore, the target rule needs input variable \texttt{Time} and output variable \texttt{Activity} leading to:\\
+\begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+activity(Activity, Time) :-
+  ruleBody.
+\end{minted}
+and for multiple residents houses another output variable for predicting a \texttt{Person} performing the activity is necessary:\\
+\begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+activity(Activity, Time, Person) :-
+  ruleBody.
+\end{minted}
+The \texttt{ruleBody} is made of rules encoded in the background knowledge which serves as features, extracting relevant informations form house signals.\\
+
+As the format of the rule is determined, the next step it to design the features building the rule body. To this end, an insight into how to distinguish particular activities is needed. Scripted CASAS datasets (see \emph{Section~\ref{sec:csasDataDet}}) are of great help. Their careful analysis can reveal patterns that can be learnt to differentiate activities.
+% by their careful examination
+
+  \section{Scripted data} % WHY I chose this that and that!!!!!!!!!!!!
+about scripted data: in detail step by step no detours <- good starting point
 
     % Single resident case
 % presented above example both \texttt{location} and \texttt{device} rules can be transformed to become features. Rebuilt dataset may become more ``informative'' than the original one, therefore, it can improve classification carried out with variety of different machine learning models.
 
-
-WHY I chose this that and that!!!!!!!!!!!!
-
-  \section{Scripted data}
-about scripted data: in detail step by step no detours <- good starting point
 
     \subsection{Sequential multi-class model for single resident\label{ch:smcm}}
 What are model assumptions\\
