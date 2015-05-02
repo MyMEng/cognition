@@ -911,7 +911,7 @@ As the format of the rule is determined, the next step it to design the features
     \subsection{Sequential multi-class model for single resident\label{ch:smcm}}
 Beside target rule specification, model assumptions need to be stated. Based on CASAS scripted data it is clear that activities are sequential and they do not overlap (see \emph{Figure~\ref{fig:timepoints}}). Hence, the problem is single-label, \emph{multi-class}---there is always one label to be assign to a time point and this label is chosen from a set which usually has cardinality $>2$.
 
-    \subsection{Basic activities}
+    \subsection{Basic activities\label{sec:basicActibities}}
 To start model learning I selected two activities: \emph{cook} and \emph{phone call}, and generated my impression of them for one resident based on CASAS description. Therefore, the resulting synthetic dataset is simple, completed, noiseless and resemble real life activities. Such a simple learning task helped me to familiarise myself with \texttt{Aleph} data analysis mechanisms and discover its basic capabilities and limitations.
 
       \subsubsection{Encode activities}
@@ -922,42 +922,76 @@ The detailed knowledge of steps taken by the agent allows to design basic featur
       \subsubsection{Design features}
 Nevertheless, to build the activity rule body feature rules need to be added to background knowledge. Based on the script used to generate data I know that both activities can be distinguished by \emph{location}: phone call happens in the living room and cooking in the kitchen. Moreover, for both activities different devices and items are used: for the first the phone book and the fixed phone; for the latter hob.\\
 
-Therefore, this simple model should work with just these two features. The basic building block of both of them is a \texttt{Prolog} predicat which interacts with sensor readings. Its main task is to check whether at given time T (input variable) what sensors are on (input/output variable). To make the feature more universal i.e.\ allow also to condition on turned off sensor third (input/output) variable stating state of sensor is introduced. Finally as there exist multiple time representations () in background knowledge input variable stating time type is needed of the form:\\
+Therefore, this simple model should work with just these two features. The basic building block of both of them is a \texttt{Prolog} predicate which interacts with sensor readings. Its main task is to check each sensor (input/output variable \texttt{SensorID}) status (input/output variable \texttt{SensorState}) at given time (input variable \texttt{Time}). As there are multiple time representation additional (input/output \texttt{TimeType}) variable is needed to represent it, leading to the rule of the form:\\
 \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 sensor_state(SensorID, SensorState, TimeType, Time) :-
   ruleBody.
 \end{minted}
-For simplicity of use in this particular case the rule can be wraped to provide interface with variables that we need:\\
+For simplicity, in my activity recognition model, input \texttt{Time} and input/output \texttt{SensorID} variables are sufficient. Through the task only the \emph{sequential} time representation is used and \emph{activated} sensors are of interest. Therefore, the above rule can be wrapped to provide the interface to the sensor states resulting in:\\
 \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 sensor_state(SensorID, Time) :-
   sensor_state(SensorID, true, sequence, Time).
 \end{minted}
-In prolog a rule variable can be both input and output. If we query a rule it an return answer, or we can test correctness of belief---then such variables become input and prolog evaluates such statement to true or false.\\
-As prolog is a search space it can be achieved by stating logical conditions warranting it.\\
-The basic condition is that before or at time T\\
+Presented here rule is highly customisable as it facilitates time representation selection and allow to condition on deactivated sensors if needed.\\
+All \texttt{Prolog} rules are built by logical constrains leading to correct answer. For \texttt{sensor\_state} rule to be true, the sensor \texttt{SensorID} had to be activated at most at time \texttt{Time}, and after that time (until now) \texttt{SensorID} have not been deactivated. These two conditions warrant correct sensor status checks.\\
+Moreover, as \texttt{Prolog} uses a search space to ``answer'' queries variables can be both rule input and output. The first approach is mainly used to check correctness of belief---all variables are initialised and either \texttt{true} or \texttt{false} is returned. The latter method uses uninitialised variables so that \texttt{Prolog} can find their unifications that yield \texttt{true} evaluation of the rule; it is worth to mention that multiple results can be returned.\\
 
-So it is straight forward to create features predicting current location and device that is on.\\
-Remember about continuity fix: when all the sensors go out assume last known position---bias\\
+The \texttt{sensor\_state} rule covers both \emph{item} and \emph{motion sensor}. It is worth separating the two aforementioned cases to improve model clarity. With use of house-specific background knowledge motion sensor IDs can be associated with rooms and item sensor IDs with devices and items.\\
+Therefore, the device rule can be easily constructed as:\\
+\begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+device(Time, Device) :-
+  sensor_state(SensorID, Time),
+  sensorActivity(SensorID, Device).
+\end{minted}
+The location rule could be created in similar manner, i.e.:\\
 \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 location(Time, Location) :-
-  ruleBody.
-device(Time, Device) :-
-  ruleBody.
+  sensor_state(SensorID, Time),
+  sensorInRoom(SensorID, Location).
 \end{minted}
+but this simplification causes \emph{discontinuous} location predictions. To fix it, a case when none of the motion sensors is activated needs to be covered. By introducing a small bias and using last known location (self-recursion with decreasing time) in such cases a continuous prediction is ensured.\\
 
-Finally, designed feature rules are appended to the background knowledge file to be used by \texttt{Aleph}.
+Finally, all the three rules have to be appended to the \texttt{Aleph}'s background knowledge file to be used in learning process.
 
       \subsubsection{Configure \texttt{Aleph}}
-The last step before runing the algorihtm is to put aleph configuration in background knowledge file preamble.\\
-not pure rules\\
-allow the rules to cover just one example -- as later they are purified. see point below\\
-allow use \emph{determinations} and these
+Both \texttt{location} and \texttt{device} features presented above are used to build the first activity recognition model. To this end, \texttt{Aleph} needs to be correctly configured.\\
+The most important settings are \texttt{noise} and \texttt{minpos} parameters. The first one determines the maximal number of negative examples that the activity rule can cover---impurity of the rule. The latter sets the minimal number of positive examples that the rule has to cover.\\
+These values are set to $5$ and $1$ respectively. The first is based on observational results, and the later is lowest possible value so that every possible rule is discovered. Unfortunately, setting \texttt{minpos} to $1$ results in many singleton rules---copies of positive examples---appearing in the output theory; additional script is used to remove them.\\
 
+The next type of settings determines parameters of the target model. \texttt{determination} settings indicate the \emph{name} and \emph{arity} of predicates that can contribute to the target rule body. \texttt{modeh} and \texttt{modeb} determine structure of rule \emph{head} and \emph{body} respectively. Both mode declarations set:
+\begin{itemize}
+\item a number specifying successful calls to specified predicate or a * symbol to set bounded non-determinacy\footnote{See \texttt{Aleph} manual for detail: \url{http://www.cs.ox.ac.uk/activities/machlearn/Aleph/aleph.html}};
+\item a name of predicate to be called, together with variable type specification.
+\end{itemize}
+By large, modes define how to call predicates used in the body of activity recognition model; they set whether variables should be an input (a + symbol); output (a - symbol); or a constant (\# symbol).\\
+
+\begin{figure}[htb]
+  \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+:- set( noise,  3 ).
+:- set( minpos, 1 ).
+
+:- determination( activity/2, device/2   ).
+:- determination( activity/2, location/2 ).
+
+:- modeh( *, activity(#activityIDs, +integer) ).
+:- modeb( *, device(+integer, #deviceIDs)     ).
+:- modeb( *, location(+integer, #roomIDs)     ).
+  \end{minted}
+  \caption{Example \texttt{Aleph} configuration header.\label{lst:alephConfHead}}
+\end{figure}
+
+The example header is presented in \emph{Figure~\ref{lst:alephConfHead}}. Other than aforementioned settings are left default.\\
+Finally, the last step before running the algorithm is attaching the \texttt{Aleph} configuration to the background knowledge file.
 
       \subsubsection{Learn the model}
-Run ILP on 3 created file. Write learn rules to file. Purify them by removing singularities.
+As the \texttt{Aleph} learning process is interactive a special script is designed to improve the work-flow. The script runs the \texttt{Aleph}, loads the needed files: background, positives and negatives; learns the activity theory; and finally saves it to a file.\\
+Then, the model is purified by removing singleton rules and retaining ones with non-empty body.
 
       \subsubsection{Evaluate results}
+The activity recognition model built with presented above components\\
+
+The output model is purified from singleton rules.\\
+than 10 fold cross-validation is performed on data generated with the same script but introduced some variations to path and timing.
 Eyball the rules whether they make sense. and I identified the right features.\\
 They seem to work so we can proceed to more dificult case.\\
 Rule coverage?? in comparisonwith majority class.
@@ -969,22 +1003,19 @@ Rule coverage?? in comparisonwith majority class.
 
     \subsection{CASAS flavoured activities}
 The next step is to reproduce casas data as faithfuly as possible -> sacas like without NOISE\\
-
 2. take basic dataset CASAS \#1 scripted and emulate it simulator <- no noise\\
 2.1 know what is in the data and design features to pick it up\\
 2.2 learn it with ILP evaluate it\\
 just mention that similar aleph configuration but extend determination and mode declaration with new feature.\\
 
-
-
-
-
-
-
-
+Repetitive to the case presented in section.. only determinations and bodyh are extended.
     \subsection{CASAS activities}
       \subsubsection{Data issues}
 % SCRIPTED - narrated datasets \#2 --- single resident
+
+
+
+
 
     \subsection{Overlapping activities}
 Despite the initial assumption of model being \emph{sequential} it is feasible to generalise it to multi-label overlapping case. As \texttt{Prolog} natively supports multiple answers to a query it is possible to apply previously learnt model to non-sequential scenario.\\
@@ -994,22 +1025,12 @@ ETC.
 
 
 
-
-
-
-
-
-
-
   \section{Unscripted data}
 % blah blah blah about item sensr not being popular.
-
     \subsection{Multi-label model for multiple residents\label{ch:mlm}}
     \subsection{bahroom excursion}
 Two section explain: Movement case and Still case
-
     \subsection{Synthetic multiple residents}
-
     \subsection{CASAS multiple residents}
 NOT SCRIPTED - CASAS \#9 --- muti resident\\
 F1 measuers\\
@@ -1020,20 +1041,26 @@ different window for each sensor
 
 
 
-
-
-
   \section{Signal features\label{sec:single:features}\label{sec:multiple:features}}
+Feature rules together with signal representation and house facts can be used as general feature generative model.
 % feature design to the needs of activity ruele: features are not used for all but for specific
-
   \section{Discontinuity problem}
     \subsection{Signal discontinuity}
     \subsection{Prediction discontinuity}
-% Continuity rule --- introducing bias\\
-% Meta-rule -- smoothing out predictions
-
+Continuity rule --- introducing bias\\
+Meta-rule -- smoothing out predictions\\
+highly improves prediction accuracy: GIVE PROOF HERE\\
+activities last after using phone until another starts and my rules o not pick tak up hence accuracy boost.\\
+Based on example given in \emph{Section~\ref{sec:basicActibities}} an example.\\
+Huge disadvantage when someone leaves the house and it's not picked up.
   \section{Model generality}
-% Generality of learnt rules (synthetic <--> genuine) Results overview
+The difference in models are sensor IDs. As designed here features interact with them via house-specific background knowledge room and device names are used os it can be applied to any other data.\\
+Presented here features are general in a sens that the\\
+Generality of learnt rules (synthetic <--> genuine) Results overview
+
+
+
+
 
   \section{Model evaluation}
 COMPARE TO SOMETHING
