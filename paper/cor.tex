@@ -860,7 +860,7 @@ Moreover, output model written in \texttt{Prolog} is human readable therefore re
 
 Finally, expressing hierarchy in rule based model can be easily achieved by placing one rule in the body of the other or conditioning only on some subset of body literals. The concepts of rule generalisation and specialisation directly correspond to moving up and down the hierarchical structure.
 
-  \section{Closed Concept \& Least General Generalisation}
+  \section{Closed Concept \& Least General Generalisation\label{sec:closedConcept}}
 A \emph{closed concept} is a concept that includes all implicitly understood conditions. For example rule:\\
 \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 activity(wash_hands,A) :-
@@ -985,22 +985,59 @@ Finally, the last step before running the algorithm is attaching the \texttt{Ale
 
       \subsubsection{Learn the model}
 As the \texttt{Aleph} learning process is interactive a special script is designed to improve the work-flow. The script runs the \texttt{Aleph}, loads the needed files: background, positives and negatives; learns the activity theory; and finally saves it to a file.\\
-Then, the model is purified by removing singleton rules and retaining ones with non-empty body.
+Then, the model is purified by removing singleton rules and retaining ones with non-empty body.\\
+
+\begin{figure}[htb]
+  \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+activity(phone_call,A) :-
+  device(A,phone_book).
+activity(phone_call,A) :-
+  device(A,phone).
+activity(cook,A) :-
+  device(A,burner).
+  \end{minted}
+  \caption{Basic activity recognition model.\label{lst:alephBasicModel}}
+\end{figure}
+
+Learnt rules presented in \emph{Figure~\ref{lst:alephBasicModel}} make perfect sense with regard to used data generation script. Moreover, identified and encoded features behave as intended extracting relevant information from the signal. Finally, the \texttt{location} feature does not appear in the model as it is uninformative in this case---see \emph{Section~\ref{sec:closedConcept}} for details.
 
       \subsubsection{Evaluate results}
-The activity recognition model built with presented above components\\
+The activity recognition model built with presented above components is rather simplistic: it uses only one feature---see \emph{Figure~\ref{lst:alephBasicModel}}.\\
 
-The output model is purified from singleton rules.\\
-than 10 fold cross-validation is performed on data generated with the same script but introduced some variations to path and timing.
-Eyball the rules whether they make sense. and I identified the right features.\\
-They seem to work so we can proceed to more dificult case.\\
-Rule coverage?? in comparisonwith majority class.
+To evaluation performance of the above model I use 10 folds cross-validation. Each fold is generated according to the same activity script but with small variations in the motion path. The evaluation results are presented in \emph{Figure~\ref{tab:basicStats}}. Overall, the model achieves \emph{accuracy} of \textbf{91.5\%}; \emph{precision} of \textbf{1}; \emph{recall} of \textbf{0.37}; and \emph{F-measure} of \textbf{0.54}.\\
+
+\begin{figure}[htb]
+  \centering
+  \begin{tabular}{ r | l l}
+cook & true & false\\
+\hline
+positive & 90 & 0\\
+negative & 2520 & 90\\
+  \end{tabular}
+  \begin{tabular}{ r | l l}
+phone\_call & true & false\\
+\hline
+positive & 180 & 0\\
+negative & 2151 & 369\\
+  \end{tabular}
+  \begin{tabular}{ r | l l}
+all & true & false\\
+\hline
+positive & 270 & 0\\
+negative & 4671 & 459\\
+  \end{tabular}
+  \caption{Cross-validation results.\label{tab:basicStats}}
+\end{figure}
+
+These results can be compared with the basic model predicting majority class out of three available: \emph{cook}, \emph{phone call} and \emph{no activity}. As their distribution is roughly uniform in designed script the majority class prediction achieves accuracy of \textbf{35.71\%}.\\
+Comparing both activity recognition models indicates that rule based classification is superior to majority class prediction in this simple scenario.\\
+
+Analysis of the confusion matrices and the model reveals that \emph{false negative} predictions are mainly caused by prediction discontinuity and lack of informative features in the data---see \emph{Section~\ref{sec:predictionDiscontinuity}}.\\
+
+With comprehensive analysis of ILP application to basic smart-house data I proceed to more difficult case.
 
 
-
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \subsection{CASAS flavoured activities}
 The next step is to reproduce casas data as faithfuly as possible -> sacas like without NOISE\\
 2. take basic dataset CASAS \#1 scripted and emulate it simulator <- no noise\\
@@ -1012,39 +1049,35 @@ Repetitive to the case presented in section.. only determinations and bodyh are 
     \subsection{CASAS activities}
       \subsubsection{Data issues}
 % SCRIPTED - narrated datasets \#2 --- single resident
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
     \subsection{Overlapping activities}
 Despite the initial assumption of model being \emph{sequential} it is feasible to generalise it to multi-label overlapping case. As \texttt{Prolog} natively supports multiple answers to a query it is possible to apply previously learnt model to non-sequential scenario.\\
 ETC.
-
-
-
-
-
   \section{Unscripted data}
 % blah blah blah about item sensr not being popular.
     \subsection{Multi-label model for multiple residents\label{ch:mlm}}
-    \subsection{bahroom excursion}
+    \subsection{Bathroom-toilet problem}
 Two section explain: Movement case and Still case
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \subsection{Synthetic multiple residents}
     \subsection{CASAS multiple residents}
 NOT SCRIPTED - CASAS \#9 --- muti resident\\
 F1 measuers\\
 40 seconds rule length on average on\\
 different window for each sensor
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
   \section{Signal features\label{sec:single:features}\label{sec:multiple:features}}
 Feature rules together with signal representation and house facts can be used as general feature generative model.
 % feature design to the needs of activity ruele: features are not used for all but for specific
-  \section{Discontinuity problem}
+  \section{Discontinuity problem\label{sec:predictionDiscontinuity}}
+Rule coverage.\\
+caused by lack of informative features like moving from one room ot another or from one intem to another.
     \subsection{Signal discontinuity}
     \subsection{Prediction discontinuity}
 Continuity rule --- introducing bias\\
@@ -1059,15 +1092,13 @@ Presented here features are general in a sens that the\\
 Generality of learnt rules (synthetic <--> genuine) Results overview
 
 
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \section{Model evaluation}
 COMPARE TO SOMETHING
 % evaluation measures
 % Bias is introduced on location.
 % Example of ILP rules learnt with \texttt{Prolog} are shown in \emph{Figure~\ref{lst:eg}}.
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %===============================================================================
 %===============================================================================

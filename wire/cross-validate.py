@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # read in rules
     rules_ = []
     rules  = []
-    with open(m+"/rules.pl", 'r') as rulesFile:
+    with open(m+"/rules.cleaned.pl", 'r') as rulesFile:
       for line in rulesFile:
         rules_.append( line.strip() )
     # remove singularities

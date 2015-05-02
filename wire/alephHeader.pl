@@ -21,13 +21,13 @@
 
 % Determinations
 %% :- determination( activity/2, activityOrder/2 ).
-:- determination( activity/2, outOfCabinet/2 ).
-:- determination( activity/2, waterUsed/1 ).
-:- determination( activity/2, medicineInList/1 ).
+  %% :- determination( activity/2, outOfCabinet/2 ).
+  %% :- determination( activity/2, waterUsed/1 ).
+  %% :- determination( activity/2, medicineInList/1 ).
 
 
 %% :- determination( activity/2, sensor_state/3 ).
-%% :- determination( activity/2, device/2 ).
+:- determination( activity/2, device/2 ).
 :- determination( activity/2, location/2 ).
 %% :- determination( activity/2, getDeviceList/2 ).
 %%
@@ -55,7 +55,7 @@
 %%%%
 %% :- modeb( *, act(#activityIDs, -activityIDs) ).
 %%
-%% :- modeb( *, device(+integer, #deviceIDs) ).
+:- modeb( *, device(+integer, #deviceIDs) ).
 :- modeb( *, location(+integer, #roomIDs) ).
 %% :- modeb( *, device(+integer, -deviceIDs) ).
 %% :- modeb( *, location(+integer, -roomIDs) ).
@@ -65,12 +65,12 @@
 %% :- modeb( *, activityOrder(+integer, -activityIDs) ).
 %% :- modeb( *, activityOrder(+integer, #activityIDs) ).
 %%
-:- modeb( *, outOfCabinet(+integer, [#deviceIDs|#list]) ).
+  %% :- modeb( *, outOfCabinet(+integer, [#deviceIDs|#list]) ).
 
-:- modeb( *, outOfCabinet(+integer, -list) ).
-:- modeb( *, medicineInList(+list) ).
+  %% :- modeb( *, outOfCabinet(+integer, -list) ).
+  %% :- modeb( *, medicineInList(+list) ).
 
-:- modeb( *, waterUsed(+integer) ).
+  %% :- modeb( *, waterUsed(+integer) ).
 %%
 %% :- modeb( *, aPriori(+deviceIDs, -activityIDs) ).
 %% :- modeb( *, aPriori(-deviceIDs, +activityIDs) ).
