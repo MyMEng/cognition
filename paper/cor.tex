@@ -1048,17 +1048,41 @@ just mention that similar aleph configuration but extend determination and mode 
 Repetitive to the case presented in section.. only determinations and bodyh are extended.
     \subsection{CASAS activities}
       \subsubsection{Data issues}
-% SCRIPTED - narrated datasets \#2 --- single resident
+SCRIPTED - narrated datasets \#1 --- single resident
+    \subsection{CASAS activities with errors}
+how above models react when error is introduced.\\
+SCRIPTED - narrated datasets \#2 --- single resident
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
     \subsection{Overlapping activities}
-Despite the initial assumption of model being \emph{sequential} it is feasible to generalise it to multi-label overlapping case. As \texttt{Prolog} natively supports multiple answers to a query it is possible to apply previously learnt model to non-sequential scenario.\\
-ETC.
+Despite the initial assumption of the model being \emph{sequential} it is feasible to generalise it to a case where activities overlap i.e.\ predict multiple labels (activities) at any time. A simple example can be created by modifying the activity script presented in \emph{Section~\ref{sec:basicActibities}} so that the person first starts cooking by turning on the hob; then moves to the living room where phone call activity starts; he searches the phone book and uses fixed phone; next the person returns to the kitchen to turn off the hob---activity cooking stops; finally, he returns to the hall.\\
+This simple activity script embeds phone call inside cooking block, therefore, multi-label prediction is needed. The proposed generator is capable of creating such datasets, hence, model extension is discussed on described above toy example.\\
+
+As \texttt{Prolog} natively supports multiple answers to a query it is possible to apply ILP to multi-label setting without any modifications. A \texttt{location} query returns all active locations (not possible in noiseless single resident case), and \texttt{device} all items and appliances used at given time. For the simple case described above the output theory is identical to sequential model shown in \emph{Figure~\ref{lst:alephBasicModel}}.\\
+
+The models similarity, and in this particular case identity, is an important discovery. A model learnt for sequential activities can be used with non-sequential data and with some exceptions vice versa.\\
+This feature of ILP may become particularly handy when learning multi-label case is hard. In such cases, model learnt on the same activities performed sequentially could be used.\\
+Finally, as multiple residents cases are multi-label problem by definition sequential models can be applied, nevertheless, they will not identify the resident associated with activity.
+
   \section{Unscripted data}
-% blah blah blah about item sensr not being popular.
+Presented above work shows the approach when activity details are available. Such datasets are rare as they need human anotation and activity preparation. In so far learnt models ... depend on item sensors and prior beliefe with litle use of motion sensors and location information.\\
+In this section I address more common and more difficult unscripted data.
+
+
+Addressed the easy case of scripted data\\blah blah blah about item sensr not being popular.
+This problem is hard to tackle as nothing but the main objective of the activit is known.\\ mostly motion sensors used\\
+here featrue design are more guesswork and intuition.\\
+
+sensor are mixed. the task to distingish which sensro hoes to which\\
+decide on sensor activation to resident assignment
+
     \subsection{Multi-label model for multiple residents\label{ch:mlm}}
+one resident performs one activity at a time.\\
+Two predictions to make---4 possibilities. multiple errors to make
+
     \subsection{Bathroom-toilet problem}
+most common, only motion sensors\\
 Two section explain: Movement case and Still case
 
 
@@ -1066,7 +1090,6 @@ Two section explain: Movement case and Still case
     \subsection{Synthetic multiple residents}
     \subsection{CASAS multiple residents}
 NOT SCRIPTED - CASAS \#9 --- muti resident\\
-F1 measuers\\
 40 seconds rule length on average on\\
 different window for each sensor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1074,11 +1097,14 @@ different window for each sensor
 
   \section{Signal features\label{sec:single:features}\label{sec:multiple:features}}
 Feature rules together with signal representation and house facts can be used as general feature generative model.
-% feature design to the needs of activity ruele: features are not used for all but for specific
+feature design to the needs of activity ruele: features are not used for all but for specific
+
   \section{Discontinuity problem\label{sec:predictionDiscontinuity}}
 Rule coverage.\\
 caused by lack of informative features like moving from one room ot another or from one intem to another.
+
     \subsection{Signal discontinuity}
+
     \subsection{Prediction discontinuity}
 Continuity rule --- introducing bias\\
 Meta-rule -- smoothing out predictions\\
@@ -1086,6 +1112,7 @@ highly improves prediction accuracy: GIVE PROOF HERE\\
 activities last after using phone until another starts and my rules o not pick tak up hence accuracy boost.\\
 Based on example given in \emph{Section~\ref{sec:basicActibities}} an example.\\
 Huge disadvantage when someone leaves the house and it's not picked up.
+
   \section{Model generality}
 The difference in models are sensor IDs. As designed here features interact with them via house-specific background knowledge room and device names are used os it can be applied to any other data.\\
 Presented here features are general in a sens that the\\
@@ -1095,9 +1122,9 @@ Generality of learnt rules (synthetic <--> genuine) Results overview
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \section{Model evaluation}
 COMPARE TO SOMETHING
-% evaluation measures
-% Bias is introduced on location.
-% Example of ILP rules learnt with \texttt{Prolog} are shown in \emph{Figure~\ref{lst:eg}}.
+evaluation measures
+Bias is introduced on location.
+Example of ILP rules learnt with \texttt{Prolog} are shown in \emph{Figure}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %===============================================================================
