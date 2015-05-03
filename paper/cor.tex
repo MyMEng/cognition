@@ -1080,16 +1080,17 @@ As there are two predictions to make: activity and person, two errors are possib
 The greatest difficulty in such models is the event of resident's path crossing and sharing common areas. The threat in such cases is that it is fairly easy to mix them up and relatively hard to label them again. The canonical multi-resident activity example containing the above features is \emph{bathroom-toilet} problem.
 
     \subsection{Bathroom-toilet problem}
-(two rooms iwth common hall---sharing common area -> they can get mixed up in there
-the basic problem addressed by most of ADL multi-res models.\\
-most common, only motion sensors\\
-Two section explain: Movement case and Still case
+The two residents case is the simplest scenario of multiple residents house. It is both used in CASAS datasets and commonly described in the literature, therefore, I focus on this particular quantity. Moreover, for this particular model only motion sensor readings are available.\\
 
+The bedroom-toilet problem is the most basic activity of daily living for multiple residents. It is set in a house where both bedrooms share a common hall which leads to a bathroom. In this environment one of the residents stays in his room, while the other goes to the bathroom and returns to his room via the hall. For the person staying in his room all the time there are two possibilities: first, he can stay still, what resembles sleeping; second, he can move, what resembles working.\\
+
+In this work I focus on recognising only two activities \emph{in the room} and \emph{outside of the room} and assigning them to residents.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \subsection{Synthetic multiple residents}
     \subsection{CASAS multiple residents}
 NOT SCRIPTED - CASAS \#9 --- muti resident\\
+noise --- even though the person left sensors in the room are still activated.\\
 40 seconds rule length on average on\\
 different window for each sensor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
