@@ -1084,7 +1084,7 @@ The two residents case is the simplest scenario of multiple residents house. It 
 
 The bedroom-toilet problem is the most basic activity of daily living for multiple residents. It is set in a house where both bedrooms share a common hall which leads to a bathroom. In this environment one of the residents stays in his room, while the other goes to the bathroom and returns to his room via the hall. For the person staying in his room all the time there are two possibilities: first, he can stay still, what resembles sleeping; second, he can move, what resembles working.\\
 
-In this work I focus on recognising only two activities \emph{in the room} and \emph{outside of the room} and assigning them to residents.
+In this work I focus on recognising only two activities \emph{in the room} and \emph{outside of the room} and assigning them to the residents.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \subsection{Synthetic multiple residents}
@@ -1097,31 +1097,77 @@ different window for each sensor
 
 
   \section{Signal features\label{sec:single:features}\label{sec:multiple:features}}
-Feature rules together with signal representation and house facts can be used as general feature generative model.
-feature design to the needs of activity ruele: features are not used for all but for specific
+I show in described above activity recognition models  features used to build well working systems.\\
+Feature rules together with signal representation and house facts can be used as general feature generative model.\\
+feature design to the needs of activity ruele: features are not used for all but for specific.
+
+As more examples are examined and feed throught the ILP new features are needed.\\
+query language --- can just examine datasets by hand by quering them with designed features -> help to discovere dataset structure -> test and evaluate features.
+At later these features can be used as feature extractors to build enhanced datasets---more informative\\
+
+
 
   \section{Discontinuity problem\label{sec:predictionDiscontinuity}}
+Noise and incompletenes are great difficulty hen building model. 
+
 Rule coverage.\\
 caused by lack of informative features like moving from one room ot another or from one intem to another.
 
     \subsection{Signal discontinuity}
+Continuity rule --- introducing bias\\
 
     \subsection{Prediction discontinuity}
-Continuity rule --- introducing bias\\
 Meta-rule -- smoothing out predictions\\
-highly improves prediction accuracy: GIVE PROOF HERE\\
-activities last after using phone until another starts and my rules o not pick tak up hence accuracy boost.\\
-Based on example given in \emph{Section~\ref{sec:basicActibities}} an example.\\
 Huge disadvantage when someone leaves the house and it's not picked up.
 
+\begin{figure}[htb]
+  \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+metaActivity(Activity, Time) :-
+  activity(Activity, Time),
+  Time >= 0, !.
+
+metaActivity(Activity, Time) :-
+  !, Time > 0,
+  metaActivity(Activity, Time-1).
+  \end{minted}
+  \caption{Example meta-activity rules.\label{lst:metaActivity}}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \begin{tabular}{ r | l l l l }
+ & Accuracy & Precision & Recall & F-measure\\
+\hline
+base rules & 60.76\% & 1 & 0.17 & 0.29\\
+meta rules & 84.56\% & 0.87 & 0.80 & 0.83 \\
+  \end{tabular}
+  \caption{Meta-rule improvement.\label{tab:metaImprovement}}
+\end{figure}
+
+in general by improving true positives and deproving false negatives.
+
+e.g.\
+activities last after using phone until another starts and my rules o not pick tak up hence accuracy boost.\\
+Based on example given in \emph{Section~\ref{sec:basicActibities}} an example.\\
+
+Can be extended with activations window
+
   \section{Model generality}
+Rule models are general
+one example was applying sequential model to multi-label casee.
+
+Models can be also easly transgferred between different datasets generated on different testbed
+
+
 The difference in models are sensor IDs. As designed here features interact with them via house-specific background knowledge room and device names are used os it can be applied to any other data.\\
 Presented here features are general in a sens that the\\
-Generality of learnt rules (synthetic <--> genuine) Results overview
+
+generality leads to possibiliti to apply real to synthetic and vise versa what is used as part of evaluation.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \section{Model evaluation}
+<Generality of learnt rules (synthetic <--> genuine) Results overview>\\
 COMPARE TO SOMETHING
 evaluation measures
 Bias is introduced on location.
