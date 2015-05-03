@@ -1039,6 +1039,8 @@ With comprehensive analysis of ILP application to basic smart-house data I proce
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \subsection{CASAS flavoured activities}
+Rule coverage. caused by lack of informative features like moving from one room ot another or from one intem to another.\\
+
 The next step is to reproduce casas data as faithfuly as possible -> sacas like without NOISE\\
 2. take basic dataset CASAS \#1 scripted and emulate it simulator <- no noise\\
 2.1 know what is in the data and design features to pick it up\\
@@ -1103,19 +1105,14 @@ All three: the fact signal representation, the house background knowledge, and t
 Finally, as \texttt{Prolog} is interpreted language its query interface can be used to easily examine the dataset by hand with designed earlier features. Using this technique data structure can be discovered and effectiveness of the features can be evaluated.
 
   \section{Discontinuity problem\label{sec:predictionDiscontinuity}}
-Noise and incompletenes are great difficulty hen building model. 
-
-Rule coverage.\\
-caused by lack of informative features like moving from one room ot another or from one intem to another.
+Noise and incompleteness of the data are great difficulty when building activity recognition model. Both of them can cause two main discontinuity problems: intermittent sensor signals and model activity predictions.
 
     \subsection{Signal discontinuity}
-Continuity rule --- introducing bias\\
+Signal discontinuity is hard to be fixed for item and appliance sensors and relatively easy for motion sensors. Either random sensor activations or motion sensor dead zones can cause intermittent signal feed leading to unknown resident location for some periods of time. As I use information delivered by motion sensors in form of \texttt{location} predicate the discontinuity problem can be easily fixed. When none of the motion sensors is active the \texttt{location} predicate assumes the last known resident location (see \emph{Section~\ref{sec:basicActibities}} for details). Such approach greatly improves the \texttt{location} feature capabilities but introduces bias which can cause troubles when the resident leaves the house.
 
     \subsection{Prediction discontinuity}
-Meta-rule -- smoothing out predictions\\
-Huge disadvantage when someone leaves the house and it's not picked up.
-
-Evaluating based on syntehesised CASAS-like phone-call and cooking
+Continuity issue is also present in activity recognition rules. Many of them are based on particular sensor conditions therefore between such events the prediction is not possible. For example, phone call rule presented in \emph{Section~\ref{sec:basicActibities}} is supported on phone and phone book events. Between browsing the phone book and talking on the phone there are only uninformative motion sensor readings caused by the resident moving from the first item to the latter.\\
+This period of time is difficult to label using signal features, nevertheless, it can be assign to phone call activity by wrapping the activity model within \emph{meta-rule} that smooths out the predictions---see \emph{Figure~\ref{lst:metaActivity}}.
 
 \begin{figure}[htb]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -1130,6 +1127,8 @@ metaActivity(Activity, Time) :-
   \caption{Example meta-activity rules.\label{lst:metaActivity}}
 \end{figure}
 
+To evaluate possible improvements achieved with proposed meta-rule, 10 fold cross-validation on both \emph{base rules} and base rules accessed via \emph{meta-rules} is performed. The dataset used for evaluation is synthesised based on two CASAS-like activities: phone call and cooking---similar to the example presented in \emph{Section~\ref{sec:basicActibities}}.\\
+
 \begin{figure}[htb]
   \centering
   \begin{tabular}{ r | l l l l }
@@ -1141,13 +1140,9 @@ meta rules & 84.56\% & 0.87 & 0.80 & 0.83 \\
   \caption{Meta-rule improvement.\label{tab:metaImprovement}}
 \end{figure}
 
-in general by improving true positives and deproving false negatives.
+The experiment results are shown in \emph{Figure~\ref{tab:metaImprovement}}. In general, the meta-rule improves the classification results by correctly labelling points previously given false negative label. E.g.\ time between using the phone book and the phone is not assign any label in \emph{base rule} case, and in \emph{meta-rule} case phone call label is given.\\
 
-e.g.\
-activities last after using phone until another starts and my rules o not pick tak up hence accuracy boost.\\
-Based on example given in \emph{Section~\ref{sec:basicActibities}} an example.\\
-
-Can be extended with activations window
+Both continuity fixes for sensors and activities have a significant disadvantage. In case the resident leaves the house and sensors do not recognise that event a false prediction of long time span is produced. This bias can be improved in both cases by monitoring time for which each sensor is on---the average of 40 seconds is given in the literature---and discarding any sensor readings that does not fit that time window.
 
   \section{Model generality}
 Vast majority of presented here rules access raw signals via names and not with data specific sensor IDs. This design approach guarantees generality of the built activity rules. By using house specific background knowledge the rules can be applied to many other datasets which could be based on slightly varying testbed design.\\
