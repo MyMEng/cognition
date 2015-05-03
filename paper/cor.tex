@@ -1066,22 +1066,22 @@ This feature of ILP may become particularly handy when learning multi-label case
 Finally, as multiple residents cases are multi-label problem by definition sequential models can be applied, nevertheless, they will not identify the resident associated with activity.
 
   \section{Unscripted data}
-Presented above work shows the approach when activity details are available. Such datasets are rare as they need human anotation and activity preparation. In so far learnt models ... depend on item sensors and prior beliefe with litle use of motion sensors and location information.\\
-In this section I address more common and more difficult unscripted data.
+Presented above work shows the approach when activity details are available. Such datasets are rare as they need special testbed and activity preparation as well as human annotation. Moreover, so far learnt models mainly depend on item sensors and prior activity believes, with little use of motion sensors and location information.\\
 
-
-Addressed the easy case of scripted data\\blah blah blah about item sensr not being popular.
-This problem is hard to tackle as nothing but the main objective of the activit is known.\\ mostly motion sensors used\\
-here featrue design are more guesswork and intuition.\\
-
-sensor are mixed. the task to distingish which sensro hoes to which\\
-decide on sensor activation to resident assignment
+In this section I consider more common and more difficult to model unscripted datasets. This problem is hard to tackle as beside main objective of the activity little is known about it. Moreover, item sensors which were the main support for so far learnt models are unpopular in majority of activities of daily living therefore in this section I focus on structures encoded via motion sensors. By large, in unscripted cases feature design is more of guesswork and intuition rather than systematic data analysis.
 
     \subsection{Multi-label model for multiple residents\label{ch:mlm}}
-one resident performs one activity at a time.\\
-Two predictions to make---4 possibilities. multiple errors to make
+The data collected from house occupied by multiple residents are a mixture of sensor activations caused by each person interacting with the house. There are two main goals in modelling such data: first, recognise an activity; second, assign the activity to a resident.\\
+A straight forward approach is to separate sensor activations per person and use single resident model. Unfortunately, it is difficult to achieve in ILP, hence, different approach has to be identified.\\
+
+In this model I assume that each resident performs at most one activity at a time. Moreover, each resident has assigned bedroom to which only he has access, therefore, all bedroom sensor activations are caused by himself.\\
+As there are two predictions to make: activity and person, two errors are possible. Hence, evaluation measure for multi-resident activity recognition model has to be chosen. For this particular application accuracy for each resident-activity pair together with their marginals should suffice.\\
+
+The greatest difficulty in such models is the event of resident's path crossing and sharing common areas. The threat in such cases is that it is fairly easy to mix them up and relatively hard to label them again. The canonical multi-resident activity example containing the above features is \emph{bathroom-toilet} problem.
 
     \subsection{Bathroom-toilet problem}
+(two rooms iwth common hall---sharing common area -> they can get mixed up in there
+the basic problem addressed by most of ADL multi-res models.\\
 most common, only motion sensors\\
 Two section explain: Movement case and Still case
 
