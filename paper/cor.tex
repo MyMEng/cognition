@@ -582,7 +582,18 @@ The value of presented here smart-house data generator can increase significantl
 
 Presented here data generator evaluation is based on \emph{similarity comparison} of ILP models learnt on CASAS \#1 WSU Smart Apartment ADL Normal Testbed and synthetic datasets. I chose this particular genuine data as they are provided with detailed activity scripts (see \emph{Section~\ref{sec:csasDataDet}}) and testbed layout (see \emph{Figure~\ref{fig:house:oner}}) hence its simulations should result in faithful reproductions.\\
 
->EVALUATION RESULTS<
+\begin{figure}[htb]
+  \centering
+  \begin{tabular}{ r | l l }
+ & self-check & cross-check\\
+\hline
+accuracy & X & X\\
+F-measure & X & X\\
+  \end{tabular}
+  \caption{Synthetic and genuine data comparison.\label{tab:proofGen}}
+\end{figure}
+
+<DATA MISSING>
 
   \section{Knowledge representation of spatio-temporal data}
 Activity learning method described here requires signals represented as logical facts. ILP system used in this study is written in \texttt{Prolog} programming language therefore, all data has to be expressed in thereof predicates. This requirement causes some problems introduced by sensor type variety.\\
@@ -1036,26 +1047,78 @@ Analysis of the confusion matrices and the model reveals that \emph{false negati
 
 With comprehensive analysis of ILP application to basic smart-house data I proceed to more difficult case.
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \subsection{CASAS flavoured activities}
-Rule coverage. caused by lack of informative features like moving from one room ot another or from one intem to another.\\
+The next step is to reproduce CASAS \#1 WSU Smart Apartment ADL Normal Testbed scripted data presented in \emph{Section~\ref{sec:csasDataDet}} as faithfully as possible. The main difference is complete lack of noise to make feature design easier.
 
-The next step is to reproduce casas data as faithfuly as possible -> sacas like without NOISE\\
-2. take basic dataset CASAS \#1 scripted and emulate it simulator <- no noise\\
-2.1 know what is in the data and design features to pick it up\\
-2.2 learn it with ILP evaluate it\\
-just mention that similar aleph configuration but extend determination and mode declaration with new feature.\\
+      \subsubsection{CASAS features}
+The main advantage of this dataset is a script explaining step-by-step actions contributing to the five labelled activities. To design features capable of classifying these activities I identified their characteristic features.\\
 
-Repetitive to the case presented in section.. only determinations and bodyh are extended.
+The phone call uses two specific to this activity items: phone book and fixed phone. Therefore, this activity can be identified using previously designed \texttt{device} feature. The phone call rules are the same as the ones shown in \emph{Figure~\ref{lst:alephBasicModel}}.\\
+
+The hand washing activity requires use of water. Moreover, unlike in cleaning and cooking tasks all the items stored in the cupboard are in place. These observations lead to two new features: \texttt{waterUsed(T)}---which checks whether at time $T$ wither hot or cold water was used; and \texttt{outOfCabinet(T,ItemList)}---which finds items removed from cupboard at time $T$.\\
+
+The next activity recorded in the CASAS dataset is cooking. The first is hob being on detected with \texttt{device} feature, the second is based on past observation. The streaming scenario of smart-house data allows to use past activity prediction as feature. In CASAS data cooking can be predicted if some items are removed from cupboard and the resident has not been cooking in ``recent past''.\\
+The first condition is checked by \texttt{outOfCabinet(T,L)} to find items taken out of cupboard and \texttt{nonEmpty(L)} to ensure that it is not empty. The latter, is based on \texttt{notCooked(T)} feature, which checks whether in sliding time window of fixed length (10 events in this experiment) the activity cooking was predicted.\\
+
+Finally, the prediction of last two activities: eating and washing up, is based on \emph{natural order}. To model both activities I assume that it is impossible to eat if the meal has not been cooked, and it is also impossible to wash the dishes unless a meal has been eaten.\\
+I encode this assumption as prior belief in background knowledge. \texttt{activityOrder(Time, Activity)} feature returns possible activity (either eat or wash up) at current time. This ``guess'' needs to be reinforced with other conditions to build either of those two activity rules.\\
+With so far designed features eating activity can be conditioned on having cooked the meal, being in the living room, and having the medicine container. For the last condition new feature \texttt{medicineInList(L)} is encoded---it checks whether the medicine container is in the list passed by input variable $L$. This list is generated with \texttt{outOfCabinet(T,L)} predicate.\\
+Finally, activity of washing the dishes is conditioned on cooking a meal in the past, being in kitchen, using water, and some items being removed for cupboard.
+
+      \subsubsection{Model learning}
+To learn activity recognition model with new features presented above \texttt{Aleph} configuration has to be expanded. \emph{Determinations} and \emph{mode declarations} (modeb) are added for all new feature.\\
+The model learnt for the synthetic CASAS dataset is shown in \emph{Figure~\ref{lst:CASASmodel}}.
+
+\begin{figure}[htb]
+  \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
+activity(wash_hands,A) :-
+  outOfCabinet(A,[none]),
+  waterUsed(A).
+
+activity(cook,A) :-
+  device(A,burner).
+activity(cook,A) :-
+  notCooked(A),
+  outOfCabinet(A,B),
+  nonEmpty(B).
+
+activity(A,B) :-
+  activityOrder(B,A),
+  location(B,living_room),
+  outOfCabinet(B,C),
+  medicineInList(C).
+
+activity(A,B) :-
+  activityOrder(B,A),
+  location(B,kitchen),
+  waterUsed(A),
+  outOfCabinet(B,C),
+  nonEmpty(C).
+  \end{minted}
+  \caption{Activity recognition model for CASAS data.\label{lst:CASASmodel}}
+\end{figure}
+
+      \subsubsection{Model evaluation}
+<DATA MISSING>
+
     \subsection{CASAS activities}
-      \subsubsection{Data issues}
-SCRIPTED - narrated datasets \#1 --- single resident
-    \subsection{CASAS activities with errors}
-how above models react when error is introduced.\\
-SCRIPTED - narrated datasets \#2 --- single resident
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The next step is to train model on real data. For this purpose CASAS \#1 WSU Smart Apartment ADL Normal Testbed, narrated datasets for single resident is used.\\
+This dataset contains 24 participants performing 5 activities of daily living, therefore, it is time consuming (about 30 hours per label) to use it as a whole. Hence, I chose the approach to split (with use of \texttt{Python} script) the dataset per single participant performing all 5 activities. Moreover, such data handling facilitates straightforward cross-validation, where each fold is one participant's data.\\
+Finally, I wrote background knowledge for CASAS testbed as it cannot be generated automatically.
 
+      \subsubsection{Data issues}
+With genuine CASAS data the main barrier is noise, incompleteness and numeric output of water and burner sensors. To attempt model learning I design feature rules to be internally as immune to the data issues as possible. The noise handling on the feature level is mainly based on biasing towards previous state or prediction. Moreover, I thresholded hence, discretised CASAS burner and water sensor outputs to make them \texttt{Aleph} friendly.
+
+      \subsubsection{Activity model}
+All the features designed so far for the synthetic datasets are used to train the activity recognition model on real data. Depending on the level of noise in each trial some of the activity rules presented in \emph{Figure~\ref{lst:CASASmodel}} are not constructed. Moreover, no new rules based on so far designed features are discovered.
+
+      \subsubsection{Model evaluation}
+<DATA MISSING>
+
+    \subsection{CASAS activities with errors}
+Finally, model learnt on the genuine CASAS \#1 WSU Smart Apartment ADL Normal Testbed is evaluated against CASAS \#2 WSU Smart Apartment ADL Error Testbed. The purpose of this experiment is to examine behaviour of model when activities diverge from original model assumptions.\\
+
+<DATA MISSING>
 
     \subsection{Overlapping activities\label{sec:singleML}}
 Despite the initial assumption of the model being \emph{sequential} it is feasible to generalise it to a case where activities overlap i.e.\ predict multiple labels (activities) at any time. A simple example can be created by modifying the activity script presented in \emph{Section~\ref{sec:basicActibities}} so that the person first starts cooking by turning on the hob; then moves to the living room where phone call activity starts; he searches the phone book and uses fixed phone; next the person returns to the kitchen to turn off the hob---activity cooking stops; finally, he returns to the hall.\\
@@ -1079,23 +1142,29 @@ A straight forward approach is to separate sensor activations per person and use
 In this model I assume that each resident performs at most one activity at a time. Moreover, each resident has assigned bedroom to which only he has access, therefore, all bedroom sensor activations are caused by himself.\\
 As there are two predictions to make: activity and person, two errors are possible. Hence, evaluation measure for multi-resident activity recognition model has to be chosen. For this particular application accuracy for each resident-activity pair together with their marginals should suffice.\\
 
-The greatest difficulty in such models is the event of resident's path crossing and sharing common areas. The threat in such cases is that it is fairly easy to mix them up and relatively hard to label them again. The canonical multi-resident activity example containing the above features is \emph{bathroom-toilet} problem.
+The greatest difficulty in such models is the event of resident's path crossing and sharing common areas. The threat in such cases is that it is fairly easy to mix them up and relatively hard to label them again. The canonical multi-resident activity example containing the above features is \emph{bedroom-toilet} problem.
 
-    \subsection{Bathroom-toilet problem}
+    \subsection{Bedroom-toilet problem}
 The two residents case is the simplest scenario of multiple residents house. It is both used in CASAS datasets and commonly described in the literature, therefore, I focus on this particular quantity. Moreover, for this particular model only motion sensor readings are available.\\
 
 The bedroom-toilet problem is the most basic activity of daily living for multiple residents. It is set in a house where both bedrooms share a common hall which leads to a bathroom. In this environment one of the residents stays in his room, while the other goes to the bathroom and returns to his room via the hall. For the person staying in his room all the time there are two possibilities: first, he can stay still, what resembles sleeping; second, he can move, what resembles working.\\
 
 In this work I focus on recognising only two activities \emph{in the room} and \emph{outside of the room} and assigning them to the residents.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \subsection{Synthetic multiple residents}
+The dataset is generated accordoing to above description\\
+So far designed features are extended or to support multiple returns.\\
+Then wrappers are created with \texttt{findall} \texttt{Prolog} predicate to return lists instead of constants.\\
+
+<DATA MISSING>
+
     \subsection{CASAS multiple residents}
-NOT SCRIPTED - CASAS \#9 --- muti resident\\
+NOT SCRIPTED - CASAS \#7 --- muti resident\\
 noise --- even though the person left sensors in the room are still activated.\\
 40 seconds rule length on average on\\
-different window for each sensor
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+different window for each sensor\\
+
+<DATA MISSING>
 
   \section{Signal features\label{sec:single:features}\label{sec:multiple:features}}
 I show in described above activity recognition models all the features used to build them. Majority of them is designed to pick up specific signal characteristic therefore they are used for small number of activity rules. This feature's ``selectiveness'' property allows to store only raw data and extract features ``on demand''.\\
@@ -1150,14 +1219,12 @@ Another type of model generality is presented in \emph{Section~\ref{sec:singleML
 
 Finally, this model generality property leads to possibility of applying real data based models to the ones learnt on synthetic data and vice versa. This approach is used as one of the model evaluation techniques.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \section{Model evaluation}
-<Generality of learnt rules (synthetic <--> genuine) Results overview>\\
-COMPARE TO SOMETHING
-evaluation measures
-Bias is introduced on location.
-Example of ILP rules learnt with \texttt{Prolog} are shown in \emph{Figure}.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Results overview.\\
+Generality of learnt rules: synthetic <--> genuine.\\
+evaluation measures \& compare to something.\\
+
+<DATA MISSING>
 
 %===============================================================================
 %===============================================================================
