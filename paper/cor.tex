@@ -1,6 +1,6 @@
 % MEng project --- 40 pages limit
 %
-\documentclass[11pt, a4paper, pdflatex, leqno, twoside, openright]{report}
+\documentclass[10pt, a4paper, pdflatex, leqno, twoside, openright]{report}
 
 % Define margins
 \usepackage[a4paper,inner=40mm,outer=15mm,top=15mm,bottom=25mm,pdftex]{geometry}
@@ -100,18 +100,18 @@ Kacper B.\ Sokol, \monthyeardate\today
 % Abstract
 \begin{abstract}
 \thispagestyle{empty}
-This project researches \texttt{Prolog}'s \emph{Inductive Logic Programming} approach to learn parametrised rules describing \emph{Activities of Daily Life} based on data acquired form smart-houses: premises equipped with vast number of sensors.\\
+This project researches \texttt{Prolog}'s \emph{Inductive Logic Programming} approach to learn parametrised rules describing \emph{Activities of Daily Life} based on data acquired form smart-houses: residences equipped with variety of sensors.\\
 
-To this end, highly customisable smart-house data generator is constructed and capabilities of \texttt{Aleph} inductive logic programming framework are assessed on various spatio-temporal datasets. Subsequently, \emph{Activity Recognition Model} is constructed based on data collected from simulations and Washington State University CASAS smart-house installations. Both single and multiple occupiers models are considered.\\
+To this end, a highly customisable smart-house data generator is constructed and capabilities of \texttt{Aleph} inductive logic programming framework are assessed on various spatio-temporal datasets. Subsequently, an \emph{Activity Recognition Model} is constructed based on data collected from simulations and Washington State University CASAS smart-house installations. Both single and multiple occupiers models are considered.\\
 
-To achieve aforementioned goals, signal issues such as noise and incompleteness among others are addressed. Furthermore, method for raw data transformation into logical facts is proposed and evaluated. Difficulties such as real-valued sensor output and time representation in first-order logic are described.\\
+To achieve the aforementioned goals, signal issues such as noise and incompleteness among others are addressed. Furthermore, a method for the raw data transformation into logical facts is proposed and evaluated. Difficulties such as real-valued sensor output and time representation in first-order logic are described.\\
 
-The second objective of this work is to examine structure of used spatio-temporal data with a view to discover and form new features. To this end, dependencies between sensors are identified and assessed in order to construct more informative features. Hence, by extending dataset with new features performance of any classification algorithm can be significantly boosted.\\
+The second objective of this work is to examine structure of used spatio-temporal data with a view to discover and form new features. To this end, the dependencies between sensors are identified and assessed in order to construct more informative features. Hence by extending the dataset with new features performance of any classification algorithm can be significantly boosted.\\
 
-Finally, \emph{Narrative Analytics} is proposed: an extension of Activity Recognition Model transforming generated rules into \emph{natural language}. Introduced data visualisation technique produces plain English description of monitored premise, hence, house situation can be recognised without time consuming data interpretation.\\
+Finally, this work opens up possibility of \emph{Narrative Analytics}: an extension of the Activity Recognition Model transforming generated rules into \emph{natural language}. The proposed data visualisation technique produces a plain English description of monitored residence, hence house situation can be examined without time consuming data interpretation.\\
 
 The main utilisation of proposed here techniques is house monitoring for healthcare applications. SPHERE Project hosted at the University of Bristol addresses increasing healthcare costs and decreasing quality of life by designing tools and techniques allowing patients to live at home regardless of their medical conditions.\\
-Described in this paper activity recognition approach aims at improving classification results and presenting smart-house data in a more transparent way. To the best of my knowledge, presented here methods are first of its kind and has not been yet described in any publication.
+The activity recognition approach described here aims at improving the classification results and presenting smart-house data in a more transparent way. To the best of my knowledge, presented here methods are first of their kind and has not been yet described in any scientific publication.
 
 \begin{center}
 Keywords: \textbf{Inductive Logic Programming, Prolog, Activity Recognition, Data Generation, SPHERE}
@@ -168,7 +168,7 @@ Nineteen Eighty-Four, George Orwell
 % how the output will be assessed - evaluation
 % --------
 
-  \section{The activity recognition}
+  \section{The activity recognition problem}
     \subsection{Outline} %Problem outline
 The main aim of the project is to build \emph{activity recognition model} for \emph{smart house} monitoring purposes.\\
 By the latter I understand a premise that is fitted with variety of sensors like: motion, door, appliances, water, item, etc.; as well as more sophisticated monitoring devices like cameras, and depth cameras. The first kind of sensors generate raw output usually of a form \texttt{sensorID on}/\texttt{sensorID off}, while the latter type outputs complex signal that needs to be pre-processed to be used as an input of classifiers. Due to aforementioned sensor characteristics my work is mainly focus on the first type of sensors.\\
@@ -1195,6 +1195,7 @@ activity(Activity, Time, Resident) :-
 
       \subsubsection{Result evaluation}
 Majority by predictiong pair (res\_1, room\_1), (res\_2, room\_2)\\
+Change the rule to something more realistic: [Res] to Res.\\
 
 ALL:\\
 Overall, the model achieves \emph{accuracy} of \textbf{94.44\%}; \emph{precision} of \textbf{0.96}; \emph{recall} of \textbf{0.98}; and \emph{F-measure} of \textbf{0.97}.\\
