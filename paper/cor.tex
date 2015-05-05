@@ -1122,7 +1122,9 @@ For majority class classifier: achieves \emph{accuracy} of \textbf{27.94\%}; \em
     \subsection{CASAS activities with errors}
 Finally, model learnt on the genuine CASAS \#1 WSU Smart Apartment ADL Normal Testbed is evaluated against CASAS \#2 WSU Smart Apartment ADL Error Testbed. The purpose of this experiment is to examine behaviour of model when activities diverge from original model assumptions.\\
 
-<DATA MISSING>
+Overall, the model achieves \emph{accuracy} of \textbf{46.86\%}; \emph{precision} of \textbf{0.54}; \emph{recall} of \textbf{0.77}; and \emph{F-measure} of \textbf{0.63}.\\
+
+For majority class classifier: achieves \emph{accuracy} of \textbf{28.74\%}; \emph{precision} of \textbf{0.32}; \emph{recall} of \textbf{0.73}; and \emph{F-measure} of \textbf{0.44}.
 
     \subsection{Overlapping activities\label{sec:singleML}}
 Despite the initial assumption of the model being \emph{sequential} it is feasible to generalise it to a case where activities overlap i.e.\ predict multiple labels (activities) at any time. A simple example can be created by modifying the activity script presented in \emph{Section~\ref{sec:basicActibities}} so that the person first starts cooking by turning on the hob; then moves to the living room where phone call activity starts; he searches the phone book and uses fixed phone; next the person returns to the kitchen to turn off the hob---activity cooking stops; finally, he returns to the hall.\\
@@ -1192,7 +1194,19 @@ activity(Activity, Time, Resident) :-
 \end{figure}
 
       \subsubsection{Result evaluation}
-<DATA MISSING>
+Majority by predictiong pair (res\_1, room\_1), (res\_2, room\_2)\\
+
+ALL:\\
+Overall, the model achieves \emph{accuracy} of \textbf{94.44\%}; \emph{precision} of \textbf{0.96}; \emph{recall} of \textbf{0.98}; and \emph{F-measure} of \textbf{0.97}.\\
+For majority class classifier: achieves \emph{accuracy} of \textbf{81.48\%}; \emph{precision} of \textbf{0.81}; \emph{recall} of \textbf{1}; and \emph{F-measure} of \textbf{0.9}.\\
+
+MRGINAL RESIDENT:\\
+Overall, the model achieves \emph{accuracy} of \textbf{98.15\%}; \emph{precision} of \textbf{1}; \emph{recall} of \textbf{0.98}; and \emph{F-measure} of \textbf{0.99}.\\
+For majority class classifier: achieves \emph{accuracy} of \textbf{100\%}; \emph{precision} of \textbf{1}; \emph{recall} of \textbf{1}; and \emph{F-measure} of \textbf{1}.\\
+
+MARGINAL LOCATION:\\
+Overall, the model achieves \emph{accuracy} of \textbf{94.44\%}; \emph{precision} of \textbf{0.96}; \emph{recall} of \textbf{0.98}; and \emph{F-measure} of \textbf{0.97}.\\
+For majority class classifier: achieves \emph{accuracy} of \textbf{81.48\%}; \emph{precision} of \textbf{0.81}; \emph{recall} of \textbf{1}; and \emph{F-measure} of \textbf{0.9}.
 
     \subsection{CASAS multiple residents}
 NOT SCRIPTED - CASAS \#7 --- muti resident\\
@@ -1217,12 +1231,14 @@ This predicate returns path from room A to B including both locations. Check the
 
 More than locations returned than \# residents in the house:\\
 Locations = [room\_1, room\_2, hall].\\
-for the moment impossible to predict a person.\\
-The idea is to check for sensor changes in each room in sliding time window -- if signal still the resident is out.\\
+The idea is to check for sensor changes in each room in sliding time window -- if signal still the resident is out---remove his room---the longest standing sensor.\\
 Fortunately CASAS twor2009 bedroom-toilet activity combination give mostly two locations.
 
       \subsubsection{Result evaluation}
-<DATA MISSING>
+<DATA MISSING>\\
+Overall, the model achieves \emph{accuracy} of \textbf{46.86\%}; \emph{precision} of \textbf{0.54}; \emph{recall} of \textbf{0.77}; and \emph{F-measure} of \textbf{0.63}.\\
+
+For majority class classifier: achieves \emph{accuracy} of \textbf{28.74\%}; \emph{precision} of \textbf{0.32}; \emph{recall} of \textbf{0.73}; and \emph{F-measure} of \textbf{0.44}.
 
   \section{Signal features\label{sec:single:features}\label{sec:multiple:features}}
 I show in described above activity recognition models all the features used to build them. Majority of them is designed to pick up specific signal characteristic therefore they are used for small number of activity rules. This feature's ``selectiveness'' property allows to store only raw data and extract features ``on demand''.\\
