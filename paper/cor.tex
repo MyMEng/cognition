@@ -11,6 +11,8 @@
 \usepackage[square]{natbib}
 \usepackage{cite} % BiTeX
 
+\usepackage{multirow}
+
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subcaption}
@@ -990,7 +992,8 @@ Finally, all three rules have to be appended to the \texttt{Aleph}'s background 
 Both \texttt{location} and \texttt{device} features presented above are used to build the first activity recognition model. To this end, \texttt{Aleph} needs to be correctly configured.\\
 The most important settings are \texttt{noise} and \texttt{minpos} parameters. These values are set to $5$ and $1$ respectively. The first is based on observational studies, and the latter is the lowest acceptable value so that every possible activity rule can be discovered. Unfortunately, setting \texttt{minpos} to $1$ results in many singleton rules---copies of the positive examples---appearing in the output theory; to remove them additional script is used after the learning step.\\
 
-The next type of settings determines parameters of the target model. \texttt{determination}s indicate that both \texttt{device} and \texttt{location} predicates can contribute to the target rule body. The variables types declaration are given in the house specific background knowledge.\\
+The next type of settings determines parameters of the target model. \texttt{determination}s indicate that both \texttt{device} and \texttt{location} predicates can contribute to the target rule body. \texttt{mode}s specify types of variables accepted by each predicate. The types of variables are declared in the house specific background knowledge.\\
+
 The \texttt{Aleph} settings used to train this model are presented in \emph{Figure~\ref{lst:alephConfHead}}. Other than the aforementioned settings are left default.\\
 
 \begin{figure}[htb]
@@ -1005,14 +1008,14 @@ The \texttt{Aleph} settings used to train this model are presented in \emph{Figu
 :- modeb( *, device(+integer, #deviceIDs)     ).
 :- modeb( *, location(+integer, #roomIDs)     ).
   \end{minted}
-  \caption{Example \texttt{Aleph} configuration header.\label{lst:alephConfHead}}
+  \caption{\texttt{Aleph} configuration header.\label{lst:alephConfHead}}
 \end{figure}
 
-Finally, the last step before running the algorithm is attaching the \texttt{Aleph} configuration together with house specific facts to the background knowledge file.
+Finally, the last step before running the algorithm is attaching the \texttt{Aleph} configuration together with house specific facts, feature rules, and smart house signals to the background knowledge file.
 
       \subsubsection{Learn the model}
-As the \texttt{Aleph} learning process is interactive a special script is designed to improve the work-flow. The script runs the \texttt{Aleph}, loads the needed files: background, positives and negatives; learns the activity theory; and finally saves it to a file.\\
-Then, the model is purified by removing singleton rules and retaining ones with non-empty body.\\
+As the \texttt{Aleph} learning process is interactive a special script is designed to improve the work-flow. The script runs the \texttt{Aleph}, loads all needed files: background, positives and negatives; learns the activity theory; and finally saves it to a file.\\
+Then, the model is purified by removing singleton rules and retaining the ones with non-empty body. The resulting model is presented in \emph{Figure~\ref{lst:alephBasicModel}}.\\
 
 \begin{figure}[htb]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -1026,42 +1029,38 @@ activity(cook,A) :-
   \caption{Basic activity recognition model.\label{lst:alephBasicModel}}
 \end{figure}
 
-Learnt rules presented in \emph{Figure~\ref{lst:alephBasicModel}} make perfect sense with regard to used data generation script. Moreover, identified and encoded features behave as intended extracting relevant information from the signal. Finally, the \texttt{location} feature does not appear in the model as it is uninformative in this case---see \emph{Section~\ref{sec:closedConcept}} for details.
+The learnt rules make perfect sense with regard to the activity script used to generate the data. Moreover, identified and encoded features behave as intended extracting relevant information from the smart house signal. Finally, the \texttt{location} feature does not appear in the model as it is uninformative in this case---see \emph{Section~\ref{sec:closedConcept}} for details.
 
-      \subsubsection{Evaluate results}
+      \subsubsection{Evaluate the results}
 The activity recognition model built with presented above components is rather simplistic: it uses only one feature---see \emph{Figure~\ref{lst:alephBasicModel}}.\\
 
-To evaluation performance of the above model I use 10 folds cross-validation. Each fold is generated according to the same activity script but with small variations in the motion path. The evaluation results are presented in \emph{Figure~\ref{tab:basicStats}}. Overall, the model achieves \emph{accuracy} of \textbf{91.5\%}; \emph{precision} of \textbf{1}; \emph{recall} of \textbf{0.37}; and \emph{F-measure} of \textbf{0.54}.\\
+To evaluate the performance of the above model I use 10 folds cross-validation. Each fold is generated according to the same activity script but with a small variations in the resident's path. To fix the prediction discontinuity problem and improve the classification results a meta-rule proposed in \emph{Section~\ref{sec:predDis}} is used. The cross-validation results are presented in \emph{Figure~\ref{tab:basicStats}}.\\
 
 \begin{figure}[htb]
   \centering
-  \begin{tabular}{ r | l l}
-cook & true & false\\
-\hline
-positive & 90 & 0\\
-negative & 2520 & 90\\
+
+  \begin{tabular}{ c r | l l l r }
+\multicolumn{2}{c}{} & \multicolumn{3}{c}{\emph{Predicted}} \\
+ & & \textbf{cook} & \textbf{phone\_call} & \textbf{none}\\
+\cline{2-5}
+% \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{rota}}}
+\multirow{3}{*}{\rotatebox[origin=c]{90}{\emph{Actual}}}
+% \multirow{3}{*}{\emph{Actual}}
+ & \textbf{cook} & $\mathbf{87}$ & $\mathbf{4}$ & $\mathbf{0}$ & 91\\
+ & \textbf{phone\_call} & $\mathbf{0}$ & $\mathbf{102}$ & $\mathbf{14}$ & 116\\
+ & \textbf{none} & $\mathbf{26}$ & $\mathbf{7}$ & $\mathbf{48}$ & 81\\
+\multicolumn{2}{c}{} & 113 & 113 & 62 & 288\\
   \end{tabular}
-  \begin{tabular}{ r | l l}
-phone\_call & true & false\\
-\hline
-positive & 180 & 0\\
-negative & 2151 & 369\\
-  \end{tabular}
-  \begin{tabular}{ r | l l}
-all & true & false\\
-\hline
-positive & 270 & 0\\
-negative & 4671 & 459\\
-  \end{tabular}
-  \caption{Cross-validation results.\label{tab:basicStats}}
+  \caption{Cross-validation results.\label{tab:basicStats}} % 91/288*0.96+116/288*0.88+81/288*0.59
 \end{figure}
 
-These results can be compared with the basic model predicting majority class out of three available: \emph{cook}, \emph{phone call} and \emph{no activity}. As their distribution is roughly uniform in designed script the majority class prediction achieves accuracy of \textbf{36.84\%}, \emph{precision} of \textbf{0.51}, \emph{recall} of \textbf{0.54}, and \emph{F-measure} of \textbf{0.52}.\\
-Comparing both activity recognition models indicates that rule based classification is superior to majority class prediction in this simple scenario.\\
+Overall, the model achieves \emph{accuracy} of \textbf{82.29\%}. Per-class \emph{precision} and \emph{recall} are: for the cooking \textbf{0.77} and \textbf{0.96}; for the phone call \textbf{0.9} and \textbf{0.88}; and for none activity \textbf{0.77} and \textbf{0.59}. The overall precision and recall can be calculated as a weighted average of the above taking the class proportion into account, hence \textbf{0.82} and \textbf{0.82}. Therefore, the overall \emph{F-measure} is \textbf{0.82}.\\
 
-Analysis of the confusion matrices and the model reveals that \emph{false negative} predictions are mainly caused by prediction discontinuity and lack of informative features in the data---see \emph{Section~\ref{sec:predictionDiscontinuity}}.\\
+These results can be compared with baseline achieved by predicting the majority class. Such classifier achieves accuracy of \textbf{40.28\%}, with overall \emph{precision} of \textbf{0.16} and \emph{recall} of \textbf{0.40} yielding \emph{F-measure} of \textbf{0.23}.\\
 
-With comprehensive analysis of ILP application to basic smart-house data I proceed to more difficult case.
+Comparing both activity recognition models indicates that the rule based classification is superior to the majority class prediction in this simple scenario. Analysis of the confusion matrix and the model reveals that majority of the false predictions are caused by lack of informative features in the data, hence last known activity is predicted---see \emph{Section~\ref{sec:predictionDiscontinuity}}.\\
+
+With comprehensive analysis of the ILP application to the basic smart house data I proceed to a more difficult case. All further model evaluation is based on proposed here framework.
 
     \subsection{CASAS flavoured activities\label{sec:CASASflavour}}
 The next step is to reproduce CASAS \#1 WSU Smart Apartment ADL Normal Testbed scripted data presented in \emph{Section~\ref{sec:csasDataDet}} as faithfully as possible. The main difference is complete lack of noise to make feature design easier.
@@ -1270,7 +1269,7 @@ Noise and incompleteness of the data are great difficulty when building activity
     \subsection{Signal discontinuity}
 Signal discontinuity is hard to be fixed for item and appliance sensors and relatively easy for motion sensors. Either random sensor activations or motion sensor dead zones can cause intermittent signal feed leading to unknown resident location for some periods of time. As I use information delivered by motion sensors in form of \texttt{location} predicate the discontinuity problem can be easily fixed. When none of the motion sensors is active the \texttt{location} predicate assumes the last known resident location (see \emph{Section~\ref{sec:basicActibities}} for details). Such approach greatly improves the \texttt{location} feature capabilities but introduces bias which can cause troubles when the resident leaves the house.
 
-    \subsection{Prediction discontinuity}
+    \subsection{Prediction discontinuity\label{sec:predDis}}
 Continuity issue is also present in activity recognition rules. Many of them are based on particular sensor conditions therefore between such events the prediction is not possible. For example, phone call rule presented in \emph{Section~\ref{sec:basicActibities}} is supported on phone and phone book events. Between browsing the phone book and talking on the phone there are only uninformative motion sensor readings caused by the resident moving from the first item to the latter.\\
 This period of time is difficult to label using signal features, nevertheless, it can be assign to phone call activity by wrapping the activity model within \emph{meta-rule} that smooths out the predictions---see \emph{Figure~\ref{lst:metaActivity}}.
 
