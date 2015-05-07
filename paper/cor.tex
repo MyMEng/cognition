@@ -345,7 +345,7 @@ The two most popular CASAS datasets for single resident are \emph{\#1 WSU Smart 
     \includegraphics[height=6.3cm]{gfx/Chinook_Cabinet}
     \caption{Kitchen cabined.\label{fig:house:oner:b}}
   \end{subfigure}%
-  \caption[The sensor layout of the testbed.]{The sensor layout of the testbed~\citep{cook2009assessing}.\label{fig:house:oner}}
+  \caption[The sensor layout of the testbed.]{Single resident testbed layout~\citep{cook2009assessing}.\label{fig:house:oner}}
 \end{figure}
 
 The following sensors fitted into the house living space were used in the experiment:
@@ -411,7 +411,7 @@ The \emph{\#7 WSU Smart Apartment 2009 Two Resident Testbed} is the most popular
 \begin{figure}[htb]
   \centering%[width=.45\textwidth] % [height=6.3cm]
   \includegraphics[height=6.3cm]{gfx/sensorlayoutTWOR.jpg}
-  \caption[Two residents test-bed sensor layout.]{Two residents test-bed sensor layout~\citep{cook2009assessing}.\label{fig:house:twor}}
+  \caption[Two residents test-bed sensor layout.]{Two residents testbed layout~\citep{cook2009assessing}.\label{fig:house:twor}}
 \end{figure}
 
 In the multiple resident case the sensor set is extended with:
@@ -582,9 +582,10 @@ Additionally, detailed sensors activations, time-location and activity structure
     \subsection{Proof of concept}
 The value of presented here smart house data generator can increase significantly if it can be proven to produce real-like datasets. Proof for a single resident case is sufficient as a multiple residents house is based on combination of multiple single agent simulations. The latter is achieved by special handling (preserving sensors' states) of cases when the residents cross each other's paths and interact with common device or item.\\
 
-Presented here data generator evaluation is based on \emph{similarity comparison} of the ILP models learnt on CASAS \#1 WSU Smart Apartment ADL Normal Testbed and synthetic datasets. I chose this particular genuine data as they are provided with detailed activity scripts (see \emph{Section~\ref{sec:csasDataDet}}) and testbed layout (see \emph{Figure~\ref{fig:house:oner}}), hence its simulations should result in faithful reproductions.\\
+Presented here data generator evaluation is based on \emph{similarity comparison} of the ILP models learnt on CASAS \#1 WSU Smart Apartment ADL Normal Testbed and synthetic datasets. The latter are generated based on as accurate CASAS testbed reproduction as possible. I chose this particular genuine data as they are provided with detailed activity scripts (see \emph{Section~\ref{sec:csasDataDet}}) and testbed layout (see \emph{Figure~\ref{fig:house:oner}}), hence its simulations should result in faithful reproductions.\\
 
-To this end, I created a copy of CASAS testbed for the simulator and generated the five described activities.<HERE>
+To this end, I encoded CASAS testbed in my generator and simulated therein five described activities. I used all the features described in \emph{Section~\ref{sec:CASASflavour}} to learn the activity models.\\
+For the synthetic data I was able to learn all the model rules presented in \emph{Figure~\ref{lst:CASASmodel}}. Due to noise present in the genuine CASAS data I was not able to learn all of the above activity rules for single trial (5 activities performed by one participant), nevertheless with large enough sample I could learn one rule at a time. Therefore, I conclude that within reasonable margin of error the generator produces real-like data.
 
   \section{Knowledge representation of spatio-temporal data}
 The activity learning method described here requires signals to be represented as logical facts. The ILP system used in this study is written in \texttt{Prolog} programming language, therefore all the data has to be expressed in thereof predicates. This requirement causes some problems introduced by variety of used sensor types.\\
@@ -602,7 +603,7 @@ Date-time is a complex object encoding many useful information. Unfortunately, i
 
 For my study I chose four different time representations:
 \begin{description}
-\item[absolute] is a timestamp represented in micro-seconds ($\mu$-seconds: $10^{16}s$) rather than seconds,
+\item[absolute] is a timestamp represented in micro-seconds ($\mu$-seconds: $10^{-16}s$) rather than seconds,
 \item[relative] is a number of micro-seconds elapsed since the first sensor activation in the dataset,
 \item[sequence] is a sequential number of the sensor activation in the dataset starting with $0$,
 \item[windowed] is a sequential number of fixed-time-interval window that the event falls into; the first time-window starts on the first sensor activation and has ID $0$; window of 5 seconds is used in the study.
@@ -726,16 +727,13 @@ Real-valued signals like AD1-B water sensor (see \emph{Figure~\ref{lst:CASASoneR
 Moreover, the converter uses activity and person ID information given in the 4\ts{th} and 5\ts{th} column of the data to generate positive and negative examples needed for learning activity model with \texttt{Aleph}.
 
   \section{Cross-validation}
-Once the data is converted and passed to \texttt{Aleph} the model in form of rules describing activities is produced. To evaluate its quality 10-fold cross-validation is performed.\\
-For each script of activities 10 data recordings are gathered together with corresponding model learnt with ILP. Then, each sample model is evaluated on the remaining nine datasets and the results are checked against corresponding ground truth. After testing all possible model-data combinations overall and per-label accuracy is reported. The output of cross-validation framework is on of the diagnostics used to evaluate model performance.
+Once the data is converted and passed to \texttt{Aleph} the model in form of a rules describing activities is produced. To evaluate its quality 10 fold cross-validation is performed.\\
+For each experiment 10 data recordings are gathered together with corresponding activity models learnt with the ILP. The genuine data are split per trial to create folds. For the synthetic data 10 independent recordings are produced each varying in the inhabitant's path and order of used items.\\
+Then, each sample model is evaluated on the remaining nine datasets and the results are checked against the corresponding ground truth information. After testing all possible model-data combinations overall and per-label confusion matrices are reported. The output of cross-validation framework is one of the diagnostics used to evaluate the model performance.
 
   \section{Summary}
-Got familiar with real data\\
-designed generator helpful in learning\\
-decided on real value sensor handling\\
-identified time representation\\
-identified useful backgroud knowledge\\
-designed cross validation
+In this chapter I familiarised myself with the real smart house data. I also identified their issues and decided to design a smart house data generator to mitigate from them and focus on the model learning task. Moreover, I settled on a numerical-valued sensor handling and identified the most suitable time representations for the ILP learning. Additionally, I examined relevant domain specific background knowledge for the smart house data, which proved to be invaluable in the model learning. Finally, I designed scripts to convert CASAS formatted data into logical fact representation; perform cross-validation on learnt models; and variety of supplementary \texttt{Bash} and \texttt{Python} scripts to make the data handling and model learning easier.\\
+The next component of my work is to discover details of the ILP learning and adjust it to activity recognition task.
 
 %===============================================================================
 %===============================================================================
@@ -906,8 +904,8 @@ Additionally, the rule body of outputted activity model can be examined to analy
 Features used for both single and multiple residents models are discussed in detail in \emph{Section~\ref{sec:single:features}}.
 
   \section{Summary}
-In this chapter I show that the concept of Inductive Logic Programming can be adapted to serve as a tool for building the activity recognition models. Moreover, I explain that the ILP is capable of comprehensive data analysis, hence feature discovery, by outputting human readable closed concept of each positive activity example.\\
-Additionally, I outline the basic internals of the ILP mechanism together with \texttt{Aleph} settings useful for the model learning. Finally, good understanding of the smart house data and all the aforementioned ILP components opens up the possibility to learn fully featured activity recognition models.
+In this chapter I showed that the concept of Inductive Logic Programming can be adapted to serve as a tool for building the activity recognition models. Moreover, I explained that the ILP is capable of comprehensive data analysis, hence feature discovery, by outputting human readable closed concept of each positive activity example.\\
+Additionally, I outlined the basic internals of the ILP mechanism together with \texttt{Aleph} settings useful for the model learning. Finally, good understanding of the smart house data and all the aforementioned ILP components opened up the possibility to learn fully featured activity recognition models.
 
 %===============================================================================
 %===============================================================================
@@ -1059,7 +1057,7 @@ Analysis of the confusion matrices and the model reveals that \emph{false negati
 
 With comprehensive analysis of ILP application to basic smart-house data I proceed to more difficult case.
 
-    \subsection{CASAS flavoured activities}
+    \subsection{CASAS flavoured activities\label{sec:CASASflavour}}
 The next step is to reproduce CASAS \#1 WSU Smart Apartment ADL Normal Testbed scripted data presented in \emph{Section~\ref{sec:csasDataDet}} as faithfully as possible. The main difference is complete lack of noise to make feature design easier.
 
       \subsubsection{CASAS features}
@@ -1311,7 +1309,8 @@ Results overview.\\
 Generality of learnt rules: synthetic <--> genuine.\\
 evaluation measures \& compare to something.\\
 
-<DATA MISSING>
+  \section{Summary}
+The summary of the chapter.
 
 %===============================================================================
 %===============================================================================
