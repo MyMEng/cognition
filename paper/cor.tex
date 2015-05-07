@@ -783,9 +783,18 @@ The two most popular \texttt{Prolog} ILP implementations are \texttt{Aleph}\foot
 
       \subsubsection{Background}
 The background file contains \texttt{Aleph} configuration and a target model specification; see example given in \emph{Figure~\ref{lst:alephSettings}}. Settings such as evaluation function, allowed maximal number of negative examples covered by a single target rule, and minimal number of positive examples that each rule has to cover are used.\\
-Additionally, the target rule specification has to be provided. Based on presented example the target \texttt{activity} rule has $2$ variables (is of \emph{arity} $2$) and its body can contain arbitrary number of \texttt{device} and \texttt{location} predicates each of arity $2$ (\texttt{determination} settings). Next, the type of variables for each predicate has to be specified (\texttt{mode} settings). The \texttt{activity} rule takes constant (\# symbol) activity ID and input (+ symbol) integer representing time. Both \texttt{device} and \texttt{location} predicated take time as the first input variable. Additionally, the first takes constant device ID and the latter room ID.\\
-Each variable type needs to be specified as an exhaustive set represented in logical facts. In presented example the activity ID can be either \texttt{wash\_hands} or \texttt{clean}, the device ID can be either \texttt{phone} or \texttt{hot\_water} and the room ID can be either \texttt{hall} or \texttt{kitchen}.\\
-Finally, the target model constrains can be specified (\texttt{false} keyword): in presented example no two activities can happen at the same time.\\
+
+Additionally, the target rule specification has to be provided. Based on presented here example the target \texttt{activity} rule has $2$ variables (is of \emph{arity} $2$) and its body can contain arbitrary number of \texttt{device} and \texttt{location} predicates each of arity $2$---\texttt{determination} settings.\\
+Next, the types of the variables for each predicate has to be specified. \texttt{modeh} and \texttt{modeb} determine structure of the target rule \emph{head} and \emph{body} respectively. Both mode declarations set:
+\begin{itemize}
+\item a number specifying successful calls to the specified predicate or a * symbol to set bounded non-determinacy\footnote{See \texttt{Aleph} manual for detail: \url{http://www.cs.ox.ac.uk/activities/machlearn/Aleph/aleph.html}};
+\item a name of the predicate to be called, together with its variables types specification.
+\end{itemize}
+By large, the modes define how to call the target rule and the predicates used in its body; they set whether variables should be an input (a + symbol); an output (a - symbol); or a constant (a \# symbol).\\
+
+In presented here example the \texttt{activity} rule takes constant activity ID and input integer representing time. Both \texttt{device} and \texttt{location} predicated take time as their first input variable. Additionally, the first takes constant device ID and the latter room ID.\\
+Each variable type needs to be specified as an exhaustive set represented in logical facts. In presented here example the activity ID can be either \texttt{wash\_hands} or \texttt{clean}, the device ID can be either \texttt{phone} or \texttt{hot\_water} and the room ID can be either \texttt{hall} or \texttt{kitchen}.\\
+Finally, the target model constrains can be specified with \texttt{false} keyword: in presented example no two different activities can happen at the same time.\\
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -907,84 +916,82 @@ Features used for both single and multiple residents models are discussed in det
 In this chapter I showed that the concept of Inductive Logic Programming can be adapted to serve as a tool for building the activity recognition models. Moreover, I explained that the ILP is capable of comprehensive data analysis, hence feature discovery, by outputting human readable closed concept of each positive activity example.\\
 Additionally, I outlined the basic internals of the ILP mechanism together with \texttt{Aleph} settings useful for the model learning. Finally, good understanding of the smart house data and all the aforementioned ILP components opened up the possibility to learn fully featured activity recognition models.
 
+
 %===============================================================================
 %===============================================================================
 %===============================================================================
 %===============================================================================
 %===============================================================================
 \chapter{Activity recognition model}
-The aim of the activity recognition model is to predict agent's \emph{actions} at \emph{time} of interest based on sensor signals delivered by smart-house. Therefore, the target rule needs input variable \texttt{Time} and output variable \texttt{Activity} leading to:\\
+The activity recognition model predicts agent's \emph{actions} at \emph{time} of interest based on signals delivered by a smart house. Therefore, the target rule needs an input variable \texttt{Time} and output variable \texttt{Activity} leading to:\\
 \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 activity(Activity, Time) :-
   ruleBody.
 \end{minted}
-and for multiple residents houses another output variable for predicting a \texttt{Person} performing the activity is necessary:\\
+and for a multiple residents houses another output variable to predict a \texttt{Person} performing the activity is necessary:\\
 \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 activity(Activity, Time, Person) :-
   ruleBody.
 \end{minted}
-The \texttt{ruleBody} is made of rules encoded in the background knowledge which serves as features, extracting relevant informations form house signals.
+The \texttt{ruleBody} is made of rules encoded in the background knowledge which serve as features. They extract relevant informations form the house signals.
 
   \section{Scripted data} % WHY I chose this that and that!!!!!!!!!!!!
-As the format of the rule is determined, the next step it to design the features building the rule body. To this end, an insight into how to distinguish particular activities is needed. Scripted CASAS datasets (see \emph{Section~\ref{sec:csasDataDet}}) are of great help. Their careful analysis can reveal patterns that can be learnt to differentiate activities.
+As the rule format is determined, the next step it to design the features contributing to the rule body. To this end, an insight into how to distinguish particular activities is needed. Scripted CASAS datasets (see \emph{Section~\ref{sec:csasDataDet}}) are of great help. Their careful analysis can reveal patterns that can be used to differentiate the activities.
 % by their careful examination
 
     \subsection{Sequential multi-class model for single resident\label{ch:smcm}}
-Beside target rule specification, model assumptions need to be stated. Based on CASAS scripted data it is clear that activities are sequential and they do not overlap (see \emph{Figure~\ref{fig:timepoints}}). Hence, the problem is single-label, \emph{multi-class}---there is always one label to be assign to a time point and this label is chosen from a set which usually has cardinality $>2$.
+Beside the target rule specification, the model assumptions need to be stated. Based on CASAS scripted data it is clear that activities are sequential and that they do not overlap (see \emph{Figure~\ref{fig:timepoints}}). Hence, the problem is single-label and \emph{multi-class}---there is always one label to be assign to a time point and this label is chosen from a set which usually has cardinality greater than 2.
 
     \subsection{Basic activities\label{sec:basicActibities}}
 To start model learning I selected two activities: \emph{cook} and \emph{phone call}, and generated my impression of them for one resident based on CASAS description. Therefore, the resulting synthetic dataset is simple, completed, noiseless and resemble real life activities. Such a simple learning task helped me to familiarise myself with \texttt{Aleph} data analysis mechanisms and discover its basic capabilities and limitations.
 
       \subsubsection{Encode activities}
-I decided to script a simple scenario in the house given in the \emph{Figure~\ref{fig:simHouse}}. A person starts in the hall with random location; he moves to the living room; activity \emph{phone\_call} starts; approaches the phone book (finds a phone number); moves to the fixed phone (talks for some time); activity \emph{phone\_call} ends. Then the person goes to the kitchen; the activity \emph{cook} starts; he approaches and uses hob for some time; the activity stops when he turns off the hob. Finally, the person goes back to hall via living room.\\
+I decided to script a simple scenario in the house given in \emph{Figure~\ref{fig:simHouse}}. A person starts in the hall with a random location; he moves to the living room; activity \emph{phone\_call} starts; he approaches the phone book (finds a phone number); he moves to the fixed phone (talks for some time); activity \emph{phone\_call} ends. Then the person goes to the kitchen; the activity \emph{cook} starts; he approaches and uses hob for some time; the activity stops when he turns off the hob. Finally, the person goes back to the hall via the living room.\\
 
-The detailed knowledge of steps taken by the agent allows to design basic features and test them. As produced by the generator data are in CASAS log format they are next converted into facts representation. Then, the logical signal representation is joined with house facts to produce basic background knowledge file. Additionally, during conversion step positives and negatives are produced. Hence, all basic components for ILP learning are present.
+The detailed knowledge of steps taken by the resident allows to design basic features and test them. The data produced by the generator are in CASAS log format, therefore they are converted into a facts representation. Then, the logical signal representation is joined with the house specific facts to produce basic background knowledge file. Additionally, during conversion step positives and negatives are produced. Hence, all the basic components for the ILP learning are present.
 
       \subsubsection{Design features}
-Nevertheless, to build the activity rule body feature rules need to be added to background knowledge. Based on the script used to generate data I know that both activities can be distinguished by \emph{location}: phone call happens in the living room and cooking in the kitchen. Moreover, for both activities different devices and items are used: for the first the phone book and the fixed phone; for the latter hob.\\
+In order to build the activity model needed feature rules have to be added to the background knowledge file. Based on the script used to generate the data I know that both activities can be distinguished by the \emph{location}: phone call happens in the living room and cooking in the kitchen. Moreover, for both activities different devices and items are used: for the first the phone book and the fixed phone; for the latter the hob.\\
 
-Therefore, this simple model should work with just these two features. The basic building block of both of them is a \texttt{Prolog} predicate which interacts with sensor readings. Its main task is to check each sensor (input/output variable \texttt{SensorID}) status (input/output variable \texttt{SensorState}) at given time (input variable \texttt{Time}). As there are multiple time representation additional (input/output \texttt{TimeType}) variable is needed to represent it, leading to the rule of the form:\\
+Therefore, this simple model should work with just these two features. The basic building block of both of them is a \texttt{Prolog} predicate which interacts with sensors readings. It finds activated sensor at given time via input/output variable \texttt{SensorID}, input/output variable \texttt{SensorState} and input variable \texttt{Time}. As there are multiple time representation additional input/output \texttt{TimeType} variable is needed to represent them leading to the rule of the form:\\
 \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 sensor_state(SensorID, SensorState, TimeType, Time) :-
   ruleBody.
 \end{minted}
-For simplicity, in my activity recognition model, input \texttt{Time} and input/output \texttt{SensorID} variables are sufficient. Through the task only the \emph{sequential} time representation is used and \emph{activated} sensors are of interest. Therefore, the above rule can be wrapped to provide the interface to the sensor states resulting in:\\
+For simplicity, in my activity recognition model the input \texttt{Time} and input/output \texttt{SensorID} variables suffice. Through the task only the \emph{sequential} time representation is used and the \emph{activated} sensors are of interest. Therefore, the above rule can be wrapped to provide a simple interface to the sensors state information:\\
 \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 sensor_state(SensorID, Time) :-
   sensor_state(SensorID, true, sequence, Time).
 \end{minted}
-Presented here rule is highly customisable as it facilitates time representation selection and allow to condition on deactivated sensors if needed.\\
-All \texttt{Prolog} rules are built by logical constrains leading to correct answer. For \texttt{sensor\_state} rule to be true, the sensor \texttt{SensorID} had to be activated at most at time \texttt{Time}, and after that time (until now) \texttt{SensorID} have not been deactivated. These two conditions warrant correct sensor status checks.\\
-Moreover, as \texttt{Prolog} uses a search space to ``answer'' queries variables can be both rule input and output. The first approach is mainly used to check correctness of belief---all variables are initialised and either \texttt{true} or \texttt{false} is returned. The latter method uses uninitialised variables so that \texttt{Prolog} can find their unifications that yield \texttt{true} evaluation of the rule; it is worth to mention that multiple results can be returned.\\
+Presented here rule is highly customisable as it facilitates selection of the time representation and allows to condition on deactivated sensors if needed.\\
 
-The \texttt{sensor\_state} rule covers both \emph{item} and \emph{motion sensor}. It is worth separating the two aforementioned cases to improve model clarity. With use of house-specific background knowledge motion sensor IDs can be associated with rooms and item sensor IDs with devices and items.\\
+All the \texttt{Prolog} rules are built by logical constrains warranting correct answer. For the \texttt{sensor\_state} rule to be true, the sensor \texttt{SensorID} had to be activated at latest at the time \texttt{Time}, and after its activation (but before time \texttt{Time}) the \texttt{SensorID} had not been deactivated. These two conditions guarantee correct sensor status checks.\\
+Moreover, as \texttt{Prolog} uses a search space to ``answer'' queries rule variables can be both input and output. If all variables are initialised i.e.\ they are used as an input, the rule is used to check correctness of the believes and evaluates either to \texttt{true} or \texttt{false}. If the rule contains some uninitialised variables \texttt{Prolog} can find their unifications that yield \texttt{true} evaluation of the rule; it is worth to mention that multiple results can be returned.\\
+
+The \texttt{sensor\_state} rule covers both \emph{item} and \emph{motion sensor}. It is worth separating the two aforementioned cases to improve the model clarity. With use of house-specific background knowledge motion sensor IDs can be associated with rooms and item sensor IDs with devices and items.\\
 Therefore, the device rule can be easily constructed as:\\
 \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 device(Time, Device) :-
   sensor_state(SensorID, Time),
   sensorActivity(SensorID, Device).
 \end{minted}
-The location rule could be created in similar manner, i.e.:\\
+
+The location rule could be created in a similar manner, i.e.:\\
 \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
 location(Time, Location) :-
   sensor_state(SensorID, Time),
   sensorInRoom(SensorID, Location).
 \end{minted}
-but this simplification causes \emph{discontinuous} location predictions. To fix it, a case when none of the motion sensors is activated needs to be covered. By introducing a small bias and using last known location (self-recursion with decreasing time) in such cases a continuous prediction is ensured.\\
+Unfortunately, this simplification causes \emph{discontinuous} location predictions. To fix it, a case when none of the motion sensors is activated needs to be covered. By introducing a small bias and using the last known location (self-recursion with decreasing time) if none can be predicted a continuous prediction is ensured.\\
 
-Finally, all the three rules have to be appended to the \texttt{Aleph}'s background knowledge file to be used in learning process.
+Finally, all three rules have to be appended to the \texttt{Aleph}'s background knowledge file to be used in the learning process.
 
       \subsubsection{Configure \texttt{Aleph}}
 Both \texttt{location} and \texttt{device} features presented above are used to build the first activity recognition model. To this end, \texttt{Aleph} needs to be correctly configured.\\
-The most important settings are \texttt{noise} and \texttt{minpos} parameters. The first one determines the maximal number of negative examples that the activity rule can cover---impurity of the rule. The latter sets the minimal number of positive examples that the rule has to cover.\\
-These values are set to $5$ and $1$ respectively. The first is based on observational results, and the later is lowest possible value so that every possible rule is discovered. Unfortunately, setting \texttt{minpos} to $1$ results in many singleton rules---copies of positive examples---appearing in the output theory; additional script is used to remove them.\\
+The most important settings are \texttt{noise} and \texttt{minpos} parameters. These values are set to $5$ and $1$ respectively. The first is based on observational studies, and the latter is the lowest acceptable value so that every possible activity rule can be discovered. Unfortunately, setting \texttt{minpos} to $1$ results in many singleton rules---copies of the positive examples---appearing in the output theory; to remove them additional script is used after the learning step.\\
 
-The next type of settings determines parameters of the target model. \texttt{determination} settings indicate the \emph{name} and \emph{arity} of predicates that can contribute to the target rule body. \texttt{modeh} and \texttt{modeb} determine structure of rule \emph{head} and \emph{body} respectively. Both mode declarations set:
-\begin{itemize}
-\item a number specifying successful calls to specified predicate or a * symbol to set bounded non-determinacy\footnote{See \texttt{Aleph} manual for detail: \url{http://www.cs.ox.ac.uk/activities/machlearn/Aleph/aleph.html}};
-\item a name of predicate to be called, together with variable type specification.
-\end{itemize}
-By large, modes define how to call predicates used in the body of activity recognition model; they set whether variables should be an input (a + symbol); output (a - symbol); or a constant (\# symbol).\\
+The next type of settings determines parameters of the target model. \texttt{determination}s indicate that both \texttt{device} and \texttt{location} predicates can contribute to the target rule body. The variables types declaration are given in the house specific background knowledge.\\
+The \texttt{Aleph} settings used to train this model are presented in \emph{Figure~\ref{lst:alephConfHead}}. Other than the aforementioned settings are left default.\\
 
 \begin{figure}[htb]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -1001,8 +1008,7 @@ By large, modes define how to call predicates used in the body of activity recog
   \caption{Example \texttt{Aleph} configuration header.\label{lst:alephConfHead}}
 \end{figure}
 
-The example header is presented in \emph{Figure~\ref{lst:alephConfHead}}. Other than aforementioned settings are left default.\\
-Finally, the last step before running the algorithm is attaching the \texttt{Aleph} configuration to the background knowledge file.
+Finally, the last step before running the algorithm is attaching the \texttt{Aleph} configuration together with house specific facts to the background knowledge file.
 
       \subsubsection{Learn the model}
 As the \texttt{Aleph} learning process is interactive a special script is designed to improve the work-flow. The script runs the \texttt{Aleph}, loads the needed files: background, positives and negatives; learns the activity theory; and finally saves it to a file.\\
