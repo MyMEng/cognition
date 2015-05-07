@@ -1038,7 +1038,6 @@ To evaluate the performance of the above model I use 10 folds cross-validation. 
 
 \begin{figure}[htb]
   \centering
-
   \begin{tabular}{ c r | l l l r }
 \multicolumn{2}{c}{} & \multicolumn{3}{c}{\emph{Predicted}} \\
  & & \textbf{cook} & \textbf{phone\_call} & \textbf{none}\\
@@ -1063,26 +1062,26 @@ Comparing both activity recognition models indicates that the rule based classif
 With comprehensive analysis of the ILP application to the basic smart house data I proceed to a more difficult case. All further model evaluation is based on proposed here framework.
 
     \subsection{CASAS flavoured activities\label{sec:CASASflavour}}
-The next step is to reproduce CASAS \#1 WSU Smart Apartment ADL Normal Testbed scripted data presented in \emph{Section~\ref{sec:csasDataDet}} as faithfully as possible. The main difference is complete lack of noise to make feature design easier.
+The next step is to reproduce CASAS \#1 WSU Smart Apartment ADL Normal Testbed scripted data presented in \emph{Section~\ref{sec:csasDataDet}} as faithfully as possible. The main difference is complete lack of noise to make feature design and extraction easier.
 
       \subsubsection{CASAS features}
-The main advantage of this dataset is a script explaining step-by-step actions contributing to the five labelled activities. To design features capable of classifying these activities I identified their characteristic features.\\
+The main advantage of this dataset is an activity script explaining step-by-step actions contributing to the five monitored activities. To design features capable of classifying these activities I identified their characteristic features.\\
 
-The phone call uses two specific to this activity items: phone book and fixed phone. Therefore, this activity can be identified using previously designed \texttt{device} feature. The phone call rules are the same as the ones shown in \emph{Figure~\ref{lst:alephBasicModel}}.\\
+The phone call uses two specific to this activity items: the phone book and the fixed phone. Therefore, this activity can be identified using previously designed \texttt{device} feature. The phone call rules are the same as the ones shown in \emph{Figure~\ref{lst:alephBasicModel}}.\\
 
-The hand washing activity requires use of water. Moreover, unlike in cleaning and cooking tasks all the items stored in the cupboard are in place. These observations lead to two new features: \texttt{waterUsed(T)}---which checks whether at time $T$ wither hot or cold water was used; and \texttt{outOfCabinet(T,ItemList)}---which finds items removed from cupboard at time $T$.\\
+The hand washing activity requires use of water. Moreover, unlike in cleaning and cooking tasks all the items stored in the cupboard are in place. These observations lead to two new features: \texttt{waterUsed(T)}---which checks whether at time $T$ either hot or cold water is used; and \texttt{outOfCabinet(T, ItemList)}---which finds items missing from the cupboard at time $T$.\\
 
-The next activity recorded in the CASAS dataset is cooking. The first is hob being on detected with \texttt{device} feature, the second is based on past observation. The streaming scenario of smart-house data allows to use past activity prediction as feature. In CASAS data cooking can be predicted if some items are removed from cupboard and the resident has not been cooking in ``recent past''.\\
-The first condition is checked by \texttt{outOfCabinet(T,L)} to find items taken out of cupboard and \texttt{nonEmpty(L)} to ensure that it is not empty. The latter, is based on \texttt{notCooked(T)} feature, which checks whether in sliding time window of fixed length (10 events in this experiment) the activity cooking was predicted.\\
+The next activity recorded in the CASAS dataset is cooking. The first possibility to identify this activity is hob being on---it can be detected with \texttt{device} feature.\\
+The second is based on past observations. The streaming scenario of a smart house data allows to use past activity predictions as a feature. In CASAS data cooking can be predicted if some items are removed from the cupboard and the resident has not been cooking in the ``recent past''. The first condition is checked by \texttt{outOfCabinet(T,L)} to find items taken out of the cupboard and \texttt{nonEmpty(L)} to ensure that at least one item is missing. The latter, is based on \texttt{notCooked(T)} feature, which checks whether in sliding time window of fixed length (10 events in this experiment) the activity cooking was predicted.\\
 
-Finally, the prediction of last two activities: eating and washing up, is based on \emph{natural order}. To model both activities I assume that it is impossible to eat if the meal has not been cooked, and it is also impossible to wash the dishes unless a meal has been eaten.\\
-I encode this assumption as prior belief in background knowledge. \texttt{activityOrder(Time, Activity)} feature returns possible activity (either eat or wash up) at current time. This ``guess'' needs to be reinforced with other conditions to build either of those two activity rules.\\
-With so far designed features eating activity can be conditioned on having cooked the meal, being in the living room, and having the medicine container. For the last condition new feature \texttt{medicineInList(L)} is encoded---it checks whether the medicine container is in the list passed by input variable $L$. This list is generated with \texttt{outOfCabinet(T,L)} predicate.\\
-Finally, activity of washing the dishes is conditioned on cooking a meal in the past, being in kitchen, using water, and some items being removed for cupboard.
+Finally, the prediction of the last two activities: eating and washing up, is based on \emph{natural order}. To model both activities I assume that it is impossible to eat if the meal has not been cooked yet, and it is also impossible to wash the dishes unless the meal has already been eaten.\\
+I encode these assumptions as prior belief in the background knowledge. \texttt{activityOrder(Time, Activity)} feature returns possible activity (either eat or wash up) at current time based on past predictions. This ``guess'' needs to be reinforced with other conditions to predict either of those two activities.\\
+With so far designed features eating activity can be conditioned on the meal being already cooked (\texttt{activityOrder}), a person being in the living room (\texttt{location}), and the medicine container missing from the cupboard. The last condition requires a new feature \texttt{medicineInList(L)}---it checks whether the medicine container is in the list $L$ passed as an input variable. This list is generated with \texttt{outOfCabinet(T,L)} predicate.\\
+Finally, activity of washing the dishes is conditioned on cooking the meal in the past (\texttt{activityOrder}), being in the kitchen (\texttt{location}), using water (\texttt{waterUsed}), and some items missing for the cupboard (\texttt{outOfCabinet} and \texttt{nonEmpty}).
 
       \subsubsection{Model learning}
-To learn activity recognition model with new features presented above \texttt{Aleph} configuration has to be expanded. \emph{Determinations} and \emph{mode declarations} (modeb) are added for all new feature.\\
-The model learnt for the synthetic CASAS dataset is shown in \emph{Figure~\ref{lst:CASASmodel}}.
+To learn the activity recognition model with new features presented above \texttt{Aleph} configuration has to be expanded. \emph{Determinations} and \emph{mode} declarations (\texttt{modeb}) are added to the background file for all new feature.\\
+The model learnt with the synthetic CASAS dataset is shown in \emph{Figure~\ref{lst:CASASmodel}}.
 
 \begin{figure}[htb]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -1114,32 +1113,61 @@ activity(A,B) :-
 \end{figure}
 
       \subsubsection{Model evaluation}
-Overall, the model achieves \emph{accuracy} of \textbf{73.12\%}; \emph{precision} of \textbf{0.78}; \emph{recall} of \textbf{0.9}; and \emph{F-measure} of \textbf{0.84}.\\
+The results statistics are presented in \emph{Figure~\ref{tab:synthCASASstats}}. It is easy to see that for more complex data the rule-based classifier still performs better than the baseline achieved with majority class classification.\\
 
-For majority class classifier: achieves \emph{accuracy} of \textbf{27.47\%}; \emph{precision} of \textbf{0.29}; \emph{recall} of \textbf{0.81}; and \emph{F-measure} of \textbf{0.43}.
+\begin{figure}[htb]
+  \centering
+  \begin{tabular}{ r | l l l l }
+  & \emph{Accuracy} & \emph{Precision} & \emph{Recall} & \emph{F-measure}\\
+\hline
+Rule based & \textbf{72.53\%} & \textbf{0.75} & \textbf{0.73} & \textbf{0.74}\\
+Majority class & \textbf{30.77\%} & \textbf{0.09} & \textbf{0.31} & \textbf{0.14}\\
+  \end{tabular}
+  \caption{Synthetic CASAS evaluation results.\label{tab:synthCASASstats}} % 19/91*0.69+7/91*0.4+28/91*0.92+7/91*0.75+21/91*0.95+9/91*0.17
+\end{figure}
+
+These results indicate that chosen features behave as intended. They are highly informative and combined altogether create good activity recognition model.
 
     \subsection{CASAS activities}
-The next step is to train model on real data. For this purpose CASAS \#1 WSU Smart Apartment ADL Normal Testbed, narrated datasets for single resident is used.\\
-This dataset contains 24 participants performing 5 activities of daily living, therefore, it is time consuming (about 30 hours per label) to use it as a whole. Hence, I chose the approach to split (with use of \texttt{Python} script) the dataset per single participant performing all 5 activities. Moreover, such data handling facilitates straightforward cross-validation, where each fold is one participant's data.\\
-Finally, I wrote background knowledge for CASAS testbed as it cannot be generated automatically.
+The next step is to train the model on the real CASAS data. For this purpose CASAS \#1 WSU Smart Apartment ADL Normal Testbed, narrated datasets for single resident is used.\\
+This dataset contains 24 participants performing 5 activities of daily living, therefore it is time consuming (about 30 hours per label) to use it as a whole. Hence, I chose the approach to split (with use of additional \texttt{Python} script) the dataset per single participant performing all 5 activities. Moreover, such data handling facilitates straightforward cross-validation, where each fold is one participant's data.\\
+Finally, I wrote background knowledge for the CASAS testbed as it cannot be generated automatically.
 
       \subsubsection{Data issues}
-With genuine CASAS data the main barrier is noise, incompleteness and numeric output of water and burner sensors. To attempt model learning I design feature rules to be internally as immune to the data issues as possible. The noise handling on the feature level is mainly based on biasing towards previous state or prediction. Moreover, I thresholded hence, discretised CASAS burner and water sensor outputs to make them \texttt{Aleph} friendly.
+With the genuine CASAS data the main barriers are noise, incompleteness and numeric output of water and burner sensors. To attempt model learning I modify presented above features to become internally as immune to the data issues as possible. The noise handling on the feature level is mainly based on biasing towards previous state or prediction. Moreover, I threshold, hence discretise CASAS burner and water sensor outputs to make them \texttt{Aleph} compliant.
 
       \subsubsection{Activity model}
-All the features designed so far for the synthetic datasets are used to train the activity recognition model on real data. Depending on the level of noise in each trial some of the activity rules presented in \emph{Figure~\ref{lst:CASASmodel}} are not constructed. Moreover, no new rules based on so far designed features are discovered.
+All the features designed so far for the synthetic datasets are used to train the activity recognition model on the real data. Depending on the level of noise in each trial some of the activity rules presented in \emph{Figure~\ref{lst:CASASmodel}} are not constructed, nevertheless collectively they all appear in the output models. Moreover, no new rules based on so far designed features are discovered.
 
       \subsubsection{Model evaluation}
-Overall, the model achieves \emph{accuracy} of \textbf{63.24\%}; \emph{precision} of \textbf{0.60}; \emph{recall} of \textbf{0.95}; and \emph{F-measure} of \textbf{0.74}.\\
+The model statistics are presented in \emph{Figure~\ref{tab:realCASASstats}}. The overall reasults are quite.\\
+Overall, achieves
+The prediction continuity rule is of great help as once rhe combinatio f sensors is found the rules can detects it firever on.
 
-For majority class classifier: achieves \emph{accuracy} of \textbf{27.94\%}; \emph{precision} of \textbf{0.32}; \emph{recall} of \textbf{0.67}; and \emph{F-measure} of \textbf{0.43}.
+\begin{figure}[htb]
+  \centering
+  \begin{tabular}{ r | l l l l }
+  & \emph{Accuracy} & \emph{Precision} & \emph{Recall} & \emph{F-measure}\\
+\hline
+Rule based & \textbf{66.91\%} & \textbf{0.70} & \textbf{0.67} & \textbf{0.68}\\
+Majority class & \textbf{27.94\%} & \textbf{0.08} & \textbf{0.28} & \textbf{0.12}\\
+  \end{tabular}
+  \caption{Real CASAS \#1 evaluation results.\label{tab:realCASASstats}} % 31/272*0.57+16/272*0.37+76/272*0.76+0.48*46/272+0.97*56/272+0.69*47/272
+\end{figure}
 
     \subsection{CASAS activities with errors}
-Finally, model learnt on the genuine CASAS \#1 WSU Smart Apartment ADL Normal Testbed is evaluated against CASAS \#2 WSU Smart Apartment ADL Error Testbed. The purpose of this experiment is to examine behaviour of model when activities diverge from original model assumptions.\\
+Finally, model learnt on the genuine CASAS \#1 WSU Smart Apartment ADL Normal Testbed is evaluated against CASAS \#2 WSU Smart Apartment ADL Error Testbed. The purpose of this experiment is to examine behaviour of model when activities diverge from original model assumptions.
 
-Overall, the model achieves \emph{accuracy} of \textbf{46.86\%}; \emph{precision} of \textbf{0.54}; \emph{recall} of \textbf{0.77}; and \emph{F-measure} of \textbf{0.63}.\\
-
-For majority class classifier: achieves \emph{accuracy} of \textbf{28.74\%}; \emph{precision} of \textbf{0.32}; \emph{recall} of \textbf{0.73}; and \emph{F-measure} of \textbf{0.44}.
+\begin{figure}[htb]
+  \centering
+  \begin{tabular}{ r | l l l l }
+  & \emph{Accuracy} & \emph{Precision} & \emph{Recall} & \emph{F-measure}\\
+\hline
+Rule based & \textbf{46.86\%} & \textbf{0.54} & \textbf{0.47} & \textbf{0.50}\\
+Majority class & \textbf{29.47\%} & \textbf{0.09} & \textbf{0.29} & \textbf{0.14}\\
+  \end{tabular}
+  \caption{Real CASAS \#2 evaluation results.\label{tab:errCASASstats}} % 20/207*0.18+42/207*0.22+61/207*0.75+55/207*0.96+0+29/207*0
+\end{figure}
 
     \subsection{Overlapping activities\label{sec:singleML}}
 Despite the initial assumption of the model being \emph{sequential} it is feasible to generalise it to a case where activities overlap i.e.\ predict multiple labels (activities) at any time. A simple example can be created by modifying the activity script presented in \emph{Section~\ref{sec:basicActibities}} so that the person first starts cooking by turning on the hob; then moves to the living room where phone call activity starts; he searches the phone book and uses fixed phone; next the person returns to the kitchen to turn off the hob---activity cooking stops; finally, he returns to the hall.\\
@@ -1293,8 +1321,8 @@ To evaluate possible improvements achieved with proposed meta-rule, 10 fold cros
   \begin{tabular}{ r | l l l l }
  & Accuracy & Precision & Recall & F-measure\\
 \hline
-base rules & 60.76\% & 1 & 0.17 & 0.29\\
-meta rules & 84.56\% & 0.87 & 0.80 & 0.83 \\
+base rules & 60.87\% & 0.83 & 0.44 & 0.56\\
+meta rules & 82.29\% & 0.82 & 0.82 & 0.82 \\
   \end{tabular}
   \caption{Meta-rule improvement.\label{tab:metaImprovement}}
 \end{figure}
