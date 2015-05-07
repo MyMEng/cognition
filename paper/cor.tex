@@ -1140,9 +1140,7 @@ With the genuine CASAS data the main barriers are noise, incompleteness and nume
 All the features designed so far for the synthetic datasets are used to train the activity recognition model on the real data. Depending on the level of noise in each trial some of the activity rules presented in \emph{Figure~\ref{lst:CASASmodel}} are not constructed, nevertheless collectively they all appear in the output models. Moreover, no new rules based on so far designed features are discovered.
 
       \subsubsection{Model evaluation}
-The model statistics are presented in \emph{Figure~\ref{tab:realCASASstats}}. The overall reasults are quite.\\
-Overall, achieves
-The prediction continuity rule is of great help as once rhe combinatio f sensors is found the rules can detects it firever on.
+The model statistics are presented in \emph{Figure~\ref{tab:realCASASstats}}. The overall results of the rule-based model are quite good; it once again over-performs the baseline provided by majority class classification.
 
 \begin{figure}[htb]
   \centering
@@ -1156,7 +1154,7 @@ Majority class & \textbf{27.94\%} & \textbf{0.08} & \textbf{0.28} & \textbf{0.12
 \end{figure}
 
     \subsection{CASAS activities with errors}
-Finally, model learnt on the genuine CASAS \#1 WSU Smart Apartment ADL Normal Testbed is evaluated against CASAS \#2 WSU Smart Apartment ADL Error Testbed. The purpose of this experiment is to examine behaviour of model when activities diverge from original model assumptions.
+Finally, the model learnt on the genuine CASAS \#1 WSU Smart Apartment ADL Normal Testbed is evaluated against CASAS \#2 WSU Smart Apartment ADL Error Testbed dataset. The purpose of this experiment is to examine behaviour of the rule-based model when the activities diverge from the original assumptions.\\
 
 \begin{figure}[htb]
   \centering
@@ -1169,53 +1167,54 @@ Majority class & \textbf{29.47\%} & \textbf{0.09} & \textbf{0.29} & \textbf{0.14
   \caption{Real CASAS \#2 evaluation results.\label{tab:errCASASstats}} % 20/207*0.18+42/207*0.22+61/207*0.75+55/207*0.96+0+29/207*0
 \end{figure}
 
+\emph{Figure~\ref{tab:errCASASstats}} shows the results of applying the model presented in \emph{Figure~\ref{lst:CASASmodel}} to the genuine data containing systematic error. The rule-based model once more performs better than the baseline.
+
     \subsection{Overlapping activities\label{sec:singleML}}
-Despite the initial assumption of the model being \emph{sequential} it is feasible to generalise it to a case where activities overlap i.e.\ predict multiple labels (activities) at any time. A simple example can be created by modifying the activity script presented in \emph{Section~\ref{sec:basicActibities}} so that the person first starts cooking by turning on the hob; then moves to the living room where phone call activity starts; he searches the phone book and uses fixed phone; next the person returns to the kitchen to turn off the hob---activity cooking stops; finally, he returns to the hall.\\
-This simple activity script embeds phone call inside cooking block, therefore, multi-label prediction is needed. The proposed generator is capable of creating such datasets, hence, model extension is discussed on described above toy example.\\
+Despite the initial assumption of the model being \emph{sequential} it is feasible to generalise it to a case where activities overlap i.e.\ the model can predict multiple labels (activities) at any time. A simple example can be created by modifying the activity script presented in \emph{Section~\ref{sec:basicActibities}} so that the person first starts cooking by turning on the hob; then moves to the living room where the phone call activity starts---the person searches the phone book and uses the fixed phone---the phone call activity stops; next the resident returns to the kitchen to turn off the hob---activity cooking stops; finally, the person returns to the hall.\\
+This simple activity script embeds the phone call inside the cooking block, therefore multi-label prediction is needed. The proposed generator is capable of creating such datasets, hence the model extension is discussed based on described above toy example.\\
 
-As \texttt{Prolog} natively supports multiple answers to a query it is possible to apply ILP to multi-label setting without any modifications. A \texttt{location} query returns all active locations (not possible in noiseless single resident case), and \texttt{device} all items and appliances used at given time. For the simple case described above the output theory is identical to sequential model shown in \emph{Figure~\ref{lst:alephBasicModel}}.\\
+As \texttt{Prolog} natively supports multiple ``answers'' to a query it is possible to apply the ILP to a multi-label setting without any modifications. The \texttt{location} predicate returns all active locations (not possible in noiseless single resident case), and the \texttt{device} predicate all the items and appliances used at given time. For the simple case described above the ILP output theory is identical to the sequential model shown in \emph{Figure~\ref{lst:alephBasicModel}}.\\
 
-The models similarity, and in this particular case identity, is an important discovery. A model learnt for sequential activities can be used with non-sequential data and with some exceptions vice versa.\\
-This feature of ILP may become particularly handy when learning multi-label case is hard. In such cases, model learnt on the same activities performed sequentially could be used.\\
-Finally, as multiple residents cases are multi-label problem by definition sequential models can be applied, nevertheless, they will not identify the resident associated with activity.
+The models similarity, and in this particular case identity, is an important discovery. A model learnt for a sequential activities can be used with non-sequential data and with some exceptions vice versa. Learning the model on multi-label data and applying it to the sequential case may lead to rules that associate to many sensor activations with long lasting activities, hence perform poorly in the latter case. For example, in the scenario described above the rule for cooking may depend on the phone book and the fixed phone.\\
+This feature of the ILP may become particularly handy when learning a multi-label dataset is hard. In such cases, a model learnt on the same activities performed sequentially can be used.\\
+Finally, as multiple residents case is multi-label problem by definition the sequential models can be applied to them, nevertheless they will not identify the resident associated with the activity.
 
   \section{Unscripted data}
-Presented above work shows the approach when activity details are available. Such datasets are rare as they need special testbed and activity preparation as well as human annotation. Moreover, so far learnt models mainly depend on item sensors and prior activity believes, with little use of motion sensors and location information.\\
+Presented above work shows the approach when activity details are available. Such datasets are rare as they need special testbed and activity script preparation as well as human annotation. Moreover, so far learnt models mainly depend on item sensors and prior activity believes, with little use of motion sensors and location information.\\
 
-In this section I consider more common and more difficult to model unscripted datasets. This problem is hard to tackle as beside main objective of the activity little is known about it. Moreover, item sensors which were the main support for so far learnt models are unpopular in majority of activities of daily living therefore in this section I focus on structures encoded via motion sensors. By large, in unscripted cases feature design is more of guesswork and intuition rather than systematic data analysis.
+In this section I consider more common and more difficult to model unscripted datasets. This problem is hard to tackle as beside the main objective of the activity little is known about it. Moreover, item sensors which were the main support for so far learnt models are unpopular in majority of activities of daily living, therefore in this section I focus on structures encoded only via motion sensors. By large, in unscripted cases feature design is more of a guesswork and intuition rather than systematic data analysis.
 
     \subsection{Multi-label model for multiple residents\label{ch:mlm}}
-The data collected from house occupied by multiple residents are a mixture of sensor activations caused by each person interacting with the house. There are two main goals in modelling such data: first, recognise an activity; second, assign the activity to a resident.\\
-A straight forward approach is to separate sensor activations per person and use single resident model. Unfortunately, it is difficult to achieve in ILP, hence, different approach has to be identified.\\
+The data collected from a house occupied by multiple residents are a mixture of sensor activations caused by each person interacting with the house. There are two main goals in modelling such data: first, recognise an activity; second, assign the activity to the resident.\\
+A straight forward approach is to separate sensor activations per resident and use single occupier model. Unfortunately, it is difficult to achieve in the ILP, hence different approach has to be chosen.\\
 
-In this model I assume that each resident performs at most one activity at a time. Moreover, each resident has assigned bedroom to which only he has access, therefore, all bedroom sensor activations are caused by himself.\\
-As there are two predictions to make: activity and person, two errors are possible. Hence, evaluation measure for multi-resident activity recognition model has to be chosen. For this particular application accuracy for each resident-activity pair together with their marginals should suffice.\\
+In this model I assume that each resident performs at most one activity at a time. Moreover, each resident has assigned bedroom to which only he has access, therefore all bedroom sensor activations are caused by himself.\\
+As there are two predictions to make: activity and resident, two errors are possible. Hence, evaluation measure for the multi-resident activity recognition model has to be chosen. For this particular application accuracy, precision, recall and F-measure for each resident-activity pair together with their marginals should suffice.\\
 
-The greatest difficulty in such models is the event of resident's path crossing and sharing common areas. The threat in such cases is that it is fairly easy to mix them up and relatively hard to label them again. The canonical multi-resident activity example containing the above features is \emph{bedroom-toilet} problem.
+The greatest difficulty in such models is the event of resident's path crossing and sharing common areas. The threat in such cases is that it is fairly easy to mix them up and relatively hard to label them again. The canonical multi-resident activity example containing the above characteristics is \emph{bedroom-toilet} problem.
 
     \subsection{Bedroom-toilet problem}
-The two residents case is the simplest scenario of multiple residents house. It is both used in CASAS datasets and commonly described in the literature, therefore, I focus on this particular quantity. Moreover, for this particular model only motion sensor readings are available.\\
+The two residents case is the simplest scenario of multiple residents house. It is both used in the CASAS datasets and commonly described in the literature, therefore I focus on this particular quantity. Moreover, for this type of activity recognition problems only motion sensor readings are available, hence all designed features restrict to them.\\
 
-The bedroom-toilet problem is the most basic activity of daily living for multiple residents. It is set in a house where both bedrooms share a common hall which leads to a bathroom. In this environment one of the residents stays in his room, while the other goes to the bathroom and returns to his room via the hall. For the person staying in his room all the time there are two possibilities: first, he can stay still, what resembles sleeping; second, he can move, what resembles working.\\
-
-In this work I focus on recognising only two activities \emph{in the room} and \emph{outside of the room} and assigning them to the residents.
+The bedroom-toilet problem is the most basic activity of daily living for multiple residents. It is set in a house where both bedrooms share a common hall which leads to a bathroom. In this environment one of the residents stays in his room, while the other goes to the bathroom and returns to his room via the hall. For the person staying in the room all the time there are two possibilities: first, he can stay still, what resembles sleeping; second, he can move, what resembles working. In my work I simplify the prediction space and focus on recognising only two activities: \emph{in the room} and \emph{outside of the room}, and assigning them to the residents.
 
     \subsection{Synthetic multiple residents}
-First, a dataset is generated according to the above description. The dataset is noiseless and the person staying in the bedroom is wandering around his room while the other person goes to the bathroom.
+Firstly, a dataset is generated according to the above description. The dataset is noiseless and the person staying in the bedroom is wandering around his room while the other person goes to the bathroom.
 
       \subsubsection{Multiple residents features---lack of noise}
-The \texttt{Prolog}'s ability to return more than one answer is of great importance for multiple resident case. Lack of noise guarantees simultaneous prediction of two active locations (using motion sensors) in the house, and possibly more than one item used.\\
-Not all so far designed features for single resident case support multiple answers, therefore, all rules are extended to facilitate it. Moreover, by default \texttt{Aleph} does not use multiple outputs generated by rule body predicates, hence, wrappers are created with \texttt{findall} \texttt{Prolog} predicate to return lists instead of constants.\\
+The \texttt{Prolog}'s ability to return more than one answer is of great importance for the multiple residents case. Lack of noise guarantees simultaneous prediction of at most two active locations (using motion sensors) in the house, and possibly more than one item used.\\
+Not all of the so far designed features for single resident support multiple answers, therefore all the rules are extended to facilitate it. Moreover, by default \texttt{Aleph} does not use multiple outputs generated by the predicates, hence wrappers are created with \texttt{findall} native \texttt{Prolog} predicate to return lists instead of constants.\\
 
-In this model initial person identification is achieved by person-bedroom assignment---it is represented as fact in background knowledge. As no item sensor are used activity recognition is only based on motion sensors.\\
+In this model the initial person identification is achieved by person-bedroom assignment---it is represented as fact in the background knowledge. As item sensors are not used the activity recognition is only based on the motion sensors.\\
 
+      \subsubsection{Activity model}
 Rules for two activities have to be constructed: being in the room and being outside of the room. The first one is based on the assumption that if motion sensors in one of the bedrooms are activated the owner of the room is in it.\\
 To this end \texttt{locations} feature returning list of rooms with activated motion sensors is used. \emph{roomInLocations} predicate is used to check whether one of the bedrooms is in this list; if so the owner of the bedroom (\texttt{bedroom} predicate) together with activity \emph{in the room} (\texttt{roomActivity} predicate) is returned.\\
 
 The activity of being outside of the bedroom is detected based on one of the detected locations (\texttt{locations} predicate) not being bedroom (\texttt{hallbathroomLocations} predicate). In such case activity of being \emph{outside of the bedroom} is predicted (\texttt{roomActivity} predicate). To infer the identity of this person activation of bedroom sensors is checked (\texttt{roomInLocations} predicate) and resident whose bedroom does not cause these activations is returned (\texttt{bedroom} and \texttt{allPeopleBut} predicates).
 
-      \subsubsection{Activity model}
 The target activity recognition model for bedroom-toilet two resident case is given in \emph{Figure~\ref{lst:BTtwo}}.\\
+A bit more about the model.
 
 \begin{figure}[htb]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -1231,14 +1230,13 @@ activity(Activity, Time, Resident) :-
   roomActivity(HB, Activity),
   roomInLocations(Locations, Room),
   bedroom(Person, Room),
-  allPeopleBut(Person, [Resident]).
+  allPeopleBut(Person, Resident).
   \end{minted}
   \caption{Bedroom-toilet activity recognition model for two residents.\label{lst:BTtwo}}
 \end{figure}
 
       \subsubsection{Result evaluation}
 Majority by predictiong pair (res\_1, room\_1), (res\_2, room\_2)\\
-Change the rule to something more realistic: [Res] to Res.\\
 
 ALL:\\
 Overall, the model achieves \emph{accuracy} of \textbf{94.44\%}; \emph{precision} of \textbf{0.96}; \emph{recall} of \textbf{0.98}; and \emph{F-measure} of \textbf{0.97}.\\
@@ -1285,21 +1283,22 @@ Overall, the model achieves \emph{accuracy} of \textbf{46.86\%}; \emph{precision
 For majority class classifier: achieves \emph{accuracy} of \textbf{28.74\%}; \emph{precision} of \textbf{0.32}; \emph{recall} of \textbf{0.73}; and \emph{F-measure} of \textbf{0.44}.
 
   \section{Signal features\label{sec:single:features}\label{sec:multiple:features}}
-I show in described above activity recognition models all the features used to build them. Majority of them is designed to pick up specific signal characteristic therefore they are used for small number of activity rules. This feature's ``selectiveness'' property allows to store only raw data and extract features ``on demand''.\\
-With each new dataset examined with ILP the database of features expands. Majority of those features are not data specific---they extract signal properties via house background knowledge. Therefore, such database is of great help when dealing with new datasets, about which little is known.\\
+I show in described above activity recognition models all the features used to build them. Majority of them is designed to pick up only a specific signal characteristic, therefore they are used in a small number of the activity rules. This feature's ``selectiveness'' property allows to store only the raw data and extract the features ``on demand''.\\
+Each new dataset examined with the ILP requires design of new features, therefore their database expands. Majority of those features are not data specific---they extract signal properties via the house specific background knowledge. Hence, such database is of great help when dealing with new datasets, about which little is known.\\
 
-All three: the fact signal representation, the house background knowledge, and the feature rules can be used as generative model for signal's features. With well designed rules signal issues such as noise and incompleteness can be fixed. This in turn would result in smoothed-out dataset hence remedy any signal continuity problems. Transformed in such way datasets can be more informative hence lead to better classification results.\\
-Finally, as \texttt{Prolog} is interpreted language its query interface can be used to easily examine the dataset by hand with designed earlier features. Using this technique data structure can be discovered and effectiveness of the features can be evaluated.
+Moreover, all three combined: the fact signal representation, the house background knowledge, and the feature rules can be used as a generative model for signal's features. With well designed rules, the signal issues such as noise and incompleteness can be fixed. This in turn would result in smoothed-out dataset, hence remedy any signal continuity problems. Transformed in such way datasets can be more informative, therefore lead to a better classification results.\\
+
+Finally, as \texttt{Prolog} is interpreted language its query interface can be used to easily examine any dataset by hand with designed earlier features. Using this technique new structures within data can be discovered and effectiveness of the features can be evaluated.
 
   \section{Discontinuity problem\label{sec:predictionDiscontinuity}}
-Noise and incompleteness of the data are great difficulty when building activity recognition model. Both of them can cause two main discontinuity problems: intermittent sensor signals and model activity predictions.
+Noise and incompleteness of the data cause great difficulties when building the activity recognition model. Both of them can cause two main discontinuity problems: intermittent sensor signals and discontinuous activity predictions.
 
     \subsection{Signal discontinuity}
-Signal discontinuity is hard to be fixed for item and appliance sensors and relatively easy for motion sensors. Either random sensor activations or motion sensor dead zones can cause intermittent signal feed leading to unknown resident location for some periods of time. As I use information delivered by motion sensors in form of \texttt{location} predicate the discontinuity problem can be easily fixed. When none of the motion sensors is active the \texttt{location} predicate assumes the last known resident location (see \emph{Section~\ref{sec:basicActibities}} for details). Such approach greatly improves the \texttt{location} feature capabilities but introduces bias which can cause troubles when the resident leaves the house.
+Signal discontinuity is hard to be fixed for item and appliance sensors and relatively easy for motion sensors. Either random sensor activations or motion sensor dead zones can cause intermittent signal feed leading to unknown resident location for some periods of time. As I use information delivered by the motion sensors in form of the \texttt{location} predicate the discontinuity problem can be easily fixed. When none of the motion sensors is active the \texttt{location} predicate assumes the last known resident's location (see \emph{Section~\ref{sec:basicActibities}} for details). Such approach greatly improves the \texttt{location} feature capabilities but introduces bias, which can cause troubles when the resident leaves the house.
 
     \subsection{Prediction discontinuity\label{sec:predDis}}
-Continuity issue is also present in activity recognition rules. Many of them are based on particular sensor conditions therefore between such events the prediction is not possible. For example, phone call rule presented in \emph{Section~\ref{sec:basicActibities}} is supported on phone and phone book events. Between browsing the phone book and talking on the phone there are only uninformative motion sensor readings caused by the resident moving from the first item to the latter.\\
-This period of time is difficult to label using signal features, nevertheless, it can be assign to phone call activity by wrapping the activity model within \emph{meta-rule} that smooths out the predictions---see \emph{Figure~\ref{lst:metaActivity}}.
+Continuity issue is also present in the activity recognition rules. Many of them are based on particular sensor conditions, therefore between such characteristic events the prediction is not possible. For example, phone call rule presented in \emph{Section~\ref{sec:basicActibities}} is supported on the phone and the phone book events. Between browsing the phone book and talking on the phone there are only uninformative motion sensor readings caused by the resident moving from the first item to the latter.\\
+This period of time is difficult to label using only motion sensors, nevertheless it can be assign to the phone call activity by wrapping the activity model within \emph{meta-rule} that smooths out the predictions---see \emph{Figure~\ref{lst:metaActivity}}.\\
 
 \begin{figure}[htb]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -1314,7 +1313,7 @@ metaActivity(Activity, Time) :-
   \caption{Example meta-activity rules.\label{lst:metaActivity}}
 \end{figure}
 
-To evaluate possible improvements achieved with proposed meta-rule, 10 fold cross-validation on both \emph{base rules} and base rules accessed via \emph{meta-rules} is performed. The dataset used for evaluation is synthesised based on two CASAS-like activities: phone call and cooking---similar to the example presented in \emph{Section~\ref{sec:basicActibities}}.\\
+To evaluate a possible improvements achieved with proposed meta-rule, 10 folds cross-validation on both \emph{base rules} and base rules accessed via \emph{meta-rules} is performed. The dataset used for evaluation is synthesised based on two CASAS-like activities: phone call and cooking---see the example presented in \emph{Section~\ref{sec:basicActibities}}.\\
 
 \begin{figure}[htb]
   \centering
@@ -1327,23 +1326,24 @@ meta rules & 82.29\% & 0.82 & 0.82 & 0.82 \\
   \caption{Meta-rule improvement.\label{tab:metaImprovement}}
 \end{figure}
 
-The experiment results are shown in \emph{Figure~\ref{tab:metaImprovement}}. In general, the meta-rule improves the classification results by correctly labelling points previously given false negative label. E.g.\ time between using the phone book and the phone is not assign any label in \emph{base rule} case, and in \emph{meta-rule} case phone call label is given.\\
+The experiment results are shown in \emph{Figure~\ref{tab:metaImprovement}}. In general, the meta-rule improves the classification results by correctly labelling points previously given incorrect \emph{none activity} label (recall boost). For example, the time between using the phone book and the phone is not assign any label in the \emph{base rule} case, but in the \emph{meta-rule} case the correct phone call label is given.\\
 
-Both continuity fixes for sensors and activities have a significant disadvantage. In case the resident leaves the house and sensors do not recognise that event a false prediction of long time span is produced. This bias can be improved in both cases by monitoring time for which each sensor is on---the average of 40 seconds is given in the literature---and discarding any sensor readings that does not fit that time window.
+Both continuity fixes for sensors and activities have a significant disadvantage. In case the resident leaves the house and sensors do not recognise that event a false prediction of long time span is produced. This bias can be improved in both cases by monitoring time for which each sensor is on---the average of 40 seconds is given in the literature---and discarding any sensor readings that do not fit that time window.
 
   \section{Model generality}
-Vast majority of presented here rules access raw signals via names and not with data specific sensor IDs. This design approach guarantees generality of the built activity rules. By using house specific background knowledge the rules can be applied to many other datasets which could be based on slightly varying testbed design.\\
-Another type of model generality is presented in \emph{Section~\ref{sec:singleML}}. Due to mentioned there \texttt{Prolog} capabilities model based on sequential activities can be applied to overlapping ones and vice versa.\\
+Vast majority of presented here rules access the raw signals via names and not with the data specific sensor IDs. This design approach guarantees generality of the achieved activity rules. By using a house specific background knowledge the rules can be applied to many other datasets, which can be based on various other testbed designs.\\
+Another type of the rule-based model generality is presented in \emph{Section~\ref{sec:singleML}}. Due to mentioned there \texttt{Prolog} capabilities a model based on sequential activities can be applied to the overlapping ones and vice versa.\\
 
-Finally, this model generality property leads to possibility of applying real data based models to the ones learnt on synthetic data and vice versa. This approach is used as one of the model evaluation techniques.
+Finally, this model generality property leads to possibility of applying the model based on a real data to the synthetic data and the other way around. This approach is used as one of the model evaluation techniques.
 
   \section{Model evaluation}
 Results overview.\\
 Generality of learnt rules: synthetic <--> genuine.\\
 evaluation measures \& compare to something.\\
+The prediction continuity rule is of great help as once rhe combinatio f sensors is found the rules can detects it firever on.
 
   \section{Summary}
-The summary of the chapter.
+In this chapter I showed how to build basic activity recognition models for both single and multiple residents cases. The core of .
 
 %===============================================================================
 %===============================================================================
