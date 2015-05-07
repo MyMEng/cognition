@@ -475,20 +475,20 @@ Furthermore, CASAS specific drawbacks hinder their usage. Numeric output of the 
 All of these issues make testing an undocumented learning algorithm like the ILP difficult. Therefore, a highly customisable and precise smart house data generator is required.
 
   \section{The smart-house generator}
-The smart house data generator created as part of this project is intended to help in activity recognition model design, training and testing. It is highly customisable, hence, it gives user great control over generated data.\\
+The smart house data generator created as a part of this project is intended to help in the activity recognition model design, training and testing. It is highly customisable, hence it gives the user great control over the generated data.\\
 
-The user can designing activities of arbitrary structure and complexity and use them to simulate corresponding smart-house output. Then, he can attempt to learn the structure encoded within it. As he knows activity details, he can bypass real data issues (see \emph{Section~\ref{sec:dataIssues}}) and focus on tuning the model. Overcoming one issue at the time greatly benefits model quality and helps to identify its strong and weak points.\\
+The user can design activities of arbitrary structure and complexity and use them to simulate the corresponding smart house output. Then, he can attempt to learn the structure encoded within it. As he knows the activity details, he can bypass real data issues (see \emph{Section~\ref{sec:dataIssues}}) and focus on tuning the model. Overcoming one issue at the time greatly benefits model quality and helps to identify its strong and weak points.\\
 
-The tool is open source and published as a \texttt{GitHub} repository together with complete documentation describing design choices, usage details and input-output examples.
+The tool is open source and published as a \texttt{Git} repository together with complete documentation describing design choices, usage details and input-output examples.
 
     \subsection{Capabilities}
-To use the generator, firstly, the user has to describe house by stating room interconnections in form of adjacency matrix.\\
+To use the generator, firstly the user has to describe a house by stating room interconnections in a form of adjacency matrix.\\
 
-Then, room layout and sensors placement within each room needs to be specified. The room dimensions are required together with list of wanted sensors. The design is based on Cartesian coordinates with origin in bottom left corner of the room.\\
-For motion sensors: ID, position and range has to be specified. Sensors of these type detect motion radially from their location.\\
+Then, room layout and sensors placement within each room needs to be specified. The room dimensions are required together with a list of wanted sensors. The room design is based on Cartesian coordinates with origin in bottom left corner.\\
+For motion sensors: ID, position and range has to be specified. Sensors of this type detect motion radially from their location.\\
 Item sensors are defined with: ID, position, and its human readable name.\\
-Finally, door location is needed for layout completeness. They are encoded with \texttt{door} keyword, their coordinates and name of a room they lead to.\\
-Example definition of each sensor type (order preserved) is given in \emph{Figure~\ref{lst:sensorLayout}}.\\
+Finally, door location is needed for layout completeness. They are encoded with the \texttt{door} keyword, their coordinates and name of the room they lead to.\\
+Example definition of each sensor type in preserved order is given in \emph{Figure~\ref{lst:sensorLayout}}.\\
 
 \begin{figure}[htb]
 \lstset{
@@ -503,18 +503,19 @@ Example definition of each sensor type (order preserved) is given in \emph{Figur
   float=tb
 }
   \begin{lstlisting}
-m13  4.5 1   1
-i78  5.5 0.5 phone_book
-door 0   0.5 hall
+living_room 6 6:
+  m13  4.5 1   1
+  i78  5.5 0.5 phone_book
+  door 0   0.5 hall
   \end{lstlisting}
   \caption{Example sensor definitions.\label{lst:sensorLayout}}
 \end{figure}
 
-Subsequently, item sensors characteristics have to be specified. Each item, like TV, takes some time to use---average TV watching time. It is simulated by drawing a sample of Gaussian distribution with user specified mean and standard deviation. This feature is mainly used for simple activities but the time can be altered in activity specification script (see next paragraph).\\
-Walking is simulated in the same way---single step size and time together with their standard deviations have to be specified.\\
+Subsequently, item sensors characteristic has to be specified. Each item, like TV, takes some time to use---average TV watching time. It is simulated by drawing a sample of Gaussian distribution with user specified mean and standard deviation. This feature is mainly used for simple activities, nevertheless the time can be altered in activity specification script (see the next paragraph).\\
+Walking is simulated in a similar way---mean and standard deviation of a single step size and time have to be defined.\\
 
-Finally, activity script used to simulate interaction with sensors has to be provided. Arbitrary number of activities (they can be nested) for multiple people can be defined. Each script is specified with start position and any of the following atomic actions can be issued: go to room, go to location within the room, use item (simulate previously defined time), pick up any item or start any device, put down the item or turn off the device. For more complex activities any command can be used between starting/taking and stopping/returning any device/item.\\
-Curly brackets together with activity name are used to surround atomic actions contributing towards this activity. Example script is given in \emph{Figure~\ref{lst:path}}.\\
+Finally, the activity script used to simulate interaction with the house sensors has to be provided. Arbitrary number of activities (they can be nested) for single or multiple residents can be defined. Each script begins with start position of the resident, which is followed by any of the atomic action commands: go to a room, go to a location within the room, use item (by simulating previously defined time), pick up an item or start a device, put down the item or turn off the device. For more complex activities any command can be used between starting/taking and stopping/returning any device/item.\\
+Curly brackets together with an activity name are used to surround atomic actions contributing towards this activity. Example script is given in \emph{Figure~\ref{lst:path}}.\\
 
 \begin{figure}[htb]
 \lstset{
@@ -556,10 +557,10 @@ cook{
   \caption{Example activity script.\label{lst:path}}
 \end{figure}
 
-Presented here tool is capable of generating arbitrarily complex user defined activities by specifying their atomic actions. The generator can simulate multiple residents interacting with the house simultaneously.\\
-Additionally to CASAS-like signal output, precise ground truth is recorded.\\
+Presented here tool is capable of generating arbitrarily complex user defined activities by specifying their atomic actions. The generator can simulate single and multiple residents interacting with the house simultaneously.\\
+Additionally to CASAS-like signals output, a precise ground truth information is recorded.\\
 
-Datasets generated for ILP activity recognition models are using house design presented in \emph{Figure~\ref{fig:simHouse}} with systematic grid of motion sensors fitted within each room.
+Datasets generated for the basic ILP activity recognition models are using testbed presented in \emph{Figure~\ref{fig:simHouse}} fitted with a systematic grid of motion sensors within each room.
 
 \begin{figure}[htb]
   \centering% [width=.9\textwidth]
@@ -568,56 +569,45 @@ Datasets generated for ILP activity recognition models are using house design pr
 \end{figure}
 
     \subsection{Advantages}
-Created smart-house data generator is flexible and highly customisable. The simulated resident can perform tasks of arbitrary complexity ranging from simple motion to nested activities each using different combination of available items. Moreover, the output signal can be distorted with various kinds of noise and randomness.\\
+Created smart house data generator is flexible and highly customisable. The simulated resident can perform tasks of arbitrary complexity ranging from simple motion to nested activities each using different combination of available items. Moreover, the output signals can be distorted with various kinds of noise and randomness.\\
 
-The main advantage of proposed here simulation technique is detailed knowledge of ground truth, which is based on input activity script. Availability of various kind of simulation statistics can be used to visualise sensor behaviour and debug activity model trained on generated data.\\
+The main advantage of proposed here simulation technique is detailed knowledge of the ground truth, which is based on the input activity script. Various kind of simulation statistics are available and can be used to visualise sensors behaviour, hence debug an activity model trained on the generated data.\\
 
-Finally, the raw signal output of the generator is given in widely accepted CASAS format. Therefore, simulations made with described here tool can be used with all activity recognition systems based on CASAS datasets.
+Finally, the raw signal output of the generator is given in widely accepted CASAS format. Therefore, the simulations made with described here tool can be used together with all the activity recognition systems based on CASAS datasets.
 
     \subsection{ILP ready}
-The smart-house data generator was designed with ILP model construction in mind, therefore, it outputs \texttt{Prolog} facts needed for this purpose. Information such as house specific background knowledge and positive \& negative examples required by ILP algorithm is recorded.\\
-Additionally, detailed sensor activations, time-location and activity structure informations are available for manual analysis of output signal.
+The smart house data generator is designed with the ILP model construction in mind, therefore it outputs \texttt{Prolog} facts needed for this purpose. Information such as the house specific background knowledge and positive \& negative examples required by the ILP algorithm are recorded.\\
+Additionally, detailed sensors activations, time-location and activity structure informations are available for manual analysis of the output signals.
 
     \subsection{Proof of concept}
-The value of presented here smart-house data generator can increase significantly if it can be proven to produce real-like datasets. Proof for single resident case is sufficient as multiple residents house is based on combination of multiple single agent simulations. The latter effect is achieved by special handling (preserving sensor states) of cases when agents cross each other's paths and interact with common device or item.\\
+The value of presented here smart house data generator can increase significantly if it can be proven to produce real-like datasets. Proof for a single resident case is sufficient as a multiple residents house is based on combination of multiple single agent simulations. The latter is achieved by special handling (preserving sensors' states) of cases when the residents cross each other's paths and interact with common device or item.\\
 
-Presented here data generator evaluation is based on \emph{similarity comparison} of ILP models learnt on CASAS \#1 WSU Smart Apartment ADL Normal Testbed and synthetic datasets. I chose this particular genuine data as they are provided with detailed activity scripts (see \emph{Section~\ref{sec:csasDataDet}}) and testbed layout (see \emph{Figure~\ref{fig:house:oner}}) hence its simulations should result in faithful reproductions.\\
+Presented here data generator evaluation is based on \emph{similarity comparison} of the ILP models learnt on CASAS \#1 WSU Smart Apartment ADL Normal Testbed and synthetic datasets. I chose this particular genuine data as they are provided with detailed activity scripts (see \emph{Section~\ref{sec:csasDataDet}}) and testbed layout (see \emph{Figure~\ref{fig:house:oner}}), hence its simulations should result in faithful reproductions.\\
 
-\begin{figure}[htb]
-  \centering
-  \begin{tabular}{ r | l l }
- & self-check & cross-check\\
-\hline
-accuracy & X & X\\
-F-measure & X & X\\
-  \end{tabular}
-  \caption{Synthetic and genuine data comparison.\label{tab:proofGen}}
-\end{figure}
-
-<DATA MISSING>
+To this end, I created a copy of CASAS testbed for the simulator and generated the five described activities.<HERE>
 
   \section{Knowledge representation of spatio-temporal data}
-Activity learning method described here requires signals represented as logical facts. ILP system used in this study is written in \texttt{Prolog} programming language therefore, all data has to be expressed in thereof predicates. This requirement causes some problems introduced by sensor type variety.\\
+The activity learning method described here requires signals to be represented as logical facts. The ILP system used in this study is written in \texttt{Prolog} programming language, therefore all the data has to be expressed in thereof predicates. This requirement causes some problems introduced by variety of used sensor types.\\
 
-The most common sensor output are binary variables: on-off, present-absent, opened-closed, etc.\ produced by motion and item sensors. Expressing them in predicates is straight-forward as their search space is finite---a set containing two elements.
+The most common sensor's output are binary variables: on-off, present-absent, opened-closed, etc.\ produced by motion, device and item sensors. Expressing them in logical form is straight-forward as their search space is finite---a set containing two elements. For convenience all binary variables are normalised to Boolean true-false space.
 
     \subsection{Unbounded sensor readings}
-Another type of sensor output are real and whole numbers. Handling these quantities is well known and broadly documented issue in Artificial Intelligence and Logic Programming. As \texttt{Prolog} is a language based on search space traversal numbers i.e.\ unbounded variables have infinite (unbounded) search space.\\
+Another type of sensor's output are real and whole numbers. Handling these quantities is well known and broadly documented issue in artificial intelligence and logic programming. As \texttt{Prolog} is a language based on a search space traversal numbers i.e.\ unbounded variables, with their infinite (unbounded) search space are causing significant difficulties.\\
 
-When sensor output is numerical it is converted to Boolean space by simple shareholding. The critical value is hand-picked based on observation of output values.\\
-A special case of unbounded readings is time.
+When the sensor's output is numerical it is converted into Boolean space by simple thresholding. The critical value is hand-picked based on observation of the sensor's output values.\\
+A special case of unbounded readings is a time.
 
     \subsection{Time representation\label{sec:timeRepresentation}}
-Date-time is complex object encoding many useful information. Unfortunately, its human readable format---YYYY-MM-DD HH:mm:SS.ssssss---is of no use in computer science. Converted to machine language it is expressed as a \emph{timestamp}---number of seconds elapsed since epoch dated on 00:00:00, 1\ts{st} January 1970, UTC.\\
+Date-time is a complex object encoding many useful information. Unfortunately, its human readable format---YYYY-MM-DD HH:mm:SS.ssssss---is of no use in computer science. Converted to machine language it is expressed as a \emph{timestamp}---number of seconds elapsed since epoch dated on 00:00:00, 1\ts{st} January 1970, UTC.\\
 
-For my study I chose to represent time in 4 different way:
+For my study I chose four different time representations:
 \begin{description}
-\item[absolute] is timestamp represented in micro-seconds ($\mu$-seconds: $10^{16}s$) rather than seconds,
-\item[relative] is number of micro-seconds elapsed since first sensor activation in the dataset,
-\item[sequenced] is a sequential number of sensor activation in the dataset starting with $0$,
-\item[windowed] is sequential number of fixed-time-interval window that the event fall into; the first time-windows starts on first sensor activation and has ID $0$; window of 5 seconds is used in the study.
+\item[absolute] is a timestamp represented in micro-seconds ($\mu$-seconds: $10^{16}s$) rather than seconds,
+\item[relative] is a number of micro-seconds elapsed since the first sensor activation in the dataset,
+\item[sequence] is a sequential number of the sensor activation in the dataset starting with $0$,
+\item[windowed] is a sequential number of fixed-time-interval window that the event falls into; the first time-window starts on the first sensor activation and has ID $0$; window of 5 seconds is used in the study.
 \end{description}
-Representation examples are shown in \emph{Figure~\ref{lst:timerepresentation}}.\\
+Time representation examples are shown in \emph{Figure~\ref{lst:timerepresentation}}.\\
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -634,26 +624,26 @@ sensor(m13, false, windowed, 1 ).
   \caption{Signal represented as \texttt{Prolog} facts.\label{lst:timerepresentation}}
 \end{figure}
 
-As no single time representation is best for ILP application all four were tested and evaluated. \emph{Sequence} is most suitable in search space environment---the numbers are not sparse therefore the application can easily iterate through them without large computational overhead.\\
-For this reason I chose this representation as the main time format. Despite being helpful in ILP scenario sequential number is highly uninformative. It lacks basic information such as time of day or possibility to be transformed into time elapsed since last sensor reading.\\
+As no single time representation is the best for the ILP application all four were tested and evaluated. \emph{Sequence} is the most suitable in a search space environment---the numbers are not sparse, therefore the application can easily iterate through them without large computational overhead.\\
+For this reason I chose this representation as the main time format. Despite being helpful in the ILP scenario sequential numbers are highly uninformative. They lack basic information such as time of day or possibility to be transformed into time elapsed since last sensor reading.\\
 
-To enrich source of information used by learning algorithm \emph{timestamp} representation is used. Following directly from sequence number it can be easily accessed. With such detailed representation of micro-second accuracy, precise time elapsed since any event can be calculated.\\
-Moreover this value can be thresholded hence discretised to produce bounded variables such as:
+To enrich the source of information used by the learning algorithm \emph{timestamp} representation is used. Following directly from the sequential number it can be easily accessed. With such detailed representation of micro-second accuracy, precise time elapsed since any event can be calculated.\\
+Moreover this value can be thresholded, hence discretised to produce bounded variables such as:
 \begin{description}
 \item[time of year] winter, summer, autumn, spring;
 \item[month] January, February, March, etc.;
 \item[time of day] morning, afternoon, evening, night;
 \end{description}
-and similar. In particular, in ILP and AI such values a lot easier to work with than numbers.\\
+and similar. In particular, in the ILP and AI such values are a lot easier to work with comparing to numbers.\\
 
 The remaining two representations: \emph{relative} and \emph{windowed} are of little use in presented here learning approach.
 
     \subsection{Background knowledge\label{sec:data:bkg}}
-Background knowledge is a general name for a place containing all the information relevant to model learning. By far, it is the most important component of ILP containing building blocks of target model. Moreover, it is a place for logical representation of signals and all relevant rules interacting with them. Additionally, it contains any information not contained or implicit in the raw signals.\\
+Background knowledge is a general name for a place containing all the information relevant to the model learning. By far, it is the most important component of the ILP containing building blocks of the target model. Moreover, it is a place for logical representation of the signals and all relevant rules interacting with them. Additionally, it contains any information not given or implicit in the raw signals.\\
 
-From large enough sample of smart-house data it is feasible to infer room layout and interconnections, unfortunately this task is computationally complex and impractical in most cases. ILP comes with help in such scenarios as it is ready to use any information not given in raw signals by reading it from background knowledge. Room connections information is great feature as it helps to predict motion trajectory and person's location.\\
-Sensor allocation---placement in rooms---is another information not given in raw signal. With help of sensors location, sensor activations can be translated into room name in which the activity is happening.\\
-Examples of information used in the background knowledge file is given in \emph{Figure~\ref{lst:bg}}. Fact \texttt{connected\_\_} informs about room connections via doors; \texttt{sensorInRoom} contains information where sensor of given ID is placed; \texttt{sensorActivity} is used with all item and appliance sensors and assigns human readable name to sensor ID; finally, \texttt{sensorInField} tells in range of which motion sensor item or appliance is located.\\
+From a large enough sample of smart house data it is feasible to infer room layout and interconnections, unfortunately this task is computationally complex and impractical in most of the cases. The ILP comes with help in such scenarios as it is ready to use any information not given in the raw signal by reading it from its background knowledge file. Room connections information is a great feature as it helps to predict motion trajectory and person's location.\\
+Sensor allocation---placement in the rooms---is another information not given in the raw signal. With help of sensors' location, motion sensors activations can be translated into the room name.\\
+Examples of information used in the background knowledge file are given in \emph{Figure~\ref{lst:bg}}. Fact \texttt{connected\_\_} informs about the room connections via doors; \texttt{sensorInRoom} contains information where the sensor of given ID is placed; \texttt{sensorActivity} is used with all the item and appliance sensors and assigns human readable name to each sensor ID; finally, \texttt{sensorInField} tells in range of which motion sensor the item or appliance is located.\\
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -675,8 +665,8 @@ bedroom(residentB, bedroom2).
   \caption{Background knowledge facts snippet.\label{lst:bg}}
 \end{figure}
 
-Apart from house layout information \emph{prior believes} of any kind can be used in background knowledge---see \texttt{aPriori} keyword \emph{Figure~\ref{lst:bg}}. A priori information such as likely place of activity, device or item required to complete it, and the order of activities are of invaluable help. For example, watching TV is most often associated with living room and a meal cannot be eaten unless it has been cooked. It is a fact that watching television requires TV to be on, cooking is happening on a hob and to make a phone call one needs to use a phone.\\
-With multiple residents in a house information such as bedroom assignment helps to distinguish them (\texttt{bedroom} keyword in \emph{Figure~\ref{lst:bg}}).\\
+Apart from house layout information \emph{prior believes} of any kind can be specified in the background knowledge---see \texttt{aPriori} keyword in \emph{Figure~\ref{lst:bg}}. A priori information such as likely place of activity, a device or item required to complete it, and the order of activities are of invaluable help. For example, watching TV is most often associated with being in the living room and a meal cannot be eaten unless it has been cooked. It is a fact that watching television requires TV to be on, cooking is happening with a hob on and to make a phone call one needs to use a phone.\\
+With multiple residents in the house information such as bedroom assignment helps to distinguish them (\texttt{bedroom} keyword in \emph{Figure~\ref{lst:bg}}).\\
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -692,12 +682,12 @@ location(Time, Location) :-
 
 Another component of background knowledge are \texttt{Prolog} rules interacting with facts and signals---they can be understood as \emph{feature extractors}. Rule example is shown in \emph{Figure~\ref{lst:bg:rule}}; it queries \emph{where} (room name) a person is at given \emph{time}.\\
 
-Background knowledge can be also understood as \emph{proxy} between raw signals and high level activity rules. As output rules are based on room, item, appliance names and not sensor IDs they are universal. Already existing model can be applied to any other house by using specific to that place background knowledge.\\
-Finally, learnt rules can be used in future iterations of learning process by appending them to the background knowledge.
+The background knowledge can be also understood as \emph{proxy} between the raw signals and high level activity rules. As the activity rules are based on room, item, appliance names and not sensor IDs they are universal. Therefore, already existing model can be applied to any other house by using specific to that residence background knowledge.\\
+Finally, learnt rules can be used in future iterations of learning process by appending them to the background knowledge file.
 
 
     \subsection{Positives and negatives\label{sec:data:posneg}}
-The final component of ILP are positive and negative examples of model to learn. Sample facts for both single and multiple occupiers are presented respectively in \emph{Figure~\ref{lst:singleposneg}}~\&~\emph{\ref{lst:multiposneg}}.\\
+The final component of the ILP are positive and negative examples of the target model. Sample facts for both single and multiple residents are presented respectively in \emph{Figure~\ref{lst:singleposneg}}~\&~\emph{\ref{lst:multiposneg}}.\\
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -711,7 +701,7 @@ activity(washUp, 60).
   \caption{Positives and negatives for single resident.\label{lst:singleposneg}}
 \end{figure}
 
-These examples use \emph{sequence} representation of time to express when (and by whom) activity \emph{is}: positives, and \emph{is not}: negatives done. Both types have common structure and are separated into two different files to be distinguishable.\\
+These examples use \emph{sequence} representation of time to express when (and by whom) activity \emph{is}---positives, and \emph{is not}---negatives done. Both types have a common structure and are separated into two different files to be distinguishable.\\
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
@@ -727,20 +717,25 @@ activity(useBathroom, 7, residentB).
   \caption{Positives and negatives for multiple resident.\label{lst:multiposneg}}
 \end{figure}
 
-For each activity the sets of positive and negative examples have to be disjoint with regard to time. The ILP system generalises positive examples into complex rules containing in body references to sensor states under restriction of not covering any or some negative examples.
+For each activity the sets of positive and negative examples have to be disjoint with regard to the time---see \emph{Figure~\ref{fig:timepoints}} for reference. The ILP system generalises positive examples into complex rules---containing feature predicates in their body---under restriction of not covering any or majority of negative examples.
 
   \section{The converter}
-The next step in model learning is data conversion from CASAS-like log format to \texttt{Prolog} \emph{knowledge representation} i.e.\ state signal readings as logical facts. The converter is capable of handling both single and multiple residents datasets. To this end, number of conversion steps is need.\\
+The next step in model learning is data conversion from CASAS-like log format to \texttt{Prolog} \emph{knowledge representation} i.e.\ state signal readings as logical facts. The converter is capable of handling both single and multiple residents datasets. To this end, a number of conversion steps is need.\\
 
-Real-valued signals like AD1-B water sensor (see \emph{Figure~\ref{lst:CASASoneR}}) are threshold and discretised. Binary sensor output is unified to values \emph{true} and \emph{false}. The time-date information is converted into four described in \emph{Section~\ref{sec:timeRepresentation}} representation.\\
-Moreover, the converter uses activity and person ID information given in 4\ts{th} and 5\ts{th} column of the data to generate positive and negative examples needed for learning activity model with \texttt{Aleph}.
+Real-valued signals like AD1-B water sensor (see \emph{Figure~\ref{lst:CASASoneR}}) are threshold and discretised. Binary sensor's outputs are unified to values \emph{true} and \emph{false}. The time-date information is converted into four described in \emph{Section~\ref{sec:timeRepresentation}} representation.\\
+Moreover, the converter uses activity and person ID information given in the 4\ts{th} and 5\ts{th} column of the data to generate positive and negative examples needed for learning activity model with \texttt{Aleph}.
 
   \section{Cross-validation}
-Once the data is converted and passed to \texttt{Aleph} the model in form of rules describing activities is produced. To evaluate their quality 10-fold cross-validation is performed.\\
-For each script of activities 10 data recordings are gathered together with corresponding model learnt with ILP. Then, each sample model is evaluated on the remaining nine datasets and the results are checked against corresponding ground truth. After testing all possible model-data combinations overall and per-label accuracy and is reported. The output of cross-validation framework is on of the diagnostics used to evaluate model performance.
+Once the data is converted and passed to \texttt{Aleph} the model in form of rules describing activities is produced. To evaluate its quality 10-fold cross-validation is performed.\\
+For each script of activities 10 data recordings are gathered together with corresponding model learnt with ILP. Then, each sample model is evaluated on the remaining nine datasets and the results are checked against corresponding ground truth. After testing all possible model-data combinations overall and per-label accuracy is reported. The output of cross-validation framework is on of the diagnostics used to evaluate model performance.
 
   \section{Summary}
-
+Got familiar with real data\\
+designed generator helpful in learning\\
+decided on real value sensor handling\\
+identified time representation\\
+identified useful backgroud knowledge\\
+designed cross validation
 
 %===============================================================================
 %===============================================================================
