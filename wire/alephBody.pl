@@ -132,18 +132,18 @@ activityOrder(Time, eat) :- % +,- % #eat
   % than it's EATING
   %% CurrentActivity = eat.
 
-%% %% after EATING must be WASHING-UP (within some reasonable window
-%% activityOrder(Time, clean) :- % +,- % #eat
-%%   % find last time (< +Time) the activity was COOK
-%%   checkPastActivities(Time, eat, WasAtTime),
-%%   % and not it isn't COOKING
-%%   \+bactivity(eat, Time),
-%%   % check whether it is within range
-%%   TimeDifference is Time - WasAtTime,
-%%   activityTimeWindow(Range),
-%%   TimeDifference =< Range,
-%%   % than it's EATING
-%%   CurrentActivity = clean.
+%% after EATING must be WASHING-UP (within some reasonable window
+activityOrder(Time, clean) :- % +,- % #eat
+  % find last time (< +Time) the activity was COOK
+  checkPastActivities(Time, eat, WasAtTime),
+  % and not it isn't COOKING
+  \+bactivity(eat, Time),
+  % check whether it is within range
+  TimeDifference is Time - WasAtTime,
+  activityTimeWindow(Range),
+  TimeDifference =< Range,
+  % than it's EATING
+  CurrentActivity = clean.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -311,9 +311,146 @@ min_list([H|L],Max0,Max) :-
     min_list(L, Max0, Max)
   ).
 
+nonEmpty(B) :-
+  B \= [none], B \= [], !.
+
+notCooked(A) :-
+  (\+cooked(A, B), !);
+  (cooked(A, B), A-B < 10).
+
+cooked(A, C) :-
+  cooked(0, A, C).
+
+cooked(Now, Up, C) :-
+  (bactivity(cook, Now), C = Now, !);
+  (Now < Up, !, B is Now+1, cooked(B, Up, C)).
 
 % devices that have closed cycle during given device
 % get duration of selected sensor
 %% getDuration() :- .
 % how long is it on?
 % major time criterion
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% RULES FOR MULTIPLE RESIDENTS
+% define people
+person(residentA).
+person(residentB).
+
+% assign bedrooms
+bedroom(residentA, room_1).
+bedroom(residentB, room_2).
+
+% MR activities
+activityIDs(sleep).
+activityIDs(useBathroom).
+
+% prior knowledge about room activity
+roomActivity(room_1, in_room).
+roomActivity(room_2, in_room).
+roomActivity(hall, out_room).
+roomActivity(bathroom, in_room).
+
+% confirm a room
+roomInLocations(Locations, Room) :-
+  member(Room, Locations), (Room = room_1; Room = room_2).
+hallbathroomLocations(Locations, Room) :-
+  member(Room, Locations), (Room = bathroom; Room = hall). 
+
+% all people but:
+allPeopleBut(Person, Remaining) :-
+  findall(R, (person(R), R \= Person), Re), remDu(Re, Remaining).
+
+% number of residents
+numResidents(N) :-
+  findall(R, person(R), Rs),
+  length(Rs, N).
+
+% return locations
+locations(T, Locators) :-
+  findall(L, (sensor_state(SensorID, true, T), sensorInRoom(SensorID, L)), Locations),
+  remDu(Locations, Locs),
+  % find time of sensors being ON
+  findall((SensorID, Tlow), sensorStill(SensorID, T, Tlow), SIDs),
+  % get locations to delete
+  locationsToDelete(SIDs, RemLoc),
+  % if more than two location predicted remove it
+  ifPossibleRemove(Locs, RemLoc, Locators).
+
+%% locations(Time, Locations) :-
+%%   (Time >= 0,
+%%    findall(SensorID, sensor_state(SensorID, true, Time), SensorIDs),
+%%    findall(sensorInRoom(SensorID, Location)), !  );
+%%   %% think about cut at the end
+%%   ( !, Time > 0, location(Time-1, Location) ).
+
+% if less than 2 locations than recover last complete solution
+metaLocations(T, L) :-
+  locationsPrim(T, Locs), length(Locs, Len), !,
+  ( (Len < 2, T > 0, !, T1 is T - 1, metaLocations(T1, L)) ; (Len < 2, T = 0, L = Locs, !) ; (Len >= 2, L = Locs, !) ).
+
+locationsPrim(T, Locs) :-
+  findall(L, (sensor_state(SensorID, true, T), sensorInRoom(SensorID, L)), Locations),
+  remDu(Locations, Locs).
+
+% remove locations if more than two
+ifPossibleRemove(Locs, RemLoc, Locators) :-
+  length(Locs, Len),
+  ((Len > 2, !, del(RemLoc, Locs, Locators));
+    (Len =< 2, !, Locators = Locs)).
+
+% based on time window remove locations --- the oldest location
+locationsToDelete(SIDs, RemLoc) :-
+  locationsToDelete(SIDs, (none,0), (OldID, _)),
+  sensorInRoom(OldID, RemLoc).
+locationsToDelete([(ID, Tn)|SIDS], (IDo,T), RemLoc) :-
+  (Tn >= T, !, locationsToDelete(SIDS, (ID,Tn), RemLoc));
+  (Tn < T, !, locationsToDelete(SIDS, (IDo,T), RemLoc)).
+locationsToDelete([], Loc, Loc).
+
+% improve location to discard latest room reeding if hall or bathroom detected
+%% % find the oldest sensor and disregard location
+sensorStill(SensorID, Time, Tlow) :-
+  %% there is sensor in given state...
+  sensor(SensorID, true, sequence, T1),
+  %% its not true that this sensor activated before
+  Tlow is Time - T1,
+  % ... before our time of interest...
+  T1 =< Time,
+  %% ...and its status does not change after that.
+  \+sensorStill_(SensorID, T1, Time).
+
+%% sensor state between T1 and T2 inclusive
+sensorStill_(SensorID, T1, T2) :-
+  sensor(SensorID, false, sequence, T),
+  T1 =< T, T =< T2.
+
+
+% addons
+del(X,[X|Tail],Tail) :- !.  
+del(X,[Y|Tail],[Y|Tail1]):-
+  !, del(X,Tail,Tail1).
+
+remDu(Dirty, Clean) :-
+  remDu([], Dirty, Clean).
+remDu(Cur, [D|Irty], Clean) :-
+  (member(D, Cur), !, remDu(Cur, Irty, Clean), !);
+  (\+member(D, Cur), !, remDu([D|Cur], Irty, Clean), !).
+remDu(C, [], C).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% activity(Activity, Time, Resident) :-
+%%   locations(Time, Locations),
+%%   roomInLocations(Locations, Room),
+%%   roomActivity(Room, Activity),
+%%   bedroom(Resident, Room).
+
+%% activity(Activity, Time, Resident) :-
+%%   locations(Time, Locations),
+%%   hallbathroomLocations(Locations, HB),
+%%   roomActivity(HB, Activity),
+%%   roomInLocations(Locations, Room),
+%%   bedroom(Person, Room),
+%%   allPeopleBut(Person, [Resident]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
