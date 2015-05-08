@@ -1263,33 +1263,24 @@ The model is assessed based on binary classification of the two pairs (Resident,
 The rule based model is overall better than the baseline produced by majority class classification.
 
     \subsection{CASAS multiple residents}
-The dataset used for  NOT SCRIPTED - CASAS \#7 --- muti resident\\
-bedroom-toilet problems are filtered out\\
-noise --- even though the person left sensors in the room are still activated.\\
-40 seconds rule length on average on\\
-different window for each sensor\\
+The real dataset used to test the rule-based activity recognition model for the bathroom-toilet problem is \#7 WSU Smart Apartment 2009 Two Resident Testbed, which is not scripted. As it contains many activities of daily living the bedroom-toilet chunks are filtered out.
 
       \subsubsection{Noise compatible features}
-As there exists location discontinuity in prediction space it needs to be make continuous, unfortunately due to multiple Prolog results it cannot be done in the same way as in single resident scenario—bias the location prediction toward last known location.\\
+In noisy data case there exists discontinuity of \texttt{locations} prediction space, which needs to be make continuous, unfortunately due to multiple \texttt{Prolog} results it cannot be done in the same way as in single resident scenario bias the location prediction toward last known location. A more advanced technique is needed.\\
 
-Locations = [room\_1, room\_2].
-no action is needed. In case one location is returned,
+In case two locations are returned use them. If less than two are returned use last known two locations. 
 Locations = [room\_1].
 and previous location prediction had this answer the list is appended with the missing one.
-
 If one location is returned and it was not previously discovered:
 Locations = [ hall].
 use
 connected(A, B, Path)
-This predicate returns path from room A to B including both locations. Check the connection of current prediction with both predictions from last known two-solution. If there is immediate connection: on hop, to one of the room append the other to the list. The issue is common space in one hop distance---it is my next step.
+This predicate returns path from room A to B including both locations. Check the connection of current prediction with both predictions from last known two-solution. If there is immediate connection: on hop, to one of the room append the other to the list. The issue is common space in one hop distance---it is my next step.\\
 
-More than locations returned than \# residents in the house:\\
-Locations = [room\_1, room\_2, hall].\\
-The idea is to check for sensor changes in each room in sliding time window -- if signal still the resident is out---remove his room---the longest standing sensor.\\
-Fortunately CASAS twor2009 bedroom-toilet activity combination give mostly two locations.
+Due to noise it is also possible that even though a person left a room the sensors are still activated, hence mote locations than nubmer of residents is lerurned. The idea is to check for sensor changes in each room in sliding time window 40 seconds rule length on average on -- if signal still the resident is out---remove his room---the longest standing sensor.
 
     \subsubsection{Activity model}
-Not possible to apply.
+Despite careful analysis of the bedroom-toilet activity parts of the CASAS dataset I could not learn any activity recognition rules. Designed features returned mostly two locations, nevertheless for some data parts they do not work. I suspect that they cannot handle some type of the noise that I am not able to identify.
 
   \section{Signal features\label{sec:single:features}\label{sec:multiple:features}}
 I show in described above activity recognition models all the features used to build them. Majority of them is designed to pick up only a specific signal characteristic, therefore they are used in a small number of the activity rules. This feature's ``selectiveness'' property allows to store only the raw data and extract the features ``on demand''.\\
