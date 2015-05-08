@@ -1266,18 +1266,13 @@ The rule based model is overall better than the baseline produced by majority cl
 The real dataset used to test the rule-based activity recognition model for the bathroom-toilet problem is \#7 WSU Smart Apartment 2009 Two Resident Testbed, which is not scripted. As it contains many activities of daily living the bedroom-toilet chunks are filtered out.
 
       \subsubsection{Noise compatible features}
-In noisy data case there exists discontinuity of \texttt{locations} prediction space, which needs to be make continuous, unfortunately due to multiple \texttt{Prolog} results it cannot be done in the same way as in single resident scenario bias the location prediction toward last known location. A more advanced technique is needed.\\
+In noisy data case there exist multiple discontinuity issues while predicting the locations. Unfortunately, due to more than one \texttt{Prolog} return values they cannot be fixed in the same way as in the single resident scenario. A more advanced technique to ensure continuous \texttt{locations} prediction is needed.\\
 
-In case two locations are returned use them. If less than two are returned use last known two locations. 
-Locations = [room\_1].
-and previous location prediction had this answer the list is appended with the missing one.
-If one location is returned and it was not previously discovered:
-Locations = [ hall].
-use
-connected(A, B, Path)
-This predicate returns path from room A to B including both locations. Check the connection of current prediction with both predictions from last known two-solution. If there is immediate connection: on hop, to one of the room append the other to the list. The issue is common space in one hop distance---it is my next step.\\
+In case two locations are returned no additional processing is necessary. If less than two locations are returned and the previous complete (having 2 answers) locations prediction had currently predicted room in it then appended the missing location to the current prediction.\\
+If one location is returned and it was not previously discovered \texttt{connected(A, B, Path)} predicate is used to find the path between current prediction and the last known two-room prediction. If there is immediate connection (in one hop distance) to one of previously discovered rooms the other location is append to the current prediction.\\
+Currently the main issue is a common space in one hop distance, which cannot be resolved otherwise than via removing the location without any sensor activations in sliding time window of fixed length (5 events window used in the experiment).\\
 
-Due to noise it is also possible that even though a person left a room the sensors are still activated, hence mote locations than nubmer of residents is lerurned. The idea is to check for sensor changes in each room in sliding time window 40 seconds rule length on average on -- if signal still the resident is out---remove his room---the longest standing sensor.
+Moreover, due to noise it is also possible that even though a person left a room the sensors are still activated, hence more locations than number of residents are returned. The idea to resolve it is to check for sensor changes in each room in sliding time window---if signal in given room does not change I assume that the resident has left the room, hence it is removed from the \texttt{locations} prediction.
 
     \subsubsection{Activity model}
 Despite careful analysis of the bedroom-toilet activity parts of the CASAS dataset I could not learn any activity recognition rules. Designed features returned mostly two locations, nevertheless for some data parts they do not work. I suspect that they cannot handle some type of the noise that I am not able to identify.
