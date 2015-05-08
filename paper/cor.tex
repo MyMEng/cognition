@@ -1236,19 +1236,32 @@ activity(Activity, Time, Resident) :-
 \end{figure}
 
       \subsubsection{Result evaluation}
-Majority by predictiong pair (res\_1, room\_1), (res\_2, room\_2)\\
+Binary classification of prediction pair (res\_1, room\_1), (res\_2, room\_2) given in \emph{Figure~\ref{tab:mulResStats}}.\\
 
-ALL:\\
-Overall, the model achieves \emph{accuracy} of \textbf{94.44\%}; \emph{precision} of \textbf{0.96}; \emph{recall} of \textbf{0.98}; and \emph{F-measure} of \textbf{0.97}.\\
-For majority class classifier: achieves \emph{accuracy} of \textbf{81.48\%}; \emph{precision} of \textbf{0.81}; \emph{recall} of \textbf{1}; and \emph{F-measure} of \textbf{0.9}.\\
+\begin{figure}[htb]
+  \centering
+  \begin{tabular}{ c r | l l l l }
+ & & \emph{Accuracy} & \emph{Precision} & \emph{Recall} & \emph{F-measure}\\
+\cline{2-6}
+\multirow{2}{*}{\emph{Overall}}
+ & \emph{Rule based} & 94.44\% & 0.96 & 0.98 & 0.97 \\
+ & \emph{Majority class} & 81.48\% & 0.81 & 1 & 0.9\\
+\cline{2-6}\\
+\cline{2-6}
+ \multirow{2}{*}{\emph{Per resident}}
+ & \emph{Rule based} & 98.15\% & 1 & 0.98 & 0.99\\
+ & \emph{Majority class} & 100\% & 1 & 1 & 1\\
+\cline{2-6}\\
+\cline{2-6}
+ \multirow{2}{*}{\emph{Per activity}}
+ & \emph{Rule based} & 94.44\% & 0.96 & 0.98 & 0.97\\
+ & \emph{Majority class} & 81.48\% & 0.81 & 1 & 0.90\\
+  \end{tabular}
+  \caption{Multiple residents evaluation results.\label{tab:mulResStats}}
+\end{figure}
 
-MRGINAL RESIDENT:\\
-Overall, the model achieves \emph{accuracy} of \textbf{98.15\%}; \emph{precision} of \textbf{1}; \emph{recall} of \textbf{0.98}; and \emph{F-measure} of \textbf{0.99}.\\
-For majority class classifier: achieves \emph{accuracy} of \textbf{100\%}; \emph{precision} of \textbf{1}; \emph{recall} of \textbf{1}; and \emph{F-measure} of \textbf{1}.\\
 
-MARGINAL LOCATION:\\
-Overall, the model achieves \emph{accuracy} of \textbf{94.44\%}; \emph{precision} of \textbf{0.96}; \emph{recall} of \textbf{0.98}; and \emph{F-measure} of \textbf{0.97}.\\
-For majority class classifier: achieves \emph{accuracy} of \textbf{81.48\%}; \emph{precision} of \textbf{0.81}; \emph{recall} of \textbf{1}; and \emph{F-measure} of \textbf{0.9}.
+
 
     \subsection{CASAS multiple residents}
 NOT SCRIPTED - CASAS \#7 --- muti resident\\
@@ -1276,11 +1289,7 @@ Locations = [room\_1, room\_2, hall].\\
 The idea is to check for sensor changes in each room in sliding time window -- if signal still the resident is out---remove his room---the longest standing sensor.\\
 Fortunately CASAS twor2009 bedroom-toilet activity combination give mostly two locations.
 
-      \subsubsection{Result evaluation}
-<DATA MISSING>\\
-Overall, the model achieves \emph{accuracy} of \textbf{46.86\%}; \emph{precision} of \textbf{0.54}; \emph{recall} of \textbf{0.77}; and \emph{F-measure} of \textbf{0.63}.\\
-
-For majority class classifier: achieves \emph{accuracy} of \textbf{28.74\%}; \emph{precision} of \textbf{0.32}; \emph{recall} of \textbf{0.73}; and \emph{F-measure} of \textbf{0.44}.
+Not possible to apply.
 
   \section{Signal features\label{sec:single:features}\label{sec:multiple:features}}
 I show in described above activity recognition models all the features used to build them. Majority of them is designed to pick up only a specific signal characteristic, therefore they are used in a small number of the activity rules. This feature's ``selectiveness'' property allows to store only the raw data and extract the features ``on demand''.\\
@@ -1318,10 +1327,10 @@ To evaluate a possible improvements achieved with proposed meta-rule, 10 folds c
 \begin{figure}[htb]
   \centering
   \begin{tabular}{ r | l l l l }
- & Accuracy & Precision & Recall & F-measure\\
+ & \emph{Accuracy} & \emph{Precision} & \emph{Recall} & \emph{F-measure}\\
 \hline
-base rules & 60.87\% & 0.83 & 0.44 & 0.56\\
-meta rules & 82.29\% & 0.82 & 0.82 & 0.82 \\
+Base rules & 60.87\% & 0.83 & 0.44 & 0.56\\
+Meta rules & 82.29\% & 0.82 & 0.82 & 0.82 \\
   \end{tabular}
   \caption{Meta-rule improvement.\label{tab:metaImprovement}}
 \end{figure}
@@ -1337,13 +1346,18 @@ Another type of the rule-based model generality is presented in \emph{Section~\r
 Finally, this model generality property leads to possibility of applying the model based on a real data to the synthetic data and the other way around. This approach is used as one of the model evaluation techniques.
 
   \section{Model evaluation}
-Results overview.\\
-Generality of learnt rules: synthetic <--> genuine.\\
-evaluation measures \& compare to something.\\
-The prediction continuity rule is of great help as once rhe combinatio f sensors is found the rules can detects it firever on.
+The overall performance of the rule activity recognition models is very good based on the conducted experiments. In all of the cases the accuracy of the ILP models is better than the one achieved with majority class prediction.\\
+
+Moreover, I showed that the rule-based models can handle majority of activity recognition problems presented in the literature by testing them in various scenarios. Such models are capable of dealing with multi-class and multi-label predictions, therefore they can handle sequential and overlapping activities performed by single and multiple residents. In general, the models are only limited by designed features and information placed in the background knowledge.\\
+
+Furthermore, the activity rules learnt for the synthetic and real datasets are identical (for large enough sample), what indicates that the model is transferable and partially resistant to the noise. Proposed here meta activity rule guaranteed continuous prediction space, hence highly improved classification results. Once any of the simple activity rules activated the meta-rule ensured majority of the correct predictions. Additionally, it resulted in a good performance of the model on the data containing errors.\\
+
+Finally, I attempted to learn the \texttt{J48} tree available in \texttt{Weka} package for the simple synthetic dataset presented in \emph{Section~\ref{sec:basicActibities}}. The 10 folds cross-validation resulted in an average accuracy of around 40\%. This poor classification results indicate that learning any of those data without transforming the raw signals into highly informative features will not produce a good activity recognition models.
 
   \section{Summary}
-In this chapter I showed how to build basic activity recognition models for both single and multiple residents cases. The core of .
+In this chapter I showed how to build the basic activity recognition models for both single and multiple residents houses. I presented example signal features that ensured good classification results and domain specific background knowledge which is helpful in the model learning. Moreover, I explained that the rule based models are universal and versatile as they can handle multiple scenarios like multi-class and multi-label predictions. Finally, I showed the importance of ensuring both signal and prediction continuity by introducing the concept of the meta rules and presenting the performance boost they yield.\\
+
+Achieved results are very promising and indicate that the capabilities of the model are highly dependant on the quality of designed features.
 
 %===============================================================================
 %===============================================================================
