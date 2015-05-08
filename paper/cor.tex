@@ -250,7 +250,7 @@ For instance,~\citet{fatima2013analysis} report \emph{accuracy} ranging from $\s
     \subsection{Project contribution}
 Broad activity recognition literature and variety of tested therein models clearly indicate that no single classifier can handle the diversity of activity structures embedded in the data. Each model has its pros and cons therefore perfect solution should use all of the models each offering features not covered by the others---the concept known as an \emph{ensemble learning}.\\
 
-Careful examination of the literature reveals missing discussion of \emph{first-order formulas} i.e.\ parametrised logical rules, used as building blocks of the activity recognition model. My work comprehensibly covers this problem and expands collection of used techniques. Therefore, the main aim of the project is to apply an \emph{Inductive Logic Programming} (ILP) techniques to the spatio-temporal data acquired from ``smart'' installations---houses in particular---in order to build the \emph{Activity Recognition Model} and extract new, more informative features from the raw signals.\\
+Careful examination of the literature reveals missing discussion of the \emph{first-order} \emph{formulas}---parametrised logical rules, used as building blocks of the activity recognition model. My work comprehensibly covers this problem and expands collection of used techniques. Therefore, the main aim of the project is to apply an \emph{Inductive Logic Programming} (ILP) techniques to the spatio-temporal data acquired from ``smart'' installations---houses in particular---in order to build the \emph{Activity Recognition Model} and extract new, more informative features from the raw signals.\\
 
 To address the first problem capabilities of an ILP system and possibilities of describing the model via a set of first-order logical rules are investigated. Both cases: the houses with a single and multiple occupiers are examined.\\
 The latter task involves critical analysis of the smart house signals; activity specific feature design; and their quality assessment. Such novel signal characteristics can be then used in any other activity recognition model to boost its performance.\\
@@ -646,11 +646,11 @@ Background knowledge is a general name for a place containing all the informatio
 
 From a large enough sample of smart house data it is feasible to infer room layout and interconnections, unfortunately this task is computationally complex and impractical in most of the cases. The ILP comes with help in such scenarios as it is ready to use any information not given in the raw signal by reading it from its background knowledge file. Room connections information is a great feature as it helps to predict motion trajectory and person's location.\\
 Sensor allocation---placement in the rooms---is another information not given in the raw signal. With help of sensors' location, motion sensors activations can be translated into the room name.\\
-Examples of information used in the background knowledge file are given in \emph{Figure~\ref{lst:bg}}. Fact \texttt{connected\_\_} informs about the room connections via doors; \texttt{sensorInRoom} contains information where the sensor of given ID is placed; \texttt{sensorActivity} is used with all the item and appliance sensors and assigns human readable name to each sensor ID; finally, \texttt{sensorInField} tells in range of which motion sensor the item or appliance is located.\\
+Examples of information used in the background knowledge file are given in \emph{Figure~\ref{lst:bg}}. Fact \texttt{connected} informs about the room connections via doors; \texttt{sensorInRoom} contains information where the sensor of given ID is placed; \texttt{sensorActivity} is used with all the item and appliance sensors and assigns human readable name to each sensor ID; finally, \texttt{sensorInField} tells in range of which motion sensor the item or appliance is located.\\
 
 \begin{figure}[htb] % [breaklines]
   \begin{minted}[bgcolor=Bkgd,frame=leftline]{Prolog}
-connected__(   bathroom, hall    ).
+connected(     bathroom, hall    ).
 
 sensorInRoom(  m61     , bathroom).
 
