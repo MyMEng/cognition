@@ -25,7 +25,20 @@
   \insertframenumber}%\,/\,\inserttotalframenumber}
 
 
-
+% \usepackage[inline]{enumitem}   
+% \makeatletter
+% % This command ignores the optional argument for itemize and enumerate lists
+% \newcommand{\inlineitem}[1][]{%
+% \ifnum\enit@type=\tw@
+%     {\descriptionlabel{#1}}
+%   \hspace{\labelsep}%
+% \else
+%   \ifnum\enit@type=\z@
+%        \refstepcounter{\@listctr}\fi
+%     \quad\@itemlabel\hspace{\labelsep}%
+% \fi}
+% \makeatother
+% \parindent=0pt
 
 
 \begin{document}
@@ -303,15 +316,14 @@ sensor(i08, false, windowed, 1).
       \begin{itemize}
         \item Phone call
         \item Wash hands
-        \item Cook
-        \item Eat
+        \item Cook {\setlength{\itemindent}{4em}\vspace*{-1.5em}\item Eat}
         \item Wash up
       \end{itemize}
       \end{block}
     \end{column}
   \end{columns}
 
-\textbf{Models:} Basic;~~~~~~~~~~~~Synthetic scripted;~~~~~~~~~~~~Real (CASAS).
+\vspace*{0.5em}\textbf{Models:} Basic;~~~~~~~~~~~~Synthetic scripted;~~~~~~~~~~~~Real (CASAS).
 
   \begin{columns}
 
