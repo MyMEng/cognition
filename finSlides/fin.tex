@@ -10,6 +10,10 @@
 \usepackage{url}
 \usepackage{listings}
 \usepackage{amssymb}
+\usepackage{minted}
+\definecolor{Bkgd}{rgb}{0.98,0.98,0.98}
+
+\usepackage{multirow}
 
 \definecolor{greenish}{RGB}{152,204,112}
 \definecolor{redish}{RGB}{244,158,196}
@@ -19,6 +23,9 @@
 \expandafter\def\expandafter\insertshorttitle\expandafter{%
   \insertshorttitle\hfill%
   \insertframenumber}%\,/\,\inserttotalframenumber}
+
+
+
 
 
 \begin{document}
@@ -278,48 +285,183 @@ sensor(i08, false, windowed, 1).
 \section{Scripted Data}
 
 \begin{frame}
-  \frametitle{Lorem}
+  \frametitle{Background}
 
-Need to settle results evaluation\\
-Compare agains the basic stats achieved with majoirty class classification\\
-compare models learn on various data\\
-Cross-validation\\
-model-comparison\\
+  \begin{columns}
+    \begin{column}{8cm}
+      \begin{block}{Results evaluation}
+      \begin{itemize}
+        \item 10-folds cross-validation
+        \item Majority class classification baseline comparison
+        \item Output model comparison by hand (various data including errors)
+      \end{itemize}
+      \end{block}
+    \end{column}
 
-Basic model\\
-Synthetic scripted sacas model\\
-Real data\\
+    \begin{column}{3cm}
+      \begin{block}{ADL}
+      \begin{itemize}
+        \item Phone call
+        \item Wash hands
+        \item Cook
+        \item Eat
+        \item Wash up
+      \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
 
-\end{frame} 
+\textbf{Models:} Basic;~~~~~~~~~~~~Synthetic scripted;~~~~~~~~~~~~Real (CASAS).
 
-\begin{frame}[plain]
+  \begin{columns}
+
+    \begin{column}{8cm}
+      \begin{block}{Features: T-time; L-location/list; D-device; A-activity}
+
+      \begin{columns}
+        \hspace*{2em}\begin{column}{4cm}
+        \begin{itemize}
+          \item \texttt{device(T,D)}
+          \item \texttt{location(T,L)}
+          \item \texttt{waterUsed(T)}
+
+          \item \texttt{notCooked(T)}
+        \end{itemize}
+        \end{column}
+
+        \begin{column}{5cm}
+        \begin{itemize}
+          \item \texttt{outOfCabinet(T,L)}
+          \item \texttt{nonEmpty(L)}
+          \item \texttt{medicineInList(L)}
+
+          \item \texttt{activityOrder(T,A)}
+        \end{itemize}
+        \end{column}        
+      \end{columns}
+
+
+      \end{block}
+    \end{column}
+
+    \begin{column}{3.5cm}
+      \begin{block}{Smoothing}
+        \begin{itemize}
+          \item Sensors readings
+          \item Prediction space--- a~meta-rule
+        \end{itemize}
+      \end{block}
+    \end{column}
+
+  \end{columns}
+
+\end{frame} % ACTIVITITES THAT I'VE LEARNT: activities of daily living: phone call, cook, wash up
+
+\begin{frame}[plain,fragile]
   \frametitle{Single resident model}
-list example features\\
 
-single resident model\\
+  \begin{block}{The model}
+\begin{minted}[bgcolor=Bkgd,frame=leftline,fontsize=\footnotesize]{Prolog}
+activity(phone_call,A) :-
+  device(A,phone_book).
 
-results\\
+activity(wash_hands,A) :-
+  outOfCabinet(A,[none]),
+  waterUsed(A).
 
-meta rule
+activity(A,B) :-
+  activityOrder(B,A),
+  location(B,living_room),
+  outOfCabinet(B,C),
+  medicineInList(C).
+\end{minted}
+  \end{block}
+
+  \begin{block}{The results}
+\begin{tabular}{ c r | l l l l }
+ & & \emph{Accuracy} & \emph{Precision} & \emph{Recall} & \emph{F-measure}\\
+\cline{2-6}
+\multirow{2}{*}{\#1}
+& \emph{Rule based} & 66.91\% & 0.70 & 0.67 & 0.68\\
+& \emph{Majority class} & 27.94\% & 0.08 & 0.28 & 0.12\\
+\cline{2-6}
+\multirow{2}{*}{\#2}
+& \emph{Rule based} & 46.86\% & 0.54 & 0.47 & 0.50\\
+& \emph{Majority class} & 29.47\% & 0.09 & 0.29 & 0.14\\
+\end{tabular}
+  \end{block}
 
 \end{frame} 
 
 \section{Unscripted Data}
 \begin{frame}
   \frametitle{Background}
-Bathroom toilet problem\\
 
-Synthetic data\\
-Real data CASAS
+  \begin{block}{Bedroom-toilet problem}
+  \begin{itemize}
+    \item Two (or more) people staying in their bedrooms
+    \item Shared hall joining a bathroom and two bedrooms
+    \item One person moves to the bathroom and returns
+  \end{itemize}
+  \end{block}
+
+  \textbf{Models:} Synthetic; Real (CASAS)---bedroom-toilet activities filtered out.
+
+  \begin{block}{Features}
+  \begin{columns}
+
+  \hspace*{1em}\begin{column}{5cm}
+  \begin{itemize}
+    \item \texttt{locations(T, Loc)}
+    \item \texttt{bedroom(Res, Room)}
+    \item \texttt{allPeopleBut(Per, Res)}
+  \end{itemize}
+  \end{column}
+
+  \hspace*{-2.5em}\begin{column}{7cm}
+  \begin{itemize}
+    \item \texttt{roomInLocations(Loc, Room)}
+    \item \texttt{hallbathroomLocations(Loc, Room)}
+    \item \texttt{roomActivity(Room, Act)}
+  \end{itemize}
+  \end{column}
+
+  \end{columns}
+  \end{block}
+
 \end{frame} 
 
-\begin{frame}[plain]
+\begin{frame}[plain,fragile]
   \frametitle{Two residents model}
-Features\\
 
-the model\\
+  \begin{block}{The model}
+\begin{minted}[bgcolor=Bkgd,frame=leftline,fontsize=\footnotesize]{Prolog}
+activity(Activity, Time, Resident) :-
+  locations(Time, Locations),
+  roomInLocations(Locations, Room),
+  roomActivity(Room, Activity),
+  bedroom(Resident, Room).
 
-results
+activity(Activity, Time, Resident) :-
+  locations(Time, Locations),
+  hallbathroomLocations(Locations, HB),
+  roomActivity(HB, Activity),
+  roomInLocations(Locations, Room),
+  bedroom(Person, Room),
+  allPeopleBut(Person, Resident).
+\end{minted}
+  \end{block}
+
+  \begin{block}{The results}
+    \begin{tabular}{ r | l l l l }
+    \centering
+     & \emph{Accuracy} & \emph{Precision} & \emph{Recall} & \emph{F-measure}\\
+    \hline
+     \emph{Rule based} & 88.89\% & 0.92 & 0.96 & 0.94 \\
+     \emph{Majority class} & 62.96\% & 0.63 & 1 & 0.77\\
+    \end{tabular}
+  \end{block}
+
 \end{frame} 
 
 \section{Conclusion and future work}
@@ -362,7 +504,7 @@ results
 % activity(Person, cooking, TimeWindow) :-
 %     location(Person, TimeWindow, kitchen),
 %     device(TimeWindow, hob).
-
+% 
 % location(Person, TimeWindow, kitchen) :-
 %     sensor(m08, on, absolute, TimeWindow),
 %     sensor(m09, on, absolute, TimeWindow).
