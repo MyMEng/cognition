@@ -164,13 +164,14 @@ Collaboration of clinicians, engineers, designers and social care professionals 
 \section{Spatio-temporal data}
 
 \begin{frame}[fragile]
-\frametitle{CASAS log data}
-The most popular and widest in literature\\
-Spatio: sensors are fixed at given location, temporal they deliver sesor state changes with timestamp
+\frametitle{Smart-house data}
+Smart-house data are spatio-temporal: the sensors are fixed at particular location; each sensor state change is reported with timestamp.\\[1em]
+
+The most popular are Washington State University Center for Advanced Studies in Adaptive Systems (CASAS) datasets.
 {\tiny
 \begin{columns}
 \begin{column}{5.4cm}
-\begin{example}[\tiny Smart house output~\cite{cook2009assessing}]
+\begin{example}[\tiny CASAS smart-house output~\cite{cook2009assessing}]
 \begin{figure}
 \lstset{
 captionpos=b,
@@ -194,12 +195,11 @@ basicstyle=\tiny
 2008-02-26 10:53:54.721822 M17   ON
 ...
 \end{lstlisting}
-\caption{\tiny CASAS experiment dataset structure\label{lst:data}}
 \end{figure}
 \end{example}
 \end{column}
 \begin{column}{5.4cm}
-\begin{example}[\tiny Data transformation]
+\begin{example}[\tiny Data transformation: knowledge representation]
 \begin{figure}
 \lstset{
 captionpos=b,
@@ -224,7 +224,6 @@ sensor(i08, false, sequence, 10).
 sensor(i08, false, windowed, 1).
 ...
 \end{lstlisting}
-\tiny\caption{\tiny Knowledge representation\label{lst:knowledge}}
 \end{figure}
 \end{example}
 \end{column}
@@ -233,18 +232,25 @@ sensor(i08, false, windowed, 1).
 \end{frame}
 
 \begin{frame}[plain]
-  \frametitle{Data issues}
+  \frametitle{Issues}
 
-transformation issues:\\
-unbounded variables: real values---threshold
-time representation: also unbounded: 
+  \begin{block}{Transformation}
+    \begin{itemize}
+      \item Real valued sensor readings: threshold
+      \item Time representation: sequence + timestamp + discretisation
+      \item Ground truth: positives and negatives, generation
+    \end{itemize}
+  \end{block}
 
-Data issues:\\
-Noise\\
-Incompleteness\\
-Lack of ground truth and precise information\\
+  \begin{block}{Data issues}
+    \begin{itemize}
+      \item Noise
+      \item Incompleteness
+      \item Lack of ground truth and precise testbed information
+    \end{itemize}
+  \end{block}
 
-Fix the data issues by generating them --- gence perfect knowledge of what is going on and can focus on learning. One problem at a time.
+\vspace*{1.5em}The data issues make the model hard to learn, hence simulate the data: great control, perfect knowledge, precise ground truth, noiseless. Focus on learning and solve one problem at a time.
 
 \end{frame}
 
@@ -252,44 +258,68 @@ Fix the data issues by generating them --- gence perfect knowledge of what is go
 \begin{frame}[plain]
   \frametitle{The smart-house data generator}
 
-Advantages:\\
-highly customisable\\
-gives ground truth information\\
-high control over output data\\
-single and multiple residents\\
+  \begin{block}{The generator}
+      \centering\noindent\includegraphics[width=5cm]{./gfx/gen}
+  \end{block}
 
-Give input files examples\\
-How it works\\
-
-Proof of concept
-
-Why is it neede din the field
+  \begin{block}{Advantages}
+  \begin{itemize}
+    \item Highly customisable: great control over the output data
+    \item Precise ground truth information
+    \item Works for both single and multiple residents houses
+    \item Is sound
+    \item Welcomed in the community for model training and testing
+  \end{itemize}
+  \end{block}
 
 \end{frame}
 
 
 \section{Scripted Data}
-\begin{frame}[plain]
-  \frametitle{Need to settle results evaluation}
+
+\begin{frame}
+  \frametitle{Lorem}
+
+Need to settle results evaluation\\
 Compare agains the basic stats achieved with majoirty class classification\\
 compare models learn on various data\\
 Cross-validation\\
 model-comparison\\
-\end{frame}
 
-\begin{frame}
-  \frametitle{Lorem}
+Basic model\\
+Synthetic scripted sacas model\\
+Real data\\
+
 \end{frame} 
+
 \begin{frame}[plain]
-  \frametitle{Ipsum}
+  \frametitle{Single resident model}
+list example features\\
+
+single resident model\\
+
+results\\
+
+meta rule
+
 \end{frame} 
 
 \section{Unscripted Data}
 \begin{frame}
-  \frametitle{Lorem}
+  \frametitle{Background}
+Bathroom toilet problem\\
+
+Synthetic data\\
+Real data CASAS
 \end{frame} 
+
 \begin{frame}[plain]
-  \frametitle{Ipsum}
+  \frametitle{Two residents model}
+Features\\
+
+the model\\
+
+results
 \end{frame} 
 
 \section{Conclusion and future work}
@@ -298,6 +328,8 @@ model-comparison\\
   \begin{block}{Conclusion}
     \begin{itemize}
       \item Good overall performance
+      \item Generality
+      \item Easy prediction smoothing
       \item Possibility to create complex features
       \item The power of the model lies in the features
     \end{itemize}
@@ -305,8 +337,8 @@ model-comparison\\
 
   \begin{block}{Future work}
     \begin{itemize}
-      \item Features for more complex data
-      \item Model ensemble
+      \item Features design for more complex data
+      \item Incorporate into a model ensemble
       \item Data narrative
     \end{itemize}
   \end{block}
