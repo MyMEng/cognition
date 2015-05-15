@@ -262,15 +262,22 @@ sensor(i08, false, windowed, 1).
     \end{itemize}
   \end{block}
 
+  \begin{block}{House-specific background knowledge}
+    \begin{itemize}
+      \item Room interconnections and bedroom assignment
+      \item Motion sensor location and human readable device sensor name
+      \item A priori activity information e.g.\ order
+    \end{itemize}
+  \end{block}
+
   \begin{block}{Data issues}
     \begin{itemize}
-      \item Noise
-      \item Incompleteness
+      \item Noise {\setlength{\itemindent}{8em}\vspace*{-1.5em}\item Incompleteness}
       \item Lack of ground truth and precise testbed information
     \end{itemize}
   \end{block}
 
-\vspace*{1.5em}The data issues make the model hard to learn, hence simulate the data: great control, perfect knowledge, precise ground truth, noiseless. Focus on learning and solve one problem at a time.
+The data issues make the model hard to learn, hence simulate the data: great control, perfect knowledge, precise ground truth, noiseless. Focus on learning and solve one problem at a time.
 
 \end{frame}
 
