@@ -7,6 +7,10 @@ import time, datetime
 from pprint import pprint
 import operator # for sorting
 
+# generator flags
+DOARFF = False
+DOFN   = False
+
 # time window length in microsecond (10^-6): 5 seconds
 WINDOWLENGTH = 5 * 1000000
 
@@ -92,7 +96,7 @@ def convertDataEntry( sequenced, line ):
     sys.exit(1)
   ##############################################################################
 
-  
+
   # Action begins & ends here
   action = []
   if len(entities) > 4:
@@ -238,7 +242,7 @@ if __name__ == '__main__':
   data = []
   groundFacts = []
 
-  with open(args[1], 'r') as f: 
+  with open(args[1], 'r') as f:
     for i, line in enumerate(f):
       out = convertDataEntry(i, line)
       data.append( out[0:4] )
@@ -266,7 +270,7 @@ if __name__ == '__main__':
   ## sort before converting as some datasets(Washington) are not ordered
   data.sort(key=operator.itemgetter(0))
 
-  # normalise time so that each activity starts at 0 - memorise first time-stamp 
+  # normalise time so that each activity starts at 0 - memorise first time-stamp
   init = data[0][0]
 
   # Open record file and append to it
@@ -290,8 +294,8 @@ if __name__ == '__main__':
       f.write("\n")
 
   # write down ground truth and ground false
-  recordf = name + ".f.pl"
-  recordn = name + ".n.pl"
+  recordf = name + ".pl.f"
+  recordn = name + ".pl.n"
 
   # add two time representations to ground facts
   for i in range(len(groundFacts)):
@@ -317,7 +321,7 @@ if __name__ == '__main__':
       if groundFacts[i][0] == a[0][0] and groundFacts[i][3] == a[0][3]:
         a.append( groundFacts.pop(i) )
     a.reverse()
-    
+
     # or the list does not start with *{* and finishes with *}*
     ## some activity is not closed
     if len(a)%2 != 0:
@@ -372,135 +376,137 @@ if __name__ == '__main__':
     # neg.append( activityRule + "(" + a[0][0] + ", " + str(end) + ", " + str(farEnd) + ")." )
 
   # Write positive and negative examples
-  with open(recordf, 'wb') as pf:
-    pf.write( '\n'.join(pos) )
-    pf.write('\n')
-  with open(recordn, 'wb') as nf:
-    nf.write( '\n'.join(neg) )
-    nf.write('\n')
+  if DOFN:
+    with open(recordf, 'wb') as pf:
+        pf.write( '\n'.join(pos) )
+        pf.write('\n')
+    with open(recordn, 'wb') as nf:
+        nf.write( '\n'.join(neg) )
+        nf.write('\n')
 
 
   # code below is just ARFF generation
-  if multipleResidents:
-    print "ARFF generation for multiple residents (multi-label data) is not supported."
-    sys.exit(0)
+  if DOARFF:
+    if multipleResidents:
+      print "ARFF generation for multiple residents (multi-label data) is not supported."
+      sys.exit(0)
 
-  # write ARFF file for Weka
-  ## relative
-  recordRarff = name + ".R.arff"
-  ## absolute
-  recordAarff = name + ".A.arff"
-  ## sequenced
-  recordSarff = name + ".S.arff"
-  ## windowed
-  recordWarff = name + ".W.arff"
-  ## date
-  recordDarff = name + ".D.arff"
-  # prepare data to write & # append time
-  Rarff = [atRelation, atAttribute+"time"+atributeN]
-  Aarff = [atRelation, atAttribute+"time"+atributeN]
-  Sarff = [atRelation, atAttribute+"time"+atributeN]
-  Warff = [atRelation, atAttribute+"time"+atributeN]
-  Darff = [atRelation, atAttribute+"time DATE"+atributeD]
-  # get all sensor names
-  sensorNames = []
-  for e in data:
-    f = e[1].lower()
-    ft = atributeTF if type(e[2])==str else atributeN
-    if (f, ft) not in sensorNames:
-      sensorNames.append( (f, ft) )
-  # append attributes
-  for e in sensorNames:
-    Rarff.append(atAttribute + e[0] + e[1])
-    Aarff.append(atAttribute + e[0] + e[1])
-    Sarff.append(atAttribute + e[0] + e[1])
-    Warff.append(atAttribute + e[0] + e[1])
-    Darff.append(atAttribute + e[0] + e[1])
-  # prepare classes
-  classes = []
-  for e in arffGroundFacts:
-    if e[0] not in classes:
-      classes.append(e[0])
-  classesArff = "{"
-  for e in classes:
-    classesArff += e + ','
-  classesArff += 'none}'
-  # append target class attribute
-  Rarff.append(atClass + classesArff)
-  Aarff.append(atClass + classesArff)
-  Sarff.append(atClass + classesArff)
-  Warff.append(atClass + classesArff)
-  Darff.append(atClass + classesArff)
-  # include DATA marker
-  Rarff.append(atData)
-  Aarff.append(atData)
-  Sarff.append(atData)
-  Warff.append(atData)
-  Darff.append(atData)
-  # generate data
-  ## keep track of current sensors status to generate data
-  sensorStatus = {}
-  for e in sensorNames:
-    sensorStatus[e[0]] = False
-  ## keep track of current activity to mark ground truth
-  groundTruth = {}
-  for e in classes:
-    groundTruth[e] = False
-
-
-  # create common data type
-  cdt = []
-  for d in data:
-    if cdt == []:
-      cdt.append( (d[0], d[3], [(d[1], d[2])]) )
-    elif d[0] in cdt[-1]:
-      cdt[-1][-1].append( (d[1], d[2]) )
-    else:
-      cdt.append( (d[0], d[3], [(d[1], d[2])]) )
-
-  ## generate data
-  i = 0
-  currentWindow = None
-  for e in cdt:
-    for f in e[2]:
-      # update sensor status based on current entry
-      sensorStatus = updateSensor(f, sensorStatus)
-
-      # get features status
-      (racwd, groundTruth) = getSignals(sensorNames, sensorStatus, groundTruth, arffGroundTruth, i)
-
-      # check current class if none give 'none' # detect multi-label issue and report it
-      cc = checkLabel(groundTruth)
-
-      # remember that time/date goes first # update sequence
-      Sarff.append(str(i) + ',' + racwd + cc)
-      # update i
-      i += 1
-
-    # update common time-points for Date, 
-    Darff.append("\"" + e[1] + "\"," + racwd + cc)
-    Rarff.append(str(e[0] - init) + "," + racwd + cc)
-    Aarff.append(str(e[0]) + ',' + racwd + cc)
-
-    # handle separately windowed case
-    if currentWindow != get_window( init, e[0] ):
-      currentWindow = get_window( init, e[0] )
-      Warff.append(str(currentWindow) + ',' + racwd + cc)
+    # write ARFF file for Weka
+    ## relative
+    recordRarff = name + ".R.arff"
+    ## absolute
+    recordAarff = name + ".A.arff"
+    ## sequenced
+    recordSarff = name + ".S.arff"
+    ## windowed
+    recordWarff = name + ".W.arff"
+    ## date
+    recordDarff = name + ".D.arff"
+    # prepare data to write & # append time
+    Rarff = [atRelation, atAttribute+"time"+atributeN]
+    Aarff = [atRelation, atAttribute+"time"+atributeN]
+    Sarff = [atRelation, atAttribute+"time"+atributeN]
+    Warff = [atRelation, atAttribute+"time"+atributeN]
+    Darff = [atRelation, atAttribute+"time DATE"+atributeD]
+    # get all sensor names
+    sensorNames = []
+    for e in data:
+      f = e[1].lower()
+      ft = atributeTF if type(e[2])==str else atributeN
+      if (f, ft) not in sensorNames:
+        sensorNames.append( (f, ft) )
+    # append attributes
+    for e in sensorNames:
+      Rarff.append(atAttribute + e[0] + e[1])
+      Aarff.append(atAttribute + e[0] + e[1])
+      Sarff.append(atAttribute + e[0] + e[1])
+      Warff.append(atAttribute + e[0] + e[1])
+      Darff.append(atAttribute + e[0] + e[1])
+    # prepare classes
+    classes = []
+    for e in arffGroundFacts:
+      if e[0] not in classes:
+        classes.append(e[0])
+    classesArff = "{"
+    for e in classes:
+      classesArff += e + ','
+    classesArff += 'none}'
+    # append target class attribute
+    Rarff.append(atClass + classesArff)
+    Aarff.append(atClass + classesArff)
+    Sarff.append(atClass + classesArff)
+    Warff.append(atClass + classesArff)
+    Darff.append(atClass + classesArff)
+    # include DATA marker
+    Rarff.append(atData)
+    Aarff.append(atData)
+    Sarff.append(atData)
+    Warff.append(atData)
+    Darff.append(atData)
+    # generate data
+    ## keep track of current sensors status to generate data
+    sensorStatus = {}
+    for e in sensorNames:
+      sensorStatus[e[0]] = False
+    ## keep track of current activity to mark ground truth
+    groundTruth = {}
+    for e in classes:
+      groundTruth[e] = False
 
 
-  # write the files
-  with open(recordRarff, 'wb') as pf:
-    pf.write( '\n'.join(Rarff) )
-    pf.write('\n')
-  with open(recordAarff, 'wb') as pf:
-    pf.write( '\n'.join(Aarff) )
-    pf.write('\n')
-  with open(recordSarff, 'wb') as pf:
-    pf.write( '\n'.join(Sarff) )
-    pf.write('\n')
-  with open(recordWarff, 'wb') as pf:
-    pf.write( '\n'.join(Warff) )
-    pf.write('\n')
-  with open(recordDarff, 'wb') as pf:
-    pf.write( '\n'.join(Darff) )
-    pf.write('\n')
+    # create common data type
+    cdt = []
+    for d in data:
+      if cdt == []:
+        cdt.append( (d[0], d[3], [(d[1], d[2])]) )
+      elif d[0] in cdt[-1]:
+        cdt[-1][-1].append( (d[1], d[2]) )
+      else:
+        cdt.append( (d[0], d[3], [(d[1], d[2])]) )
+
+    ## generate data
+    i = 0
+    currentWindow = None
+    for e in cdt:
+      for f in e[2]:
+        # update sensor status based on current entry
+        sensorStatus = updateSensor(f, sensorStatus)
+
+        # get features status
+        (racwd, groundTruth) = getSignals(sensorNames, sensorStatus, groundTruth, arffGroundTruth, i)
+
+        # check current class if none give 'none' # detect multi-label issue and report it
+        cc = checkLabel(groundTruth)
+
+        # remember that time/date goes first # update sequence
+        Sarff.append(str(i) + ',' + racwd + cc)
+        # update i
+        i += 1
+
+      # update common time-points for Date,
+      Darff.append("\"" + e[1] + "\"," + racwd + cc)
+      Rarff.append(str(e[0] - init) + "," + racwd + cc)
+      Aarff.append(str(e[0]) + ',' + racwd + cc)
+
+      # handle separately windowed case
+      if currentWindow != get_window( init, e[0] ):
+        currentWindow = get_window( init, e[0] )
+        Warff.append(str(currentWindow) + ',' + racwd + cc)
+
+
+    # write the files
+    with open(recordRarff, 'wb') as pf:
+      pf.write( '\n'.join(Rarff) )
+      pf.write('\n')
+    with open(recordAarff, 'wb') as pf:
+      pf.write( '\n'.join(Aarff) )
+      pf.write('\n')
+    with open(recordSarff, 'wb') as pf:
+      pf.write( '\n'.join(Sarff) )
+      pf.write('\n')
+    with open(recordWarff, 'wb') as pf:
+      pf.write( '\n'.join(Warff) )
+      pf.write('\n')
+    with open(recordDarff, 'wb') as pf:
+      pf.write( '\n'.join(Darff) )
+      pf.write('\n')
